@@ -2,7 +2,7 @@ import time
 import json
 from config import LOCUS_API_KEY
 from .locus_payments import get_balance, pay_agent
-from .agent_registry import AgentRegistry
+from .agent_registry import AgentRegistry, registry
 
 # Specialist agents built by partner
 try:
@@ -14,7 +14,7 @@ except ImportError:
     # Fallback to base or mock if not yet fully implemented by partner
     from agents.base_agent import BaseAgent
     class MockAgent(BaseAgent):
-        def __init__(self, name, description, speciality, rate_per_task):
+        def __init__(self, name="Mock", description="Mock", speciality="Mock", rate_per_task=0.0):
             super().__init__(name, description, speciality, rate_per_task)
         def execute(self, task): return f"Mock results from {self.name} for: {task}"
     SearchAgent = MockAgent
@@ -32,9 +32,9 @@ class ManagerAgent:
         self.jobs_completed = 0
         
         # Instantiate agents for execution
-        self.search_agent = SearchAgent("SearchAgent", "Web search and discovery", "search", 0.0)
-        self.analysis_agent = AnalysisAgent("AnalysisAgent", "Data processing and insights", "analysis", 0.0)
-        self.writing_agent = WritingAgent("WritingAgent", "Report generation and formatting", "writing", 0.0)
+        self.search_agent = SearchAgent()
+        self.analysis_agent = AnalysisAgent()
+        self.writing_agent = WritingAgent()
 
         # Assign addresses
         self.search_agent.wallet_address = SEARCH_ADDR
