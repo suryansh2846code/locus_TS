@@ -1,12 +1,581 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgentMarket</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgentMarket</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #0a0a0f;
+      --bg-gradient: radial-gradient(circle at top center, #1e1b4b, #0a0a0f 60%);
+      --card-bg: rgba(255, 255, 255, 0.03);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent: #8b5cf6;
+      --accent-hover: #7c3aed;
+      --accent-glow: rgba(139, 92, 246, 0.6);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --error: #ef4444;
+      --font-main: 'Outfit', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    
+    body {
+      background: var(--bg-dark);
+      background-image: var(--bg-gradient);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: var(--font-main);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* TYPOGRAPHY */
+    h1, h2, h3, h4, h5 { font-weight: 600; line-height: 1.2; }
+    h1 { font-size: 3.5rem; margin-bottom: 1rem; background: linear-gradient(to right, #fff, #a78bfa); -webkit-background-clip: text; color: transparent; }
+    h2 { font-size: 2rem; margin-bottom: 1.5rem; }
+    h3 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+    p { color: var(--text-muted); }
+    a { color: var(--text-main); text-decoration: none; transition: 0.3s; }
+    a:hover { color: var(--accent); }
+
+    /* LAYOUT */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+    .section { padding: 5rem 0; opacity: 0; transform: translateY(20px); animation: fadeInUp 0.8s forwards; }
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+    /* NAVBAR */
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10, 10, 15, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 1rem 0;
+    }
+    .nav-content { display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 1.5rem; font-weight: 700; color: #fff; }
+    .logo-bolt { color: var(--accent); }
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-links a { font-weight: 500; }
+    .wallet-badge {
+      padding: 0.5rem 1rem; border-radius: 9999px;
+      font-weight: 600; font-size: 0.9rem;
+      background: rgba(255,255,255,0.05); border: 1px solid var(--card-border);
+      transition: all 0.3s;
+    }
+    .wallet-badge.positive { color: var(--success); border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.1); }
+    .wallet-badge.zero { color: var(--error); border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.1); }
+
+    /* HERO */
+    .hero { text-align: center; padding: 6rem 0 3rem; }
+    .hero-sub { font-size: 1.25rem; max-width: 600px; margin: 0 auto 2rem; }
+    .animated-icons { font-size: 3rem; margin-top: 1rem; animation: bounce 2s infinite ease-in-out; }
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+    /* LAUNCH PANEL */
+    .launch-panel {
+      max-width: 800px; margin: 0 auto;
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 1.5rem; padding: 3rem; text-align: center;
+      transition: all 0.5s ease;
+    }
+    .launch-panel.hidden { display: none; }
+    .input-group { margin: 2rem 0; text-align: left; }
+    .input-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 1.1rem; }
+    .search-input {
+      width: 100%; padding: 1.25rem; font-size: 1.1rem;
+      background: rgba(0,0,0,0.4); border: 1px solid var(--card-border);
+      color: #fff; border-radius: 0.75rem; outline: none; transition: 0.3s;
+      font-family: var(--font-main);
+    }
+    .search-input:focus { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+    
+    .budget-selector { display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem; }
+    .budget-pill {
+      padding: 0.5rem 1.5rem; border-radius: 9999px; cursor: pointer;
+      border: 1px solid var(--card-border); background: transparent;
+      color: var(--text-muted); font-weight: 600; font-size: 1rem; transition: 0.3s;
+    }
+    .budget-pill:hover { border-color: var(--accent); color: #fff; }
+    .budget-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 15px var(--accent-glow); }
+    
+    .btn-launch {
+      background: var(--accent); color: #fff; border: none;
+      padding: 1.25rem 3rem; font-size: 1.25rem; font-weight: 600; font-family: var(--font-main);
+      border-radius: 9999px; cursor: pointer; transition: 0.3s;
+      box-shadow: 0 0 20px var(--accent-glow); text-transform: uppercase; letter-spacing: 1px;
+    }
+    .btn-launch:hover { background: var(--accent-hover); transform: scale(1.05); box-shadow: 0 0 30px var(--accent-glow); }
+
+    /* PROGRESS CARDS */
+    .progress-section { display: none; margin-top: 3rem; animation: fadeInUp 0.5s forwards; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
+    .agent-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 1rem; padding: 1.5rem; transition: all 0.3s; position: relative; overflow: hidden;
+    }
+    .agent-card::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: transparent; transition: 0.3s;
+    }
+    .agent-card.pulse::before { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+    .agent-card.pulse { border-color: var(--accent); animation: borderPulse 1.5s infinite; }
+    .agent-card.success::before { background: var(--success); box-shadow: 0 0 10px var(--success); }
+    .agent-card.success { border-color: rgba(16, 185, 129, 0.4); }
+    
+    @keyframes borderPulse { 0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); } }
+
+    .agent-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .agent-cost { font-weight: 700; color: var(--success); }
+    .agent-status { font-size: 0.9rem; margin-bottom: 0.5rem; color: #fff; }
+    .payment-msg { font-size: 0.85rem; color: var(--success); margin-top: 0.5rem; display: none; }
+    .success .payment-msg { display: block; animation: fadeInUp 0.3s; }
+
+    /* RESULTS */
+    .results-section { display: none; margin-top: 3rem; animation: fadeInUp 0.8s forwards; }
+    .results-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
+    @media (max-width: 900px) { .results-grid { grid-template-columns: 1fr; } }
+    
+    .report-card, .audit-card {
+      background: rgba(15, 15, 25, 0.9); border: 1px solid var(--card-border);
+      border-radius: 1.5rem; padding: 2rem;
+    }
+    .report-actions { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+    .btn-secondary {
+      background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--card-border);
+      padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; transition: 0.3s;
+      font-family: var(--font-main); font-weight: 500;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+    
+    /* Markdown Styles */
+    .markdown-body { color: #e2e8f0; font-size: 1.05rem; }
+    .markdown-body h2 { color: #fff; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.5rem; border-bottom: 1px solid var(--card-border); padding-bottom: 0.5rem; }
+    .markdown-body p { margin-bottom: 1rem; }
+    .markdown-body ul, .markdown-body ol { margin-bottom: 1rem; padding-left: 2rem; }
+    .markdown-body li { margin-bottom: 0.5rem; }
+    .markdown-body strong { color: var(--accent); }
+    .markdown-body table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+    .markdown-body th, .markdown-body td { border: 1px solid var(--card-border); padding: 0.75rem; text-align: left; }
+    .markdown-body th { background: rgba(255,255,255,0.05); }
+
+    /* Audit Table */
+    .audit-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    .audit-table th, .audit-table td { padding: 1rem 0.5rem; text-align: left; border-bottom: 1px solid var(--card-border); }
+    .audit-table th { color: var(--text-muted); font-size: 0.9rem; font-weight: 500; }
+    .audit-table tr:last-child td { border-bottom: none; }
+    .audit-total { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--card-border); display: flex; justify-content: space-between; font-weight: 700; font-size: 1.25rem; }
+    
+    .btn-reset { margin-top: 2rem; width: 100%; }
+
+    /* REGISTRY & DASHBOARD */
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+    .registry-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 1rem; padding: 1.5rem; transition: 0.3s;
+    }
+    .registry-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2); }
+    .registry-card ul { list-style: none; margin-top: 1rem; }
+    .registry-card li { margin-bottom: 0.5rem; font-size: 0.95rem; }
+    
+    .stat-box {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 1rem; padding: 2rem; text-align: center;
+    }
+    .stat-label { color: var(--text-muted); font-weight: 500; margin-bottom: 0.5rem; }
+    .stat-value { font-size: 2.5rem; font-weight: 700; color: #fff; }
+
+    /* LOADER */
+    .loader {
+      display: inline-block; width: 20px; height: 20px; margin-left: 10px;
+      border: 3px solid rgba(255,255,255,0.3); border-radius: 50%;
+      border-top-color: #fff; animation: spin 1s ease-in-out infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+  </style>
 </head>
 <body>
-    <h1>AgentMarket Dashboard</h1>
-    <!-- Simple interface to track agent transactions and hires -->
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="container nav-content">
+      <div class="logo"><span class="logo-bolt">⚡</span> AgentMarket</div>
+      <div class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#agents">Agents</a>
+        <a href="#dashboard">Dashboard</a>
+      </div>
+      <div class="wallet-badge" id="wallet-badge">💰 -- USDC</div>
+    </div>
+  </nav>
+
+  <!-- HOME SECTION -->
+  <section id="home" class="section container">
+    <div class="hero">
+      <h1>AI Agents Working For You</h1>
+      <p class="hero-sub">The first marketplace where AI agents autonomously hire and pay other AI agents via Locus.</p>
+      <div class="animated-icons">🤖 💸 🤖</div>
+    </div>
+
+    <!-- LAUNCH PANEL -->
+    <div class="launch-panel" id="launch-panel">
+      <h2>What do you need researched?</h2>
+      <div class="input-group">
+        <input type="text" id="task-input" class="search-input" placeholder="e.g. Electric vehicles market in India in 2024">
+      </div>
+      <p style="margin-bottom: 1rem; font-weight: 500;">Select Budget</p>
+      <div class="budget-selector" id="budget-selector">
+        <button class="budget-pill" data-val="5">$5</button>
+        <button class="budget-pill active" data-val="10">$10</button>
+        <button class="budget-pill" data-val="15">$15</button>
+        <button class="budget-pill" data-val="20">$20</button>
+      </div>
+      <button class="btn-launch" id="btn-launch">🚀 Launch Agents</button>
+    </div>
+
+    <!-- PROGRESS CARDS -->
+    <div class="progress-section" id="progress-section">
+      <h2 style="text-align: center;">Live Agent Progress <span class="loader" id="main-loader"></span></h2>
+      <div class="grid-4">
+        <!-- Card 1 -->
+        <div class="agent-card" id="card-manager">
+          <div class="agent-header">
+            <h3>🧠 Manager Agent</h3>
+          </div>
+          <div class="agent-status" id="status-manager">Status: Coordinating request... ⏳</div>
+          <p>Role: Orchestrator</p>
+        </div>
+        <!-- Card 2 -->
+        <div class="agent-card" id="card-search">
+          <div class="agent-header">
+            <h3>🔍 Search Agent</h3>
+            <span class="agent-cost" id="cost-search">$--</span>
+          </div>
+          <div class="agent-status" id="status-search">Status: Waiting... ⏳</div>
+          <p>Task: Web Research</p>
+          <div class="payment-msg" id="payment-search"></div>
+        </div>
+        <!-- Card 3 -->
+        <div class="agent-card" id="card-analysis">
+          <div class="agent-header">
+            <h3>📊 Analysis Agent</h3>
+            <span class="agent-cost" id="cost-analysis">$--</span>
+          </div>
+          <div class="agent-status" id="status-analysis">Status: Waiting... ⏳</div>
+          <p>Task: Data Analysis</p>
+          <div class="payment-msg" id="payment-analysis"></div>
+        </div>
+        <!-- Card 4 -->
+        <div class="agent-card" id="card-writing">
+          <div class="agent-header">
+            <h3>✍️ Writing Agent</h3>
+            <span class="agent-cost" id="cost-writing">$--</span>
+          </div>
+          <div class="agent-status" id="status-writing">Status: Waiting... ⏳</div>
+          <p>Task: Report Writing</p>
+          <div class="payment-msg" id="payment-writing"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="results-section" id="results-section">
+      <div class="results-grid">
+        <!-- Left: Report -->
+        <div class="report-card">
+          <div class="report-actions">
+            <button class="btn-secondary" id="btn-copy">📋 Copy Report</button>
+            <button class="btn-secondary" id="btn-download">💾 Download .txt</button>
+          </div>
+          <div class="markdown-body" id="report-content">
+            <!-- Rendered Markdown goes here -->
+          </div>
+        </div>
+        
+        <!-- Right: Audit -->
+        <div class="audit-card">
+          <h3>💸 Payment Audit Trail</h3>
+          <table class="audit-table">
+            <thead>
+              <tr>
+                <th>Agent</th>
+                <th>Task</th>
+                <th>Paid</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="audit-body">
+              <!-- Audit rows -->
+            </tbody>
+          </table>
+          <div class="audit-total">
+            <span>Total Cost:</span>
+            <span id="audit-total-val">$0.00</span>
+          </div>
+          <button class="btn-launch btn-reset" id="btn-reset">🔄 New Research</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AGENTS SECTION -->
+  <section id="agents" class="section container">
+    <h2 style="text-align: center;">Meet Your Agents</h2>
+    <div class="grid-3" id="agents-grid">
+      <!-- Agent cards injected here -->
+      <div style="text-align: center; width: 100%; grid-column: 1 / -1;">Loading agents...</div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD SECTION -->
+  <section id="dashboard" class="section container">
+    <h2 style="text-align: center;">📊 Marketplace Dashboard</h2>
+    <div class="grid-4" style="grid-template-columns: repeat(4, 1fr);" id="dashboard-grid">
+      <div class="stat-box"><div class="stat-label">Balance</div><div class="stat-value" id="dash-balance">0.0</div></div>
+      <div class="stat-box"><div class="stat-label">Agents</div><div class="stat-value" id="dash-agents">0</div></div>
+      <div class="stat-box"><div class="stat-label">Jobs</div><div class="stat-value" id="dash-jobs">0</div></div>
+      <div class="stat-box"><div class="stat-label">Status</div><div class="stat-value" id="dash-status">🔴 Offline</div></div>
+    </div>
+  </section>
+
+  <!-- APP LOGIC -->
+  <script>
+    const API_BASE = "http://localhost:5001/api";
+    let selectedBudget = 10;
+    let currentReportSource = "";
+
+    // DOM Elements
+    const walletBadge = document.getElementById('wallet-badge');
+    const budgetPills = document.querySelectorAll('.budget-pill');
+    const taskInput = document.getElementById('task-input');
+    const btnLaunch = document.getElementById('btn-launch');
+    const launchPanel = document.getElementById('launch-panel');
+    const progressSection = document.getElementById('progress-section');
+    const resultsSection = document.getElementById('results-section');
+    const mainLoader = document.getElementById('main-loader');
+
+    // Cards
+    const cards = {
+      manager: document.getElementById('card-manager'),
+      search: document.getElementById('card-search'),
+      analysis: document.getElementById('card-analysis'),
+      writing: document.getElementById('card-writing')
+    };
+
+    // Initialization
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchBalance();
+      fetchAgents();
+      fetchDashboard();
+      setInterval(() => {
+        fetchBalance();
+        fetchDashboard();
+      }, 30000);
+    });
+
+    // Budget Selection
+    budgetPills.forEach(pill => {
+      pill.addEventListener('click', (e) => {
+        budgetPills.forEach(p => p.classList.remove('active'));
+        e.target.classList.add('active');
+        selectedBudget = parseFloat(e.target.getAttribute('data-val'));
+      });
+    });
+
+    // Launch Process
+    btnLaunch.addEventListener('click', () => {
+      const query = taskInput.value.trim();
+      if(!query) return alert("Please enter a research topic!");
+
+      // Start UI Transition
+      launchPanel.classList.add('hidden');
+      progressSection.style.display = 'block';
+      setTimeout(() => resultsSection.style.display = 'none', 0);
+      resetCards();
+      
+      // Calculate splits roughly for UI before stream confirms
+      const platformFee = selectedBudget * 0.4;
+      const agentFee = (selectedBudget * 0.2).toFixed(2);
+      document.getElementById('cost-search').innerText = `$${agentFee}`;
+      document.getElementById('cost-analysis').innerText = `$${agentFee}`;
+      document.getElementById('cost-writing').innerText = `$${agentFee}`;
+
+      // Start Event Stream
+      const url = `${API_BASE}/stream?query=${encodeURIComponent(query)}&budget=${selectedBudget}`;
+      const evtSource = new EventSource(url);
+
+      const auditRows = [];
+
+      evtSource.onmessage = function(event) {
+        try {
+          const data = JSON.parse(event.data);
+          const step = data.step;
+
+          if (step === "manager_started") {
+            setCardSuccess(cards.manager, "Status: Request coordinated ✅");
+          } else if (step === "search_started") {
+            setCardPulse(cards.search, "Status: Searching the web... ⏳");
+          } else if (step === "search_complete") {
+            setCardSuccess(cards.search, "Status: Complete ✅", data.paid);
+            auditRows.push(`<tr><td>Search Agent</td><td>Web Research</td><td>$${data.paid.toFixed(2)}</td><td><span style="color:var(--success)">✅ Paid</span></td></tr>`);
+          } else if (step === "analysis_started") {
+            setCardPulse(cards.analysis, "Status: Analyzing data... ⏳");
+          } else if (step === "analysis_complete") {
+            setCardSuccess(cards.analysis, "Status: Complete ✅", data.paid);
+            auditRows.push(`<tr><td>Analysis Agent</td><td>Data Analysis</td><td>$${data.paid.toFixed(2)}</td><td><span style="color:var(--success)">✅ Paid</span></td></tr>`);
+          } else if (step === "writing_started") {
+            setCardPulse(cards.writing, "Status: Drafting report... ⏳");
+          } else if (step === "writing_complete") {
+            setCardSuccess(cards.writing, "Status: Complete ✅", data.paid);
+            auditRows.push(`<tr><td>Writing Agent</td><td>Report Writing</td><td>$${data.paid.toFixed(2)}</td><td><span style="color:var(--success)">✅ Paid</span></td></tr>`);
+          } else if (step === "done") {
+            evtSource.close();
+            mainLoader.style.display = 'none';
+            auditRows.push(`<tr><td>Platform Fee</td><td>AgentMkt</td><td>$${data.result.platform_profit.toFixed(2)}</td><td><span style="color:var(--success)">✅ Kept</span></td></tr>`);
+            showResults(data.result.report, auditRows, selectedBudget);
+            fetchDashboard();
+            fetchBalance();
+          }
+        } catch(e) {
+          console.error("Error parsing SSE data", e);
+        }
+      };
+
+      evtSource.onerror = function(err) {
+        console.error("EventSource failed:", err);
+        evtSource.close();
+        mainLoader.style.display = 'none';
+      };
+    });
+
+    // Reset handler
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      taskInput.value = "";
+      resultsSection.style.display = 'none';
+      progressSection.style.display = 'none';
+      launchPanel.classList.remove('hidden');
+    });
+
+    // Actions
+    document.getElementById('btn-copy').addEventListener('click', () => {
+      navigator.clipboard.writeText(currentReportSource).then(() => alert("Copied to clipboard!"));
+    });
+    
+    document.getElementById('btn-download').addEventListener('click', () => {
+      const blob = new Blob([currentReportSource], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'AgentMarket-Report.md';
+      a.click();
+    });
+
+    // Helpers
+    function setCardPulse(card, statusText) {
+      card.classList.remove('success');
+      card.classList.add('pulse');
+      card.querySelector('.agent-status').innerText = statusText;
+    }
+
+    function setCardSuccess(card, statusText, paidAmount = null) {
+      card.classList.remove('pulse');
+      card.classList.add('success');
+      card.querySelector('.agent-status').innerText = statusText;
+      if (paidAmount !== null) {
+        const msg = card.querySelector('.payment-msg');
+        msg.innerText = `$${paidAmount.toFixed(2)} paid via Locus 💸`;
+      }
+    }
+
+    function resetCards() {
+      mainLoader.style.display = 'inline-block';
+      Object.keys(cards).forEach(k => {
+        const c = cards[k];
+        c.className = "agent-card";
+      });
+      document.getElementById('status-manager').innerText = "Status: Coordinating request... ⏳";
+      document.getElementById('status-search').innerText = "Status: Waiting... ⏳";
+      document.getElementById('status-analysis').innerText = "Status: Waiting... ⏳";
+      document.getElementById('status-writing').innerText = "Status: Waiting... ⏳";
+      document.querySelectorAll('.payment-msg').forEach(el => el.innerText = "");
+    }
+
+    function showResults(markdown, auditRows, total) {
+      currentReportSource = markdown;
+      document.getElementById('report-content').innerHTML = marked.parse(markdown);
+      document.getElementById('audit-body').innerHTML = auditRows.join('');
+      document.getElementById('audit-total-val').innerText = `$${total.toFixed(2)}`;
+      resultsSection.style.display = 'block';
+    }
+
+    // Fetches
+    async function fetchBalance() {
+      try {
+        const res = await fetch(`${API_BASE}/balance`);
+        const data = await res.json();
+        const bal = parseFloat(data.balance || 0);
+        walletBadge.innerText = `💰 ${bal.toFixed(2)} USDC`;
+        if(bal > 0) {
+          walletBadge.className = "wallet-badge positive";
+        } else {
+          walletBadge.className = "wallet-badge zero";
+        }
+      } catch(e) {}
+    }
+
+    async function fetchAgents() {
+      try {
+        const res = await fetch(`${API_BASE}/agents`);
+        const data = await res.json();
+        const grid = document.getElementById('agents-grid');
+        grid.innerHTML = "";
+        if(!data.agents || data.agents.length === 0) {
+          grid.innerHTML = "<div style='grid-column:1/-1;text-align:center;'>No agents registered yet.</div>";
+          return;
+        }
+        
+        data.agents.forEach(agent => {
+          let icon = "🤖";
+          if(agent.speciality.toLowerCase().includes("search")) icon = "🔍";
+          if(agent.speciality.toLowerCase().includes("analysis")) icon = "📊";
+          if(agent.speciality.toLowerCase().includes("writing")) icon = "✍️";
+
+          const card = document.createElement('div');
+          card.className = "registry-card";
+          card.innerHTML = `
+            <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; color:#fff;">${icon} ${agent.name}</div>
+            <div style="color: var(--accent); margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--card-border);">${agent.speciality}</div>
+            <ul>
+              <li><span style="color: #fff; font-weight: 500;">Rate:</span> $${agent.rate_per_task.toFixed(2)} per task</li>
+              <li><span style="color: #fff; font-weight: 500;">Rating:</span> ⭐ ${agent.rating.toFixed(1)}</li>
+              <li><span style="color: #fff; font-weight: 500;">Completed:</span> ✅ ${agent.tasks_completed} tasks</li>
+              <li><span style="color: #fff; font-weight: 500;">Status:</span> 🟢 ${agent.status}</li>
+            </ul>
+          `;
+          grid.appendChild(card);
+        });
+      } catch(e) {}
+    }
+
+    async function fetchDashboard() {
+      try {
+        const res = await fetch(`${API_BASE}/status`);
+        const data = await res.json();
+        
+        document.getElementById('dash-balance').innerText = `${parseFloat(data.wallet_balance || 0).toFixed(2)} USDC`;
+        document.getElementById('dash-agents').innerText = data.total_agents || 0;
+        document.getElementById('dash-jobs').innerText = data.total_jobs_done || 0;
+        document.getElementById('dash-status').innerHTML = "🟢 Live";
+      } catch(e) {
+        document.getElementById('dash-status').innerHTML = "🔴 Offline";
+      }
+    }
+  </script>
 </body>
 </html>
