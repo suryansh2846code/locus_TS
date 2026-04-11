@@ -1,13 +1,199 @@
-# base_agent.py
-# Abstract base class for all marketplace agents.
-# Defines the common interface for task execution and payment receiving.
+"""
+agents/base_agent.py
+────────────────────
+Abstract base class for every specialist agent in the AgentMarket marketplace.
 
-class BaseAgent:
-    def __init__(self, name, wallet_address, price):
-        self.name = name
-        self.wallet_address = wallet_address
-        self.price = price
+All specialist agents (SearchAgent, WritingAgent, AnalysisAgent, …) must
+inherit from BaseAgent and override the `execute()` method.
 
-    def execute_task(self, data):
-        """Method to be overridden by subclasses."""
-        raise NotImplementedError("Subclasses must implement execute_task")
+Lifecycle of a task
+───────────────────
+  1. Caller invokes agent.execute(task)        ← overridden by subclass
+  2. Subclass performs work, returns result
+  3. Caller invokes agent.update_stats(success, amount_earned)
+  4. agent.get_stats() / get_card_data() reflect updated state
+"""
+
+from abc import ABC, abstractmethod
+from typing import Any
+
+
+class BaseAgent(ABC):
+    """
+    Abstract foundation for all AgentMarket marketplace agents.
+
+    Parameters
+    ----------
+    name : str
+        Human-readable agent identifier (must be unique in the registry).
+    description : str
+        A short sentence explaining what the agent does.
+    speciality : str
+        Domain tag (e.g. "research", "writing", "analysis").
+    rate_per_task : float
+        USDC price charged per individual task execution.
+    """
+
+    # ------------------------------------------------------------------ #
+    #  Construction                                                         #
+    # ------------------------------------------------------------------ #
+
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        speciality: str,
+        rate_per_task: float,
+    ) -> None:
+        # Core identity
+        self.name: str = name
+        self.description: str = description
+        self.speciality: str = speciality
+        self.rate_per_task: float = rate_per_task
+
+        # Set later (after wallet provisioning via Locus)
+        self.wallet_address: str = ""
+
+        # Lifetime performance counters
+        self.tasks_completed: int = 0
+        self.successful_tasks: int = 0
+        self.total_earned: float = 0.0
+
+        # Rating starts at a perfect 5.0 and adjusts with each task
+        self.rating: float = 5.0
+
+    # ------------------------------------------------------------------ #
+    #  Abstract interface — MUST be overridden by subclasses               #
+    # ------------------------------------------------------------------ #
+
+    @abstractmethod
+    def execute(self, task: str) -> str:
+        """
+        Execute the given task and return a result string.
+
+        Parameters
+        ----------
+        task : str
+            Natural-language description of work to perform.
+
+        Returns
+        -------
+        str
+            The agent's output / result for the requested task.
+
+        Raises
+        ------
+        NotImplementedError
+            Automatically raised by ABC machinery if a concrete subclass
+            forgets to override this method.
+        """
+        raise NotImplementedError(
+            f"Agent '{self.name}' has not implemented execute(). "
+            "All BaseAgent subclasses must override this method."
+        )
+
+    # ------------------------------------------------------------------ #
+    #  Stats & lifecycle                                                    #
+    # ------------------------------------------------------------------ #
+
+    def update_stats(self, success: bool, amount_earned: float) -> None:
+        """
+        Record the outcome of a completed task and refresh the agent's rating.
+
+        Call this **after** every `execute()` call, whether successful or not.
+
+        Parameters
+        ----------
+        success : bool
+            True if the task completed without errors; False otherwise.
+        amount_earned : float
+            USDC amount received for this task (0.0 on failure is fine).
+        """
+        self.tasks_completed += 1
+
+        if success:
+            self.successful_tasks += 1
+
+        self.total_earned += amount_earned
+
+        # Rating = (successful / total) * 5  — floored at 0.0, capped at 5.0
+        if self.tasks_completed > 0:
+            raw = (self.successful_tasks / self.tasks_completed) * 5.0
+            self.rating = round(max(0.0, min(5.0, raw)), 2)
+
+    def get_stats(self) -> dict[str, Any]:
+        """
+        Return a complete runtime snapshot of the agent's performance.
+
+        Returns
+        -------
+        dict with keys:
+            name, rating, tasks_completed, success_rate,
+            total_earned, status
+        """
+        return {
+            "name": self.name,
+            "rating": self.rating,
+            "tasks_completed": self.tasks_completed,
+            "success_rate": self._success_rate(),
+            "total_earned": round(self.total_earned, 4),
+            "status": self._status(),
+        }
+
+    def get_card_data(self) -> dict[str, Any]:
+        """
+        Return the subset of agent data used to render a marketplace UI card.
+
+        Returns
+        -------
+        dict with keys:
+            name, description, speciality, rate_per_task,
+            rating, tasks_completed, success_rate, status
+        """
+        return {
+            "name": self.name,
+            "description": self.description,
+            "speciality": self.speciality,
+            "rate_per_task": self.rate_per_task,
+            "rating": self.rating,
+            "tasks_completed": self.tasks_completed,
+            "success_rate": self._success_rate(),
+            "status": "available",
+        }
+
+    # ------------------------------------------------------------------ #
+    #  Internal helpers                                                     #
+    # ------------------------------------------------------------------ #
+
+    def _success_rate(self) -> float:
+        """Percentage of tasks that completed successfully (0–100)."""
+        if self.tasks_completed == 0:
+            return 100.0  # No tasks yet → optimistic default
+        return round((self.successful_tasks / self.tasks_completed) * 100, 2)
+
+    def _status(self) -> str:
+        """Derive a human-readable status from current stats."""
+        if self.tasks_completed == 0:
+            return "new"
+        if self._success_rate() >= 80:
+            return "available"
+        return "degraded"
+
+    # ------------------------------------------------------------------ #
+    #  Dunder helpers                                                       #
+    # ------------------------------------------------------------------ #
+
+    def __repr__(self) -> str:
+        return (
+            f"<{self.__class__.__name__} name={self.name!r} "
+            f"speciality={self.speciality!r} "
+            f"rate={self.rate_per_task} USDC "
+            f"rating={self.rating}/5.0>"
+        )
+
+    def __str__(self) -> str:
+        return (
+            f"{self.name} [{self.speciality}] "
+            f"— {self.rate_per_task} USDC/task "
+            f"— rating {self.rating}/5.0"
+        )

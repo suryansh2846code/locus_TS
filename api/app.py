@@ -1,6 +1,7 @@
 import sys
 import os
-from flask import Flask, jsonify, request
+import json
+from flask import Flask, jsonify, request, Response
 from flask_cors import CORS
 
 # Add the project root to sys.path to allow imports from core
@@ -12,7 +13,7 @@ from core.manager_agent import ManagerAgent
 app = Flask(__name__)
 CORS(app)
 
-# Initialize the marketplace brain
+# Initialize the marketplace brain singleton
 manager = ManagerAgent()
 
 @app.route('/', methods=['GET'])
@@ -26,19 +27,40 @@ def index():
 
 @app.route('/api/research', methods=['POST'])
 def research():
-    """Triggers the full agent research pipeline (Placeholder)."""
+    """Triggers the full agent research pipeline and returns a complete result."""
     data = request.json
     query = data.get("query")
-    budget = data.get("budget", 0.0)
+    budget = float(data.get("budget", 0.0))
     
-    print(f"📡 API received research request: {query} (${budget})")
-    # Connection to manager.process_request() will happen in Phase 3
-    return jsonify({"status": "coming soon", "query": query, "budget": budget})
+    if not query:
+        return jsonify({"success": False, "error": "Query is required"}), 400
+
+    print(f"📡 API research request started: {query} (${budget})")
+    
+    # Consume the generator fully
+    final_result = {}
+    for update in manager.process_request(query, budget):
+        if update.get("step") == "done":
+            final_result = update.get("result", {})
+    
+    return jsonify(final_result)
 
 @app.route('/api/stream', methods=['GET'])
 def stream():
-    """SSE endpoint for real-time manager updates (Placeholder)."""
-    return jsonify({"status": "streaming connection pending setup in Phase 3"})
+    """SSE endpoint for real-time manager updates."""
+    query = request.args.get("query")
+    budget = float(request.args.get("budget", 0.0))
+    
+    if not query:
+        return jsonify({"success": False, "error": "Query is required"}), 400
+
+    def event_stream():
+        print(f"📡 SSE stream started: {query} (${budget})")
+        for update in manager.process_request(query, budget):
+            # Format as SSE data
+            yield f"data: {json.dumps(update)}\n\n"
+        
+    return Response(event_stream(), mimetype='text/event-stream')
 
 @app.route('/api/balance', methods=['GET'])
 def balance():
@@ -70,8 +92,9 @@ def print_routes():
     for rule in app.url_map.iter_rules():
         if rule.endpoint != 'static':
             print(f"   [{', '.join(rule.methods)}] {rule.rule} -> {rule.endpoint}")
-    print("\n🚀 Server starting on http://localhost:5000\n")
+    print("\n🚀 Server starting on http://localhost:5001\n")
 
 if __name__ == '__main__':
     print_routes()
-    app.run(host='0.0.0.0', port=5000)
+    # Using 5001 to avoid macOS AirPlay conflict on 5000
+    app.run(host='0.0.0.0', port=5001, threaded=True)
