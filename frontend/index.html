@@ -155,11 +155,12 @@
     
     /* Markdown Styles */
     .markdown-body { color: #e2e8f0; font-size: 1.05rem; }
-    .markdown-body h2 { color: #fff; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.5rem; border-bottom: 1px solid var(--card-border); padding-bottom: 0.5rem; }
+    .markdown-body h2 { color: #fff; margin-top: 2rem; margin-bottom: 1rem; font-size: 2rem; font-weight: bold; border-bottom: 1px solid var(--card-border); padding-bottom: 0.5rem; }
     .markdown-body p { margin-bottom: 1rem; }
-    .markdown-body ul, .markdown-body ol { margin-bottom: 1rem; padding-left: 2rem; }
-    .markdown-body li { margin-bottom: 0.5rem; }
-    .markdown-body strong { color: var(--accent); }
+    .markdown-body ul { list-style-type: disc; margin-bottom: 1rem; padding-left: 2rem; }
+    .markdown-body ol { list-style-type: decimal; margin-bottom: 1rem; padding-left: 2rem; }
+    .markdown-body li { margin-bottom: 0.5rem; display: list-item; }
+    .markdown-body strong { font-weight: bold; color: var(--accent); }
     .markdown-body table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
     .markdown-body th, .markdown-body td { border: 1px solid var(--card-border); padding: 0.75rem; text-align: left; }
     .markdown-body th { background: rgba(255,255,255,0.05); }
@@ -199,9 +200,15 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ERROR BANNER */
+    .error-banner {
+      display: none; background: var(--error); color: #fff; text-align: center; padding: 1rem; position: fixed; top: 0; width: 100%; z-index: 1000; font-weight: 600;
+    }
+
   </style>
 </head>
 <body>
+  <div class="error-banner" id="error-banner">⚠️ Backend offline — make sure server is running on port 5001</div>
 
   <!-- NAVBAR -->
   <nav class="navbar">
@@ -307,7 +314,8 @@
               <tr>
                 <th>Agent</th>
                 <th>Task</th>
-                <th>Paid</th>
+                <th>Amount</th>
+                <th>TX ID</th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -315,11 +323,12 @@
               <!-- Audit rows -->
             </tbody>
           </table>
-          <div class="audit-total">
-            <span>Total Cost:</span>
-            <span id="audit-total-val">$0.00</span>
+          <div class="audit-total" style="flex-direction: column; gap: 0.5rem; font-size: 1.1rem; font-weight: 500;">
+            <div style="display: flex; justify-content: space-between;"><span>Total paid to agents:</span><span id="audit-agents-val">$0.00</span></div>
+            <div style="display: flex; justify-content: space-between;"><span>Platform profit:</span><span id="audit-profit-val">$0.00</span></div>
+            <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 1.25rem; border-top: 1px solid var(--card-border); padding-top: 0.5rem; margin-top: 0.5rem;"><span>Your total:</span><span id="audit-total-val">$0.00</span></div>
           </div>
-          <button class="btn-launch btn-reset" id="btn-reset">🔄 New Research</button>
+          <button class="btn-launch btn-reset" id="btn-reset">🔄 Start New Research</button>
         </div>
       </div>
     </div>
@@ -395,7 +404,12 @@
       if(!query) return alert("Please enter a research topic!");
 
       // Start UI Transition
-      launchPanel.classList.add('hidden');
+      btnLaunch.innerHTML = '⏳ Agents Working... <span class="loader" style="width:15px;height:15px;border-width:2px;"></span>';
+      btnLaunch.disabled = true;
+      btnLaunch.style.opacity = '0.7';
+      btnLaunch.style.cursor = 'not-allowed';
+      taskInput.disabled = true;
+      
       progressSection.style.display = 'block';
       setTimeout(() => resultsSection.style.display = 'none', 0);
       resetCards();
@@ -418,28 +432,39 @@
           const data = JSON.parse(event.data);
           const step = data.step;
 
+          const getTxId = (d) => d.tx_hash ? d.tx_hash.substring(0,8) + '...' : 'N/A';
+          const paidAnim = `<span style="color:var(--success); display:inline-block; animation: bounce 0.5s;">✅ Paid</span>`;
+
           if (step === "manager_started") {
             setCardSuccess(cards.manager, "Status: Request coordinated ✅");
           } else if (step === "search_started") {
             setCardPulse(cards.search, "Status: Searching the web... ⏳");
           } else if (step === "search_complete") {
             setCardSuccess(cards.search, "Status: Complete ✅", data.paid);
-            auditRows.push(`<tr><td>Search Agent</td><td>Web Research</td><td>$${data.paid.toFixed(2)}</td><td><span style="color:var(--success)">✅ Paid</span></td></tr>`);
+            auditRows.push(`<tr><td>Search Agent</td><td>Web Research</td><td>$${data.paid.toFixed(2)}</td><td>${getTxId(data)}</td><td>${paidAnim}</td></tr>`);
           } else if (step === "analysis_started") {
             setCardPulse(cards.analysis, "Status: Analyzing data... ⏳");
           } else if (step === "analysis_complete") {
             setCardSuccess(cards.analysis, "Status: Complete ✅", data.paid);
-            auditRows.push(`<tr><td>Analysis Agent</td><td>Data Analysis</td><td>$${data.paid.toFixed(2)}</td><td><span style="color:var(--success)">✅ Paid</span></td></tr>`);
+            auditRows.push(`<tr><td>Analysis Agent</td><td>Data Analysis</td><td>$${data.paid.toFixed(2)}</td><td>${getTxId(data)}</td><td>${paidAnim}</td></tr>`);
           } else if (step === "writing_started") {
             setCardPulse(cards.writing, "Status: Drafting report... ⏳");
           } else if (step === "writing_complete") {
             setCardSuccess(cards.writing, "Status: Complete ✅", data.paid);
-            auditRows.push(`<tr><td>Writing Agent</td><td>Report Writing</td><td>$${data.paid.toFixed(2)}</td><td><span style="color:var(--success)">✅ Paid</span></td></tr>`);
+            auditRows.push(`<tr><td>Writing Agent</td><td>Report Writing</td><td>$${data.paid.toFixed(2)}</td><td>${getTxId(data)}</td><td>${paidAnim}</td></tr>`);
           } else if (step === "done") {
             evtSource.close();
             mainLoader.style.display = 'none';
-            auditRows.push(`<tr><td>Platform Fee</td><td>AgentMkt</td><td>$${data.result.platform_profit.toFixed(2)}</td><td><span style="color:var(--success)">✅ Kept</span></td></tr>`);
-            showResults(data.result.report, auditRows, selectedBudget);
+            btnLaunch.innerHTML = '🚀 Launch Agents';
+            btnLaunch.disabled = false;
+            btnLaunch.style.opacity = '1';
+            btnLaunch.style.cursor = 'pointer';
+            taskInput.disabled = false;
+            launchPanel.classList.add('hidden');
+            
+            const platformProfit = data.result.platform_profit || 0;
+            const agentsPaid = selectedBudget - platformProfit;
+            showResults(data.result.report, auditRows, agentsPaid, platformProfit, selectedBudget);
             fetchDashboard();
             fetchBalance();
           }
@@ -452,6 +477,13 @@
         console.error("EventSource failed:", err);
         evtSource.close();
         mainLoader.style.display = 'none';
+        btnLaunch.innerHTML = '🚀 Launch Agents';
+        btnLaunch.disabled = false;
+        btnLaunch.style.opacity = '1';
+        btnLaunch.style.cursor = 'pointer';
+        taskInput.disabled = false;
+        document.getElementById('error-banner').style.display = 'block';
+        setTimeout(() => document.getElementById('error-banner').style.display = 'none', 5000);
       };
     });
 
@@ -461,6 +493,7 @@
       resultsSection.style.display = 'none';
       progressSection.style.display = 'none';
       launchPanel.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
     // Actions
@@ -506,10 +539,12 @@
       document.querySelectorAll('.payment-msg').forEach(el => el.innerText = "");
     }
 
-    function showResults(markdown, auditRows, total) {
+    function showResults(markdown, auditRows, agentsPaid, platformProfit, total) {
       currentReportSource = markdown;
       document.getElementById('report-content').innerHTML = marked.parse(markdown);
       document.getElementById('audit-body').innerHTML = auditRows.join('');
+      document.getElementById('audit-agents-val').innerText = `$${agentsPaid.toFixed(2)}`;
+      document.getElementById('audit-profit-val').innerText = `$${platformProfit.toFixed(2)}`;
       document.getElementById('audit-total-val').innerText = `$${total.toFixed(2)}`;
       resultsSection.style.display = 'block';
     }
@@ -572,8 +607,10 @@
         document.getElementById('dash-agents').innerText = data.total_agents || 0;
         document.getElementById('dash-jobs').innerText = data.total_jobs_done || 0;
         document.getElementById('dash-status').innerHTML = "🟢 Live";
+        document.getElementById('error-banner').style.display = 'none';
       } catch(e) {
         document.getElementById('dash-status').innerHTML = "🔴 Offline";
+        document.getElementById('error-banner').style.display = 'block';
       }
     }
   </script>
