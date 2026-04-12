@@ -40,7 +40,7 @@ def get_balance():
 def pay_agent(to_address, amount, agent_name, task):
     """
     Sends USDC to an agent's wallet via /api/pay/send.
-    Returns: transaction_id (str) or None
+    Returns: dict with success status and details
     """
     url = f"{LOCUS_API_BASE}/pay/send"
     
@@ -61,7 +61,6 @@ def pay_agent(to_address, amount, agent_name, task):
     
     try:
         response = requests.post(url, headers=HEADERS, json=payload)
-        response.raise_for_status()
         data = response.json()
         
         if data.get("success"):
@@ -69,13 +68,22 @@ def pay_agent(to_address, amount, agent_name, task):
             status = data["data"].get("status")
             print(f"✅ Paid {agent_name} ${amount} for {task}")
             print(f"   Status: {status} | Tx ID: {tx_id}")
-            return tx_id
+            return {"success": True, "tx_id": tx_id, "status": status}
         else:
-            print(f"❌ Payment failed: {data.get('message')}")
-            return None
+            message = data.get("message", "Insufficient balance or internal error")
+            print(f"❌ Payment failed: {message}")
+            return {
+                "success": False,
+                "tx_id": None,
+                "error": f"Payment failed - {message}"
+            }
     except Exception as e:
         print(f"Error in pay_agent: {e}")
-        return None
+        return {
+            "success": False,
+            "tx_id": None,
+            "error": f"Payment failed - {str(e)}"
+        }
 
 def get_transaction_history():
     """

@@ -61,6 +61,45 @@ class ManagerAgent:
     def process_request(self, query: str, budget: float):
         """Orchestrates the agent pipeline: Search -> Analysis -> Writing."""
         start_time = time.time()
+        
+        # PROTECTION 2 — Minimum budget check
+        if budget < 0.50:
+            yield {
+                "step": "error",
+                "result": {
+                    "success": False,
+                    "error": "budget_too_low",
+                    "message": "Minimum budget is $0.50"
+                }
+            }
+            return
+
+        # PROTECTION 3 — Maximum budget check
+        if budget > 20.00:
+            yield {
+                "step": "error",
+                "result": {
+                    "success": False,
+                    "error": "budget_too_high",
+                    "message": "Maximum budget is $20.00"
+                }
+            }
+            return
+
+        # PROTECTION 1 — Check balance before starting
+        current_balance = get_balance()
+        if budget > current_balance:
+            yield {
+                "step": "error",
+                "result": {
+                    "success": False,
+                    "error": "insufficient_balance",
+                    "message": f"Budget ${budget} exceeds wallet balance ${current_balance}",
+                    "current_balance": current_balance
+                }
+            }
+            return
+
         splits = self.calculate_splits(budget)
         payment_records = []
         
@@ -73,8 +112,15 @@ class ManagerAgent:
         search_results = self.search_agent.execute(query)
         search_str = json.dumps(search_results) if isinstance(search_results, dict) else str(search_results)
         
-        tx_id = pay_agent(SEARCH_ADDR, splits['search'], "SearchAgent", "Web Search")
-        payment_records.append({"agent": "SearchAgent", "tx_id": tx_id, "amount": splits['search']})
+        pay_result = pay_agent(SEARCH_ADDR, splits['search'], "SearchAgent", "Web Search")
+        tx_id = pay_result.get("tx_id")
+        payment_records.append({
+            "agent": "SearchAgent", 
+            "tx_id": tx_id, 
+            "amount": splits['search'],
+            "success": pay_result.get("success", False),
+            "error": pay_result.get("error")
+        })
         yield {"step": "search_complete", "paid": splits["search"], "tx_id": tx_id}
         
         # 2. Analysis Agent
@@ -84,8 +130,15 @@ class ManagerAgent:
         analysis_data = self.analysis_agent.execute(search_str)
         analysis_str = json.dumps(analysis_data) if isinstance(analysis_data, dict) else str(analysis_data)
         
-        tx_id = pay_agent(ANALYSIS_ADDR, splits['analysis'], "AnalysisAgent", "Data Analysis")
-        payment_records.append({"agent": "AnalysisAgent", "tx_id": tx_id, "amount": splits['analysis']})
+        pay_result = pay_agent(ANALYSIS_ADDR, splits['analysis'], "AnalysisAgent", "Data Analysis")
+        tx_id = pay_result.get("tx_id")
+        payment_records.append({
+            "agent": "AnalysisAgent", 
+            "tx_id": tx_id, 
+            "amount": splits['analysis'],
+            "success": pay_result.get("success", False),
+            "error": pay_result.get("error")
+        })
         yield {"step": "analysis_complete", "paid": splits["analysis"], "tx_id": tx_id}
         
         # 3. Writing Agent
@@ -94,8 +147,15 @@ class ManagerAgent:
         # writing_agent.execute returns a markdown string
         report_md = self.writing_agent.execute(analysis_str)
         
-        tx_id = pay_agent(WRITING_ADDR, splits['writing'], "WritingAgent", "Report Generation")
-        payment_records.append({"agent": "WritingAgent", "tx_id": tx_id, "amount": splits['writing']})
+        pay_result = pay_agent(WRITING_ADDR, splits['writing'], "WritingAgent", "Report Generation")
+        tx_id = pay_result.get("tx_id")
+        payment_records.append({
+            "agent": "WritingAgent", 
+            "tx_id": tx_id, 
+            "amount": splits['writing'],
+            "success": pay_result.get("success", False),
+            "error": pay_result.get("error")
+        })
         yield {"step": "writing_complete", "paid": splits["writing"], "tx_id": tx_id}
         
         elapsed = round(time.time() - start_time, 2)

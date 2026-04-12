@@ -40,6 +40,8 @@ def research():
     # Consume the generator fully
     final_result = {}
     for update in manager.process_request(query, budget):
+        if update.get("step") == "error":
+            return jsonify(update.get("result", {})), 400
         if update.get("step") == "done":
             final_result = update.get("result", {})
     
