@@ -49,7 +49,7 @@ class SearchAgent(BaseAgent):
 
     def __init__(
         self,
-        api_key: str | None = None,
+        api_key: Optional[str] = None,
         result_count: int = _DEFAULT_COUNT,
     ) -> None:
         super().__init__(
@@ -57,6 +57,9 @@ class SearchAgent(BaseAgent):
             description="Searches the web for real-time information using Brave Search.",
             speciality="Web Research",
             rate_per_task=2.00,
+            agent_id="search_agent_v1",
+            developer="Team TS Xenkai",
+            developer_wallet="0x7a67133e923c88748607d39a98ede9b2d660dac7"
         )
         self._api_key      = api_key or _LOCUS_API_KEY
         self._result_count = result_count

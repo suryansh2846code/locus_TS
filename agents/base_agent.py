@@ -15,7 +15,7 @@ Lifecycle of a task
 """
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Optional, Union
 
 
 class BaseAgent(ABC):
@@ -44,12 +44,29 @@ class BaseAgent(ABC):
         description: str,
         speciality: str,
         rate_per_task: float,
+        agent_id: Optional[str] = None,
+        developer: str = "Unknown",
+        developer_wallet: str = "",
+        min_budget: float = 0.50,
+        max_budget: float = 20.00,
+        version: str = "1.0",
+        registered_at: str = "",
     ) -> None:
         # Core identity
+        self.id: str = agent_id or name.lower().replace(" ", "_")
         self.name: str = name
         self.description: str = description
         self.speciality: str = speciality
         self.rate_per_task: float = rate_per_task
+        
+        # Developer & Lifecycle
+        self.developer: str = developer
+        self.developer_wallet: str = developer_wallet
+        self.min_budget: float = min_budget
+        self.max_budget: float = max_budget
+        self.version: str = version
+        self.status: str = "active"
+        self.registered_at: str = registered_at
 
         # Set later (after wallet provisioning via Locus)
         self.wallet_address: str = ""
@@ -59,7 +76,8 @@ class BaseAgent(ABC):
         self.successful_tasks: int = 0
         self.total_earned: float = 0.0
 
-        # Rating starts at a perfect 5.0 and adjusts with each task
+        # Reviews & Ratings
+        self.reviews: list[dict] = []
         self.rating: float = 5.0
 
     # ------------------------------------------------------------------ #
@@ -151,6 +169,7 @@ class BaseAgent(ABC):
             rating, tasks_completed, success_rate, status
         """
         return {
+            "id": self.id,
             "name": self.name,
             "description": self.description,
             "speciality": self.speciality,
@@ -158,7 +177,28 @@ class BaseAgent(ABC):
             "rating": self.rating,
             "tasks_completed": self.tasks_completed,
             "success_rate": self._success_rate(),
-            "status": "available",
+            "status": self.status,
+        }
+
+    def to_dict(self) -> dict[str, Any]:
+        """Returns a full dictionary representation for JSON persistence."""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "developer": self.developer,
+            "developer_wallet": self.developer_wallet,
+            "description": self.description,
+            "speciality": self.speciality,
+            "rate_per_task": self.rate_per_task,
+            "min_budget": self.min_budget,
+            "max_budget": self.max_budget,
+            "version": self.version,
+            "status": self.status,
+            "total_jobs": self.tasks_completed,
+            "total_earned": self.total_earned,
+            "rating": self.rating,
+            "reviews": self.reviews,
+            "registered_at": self.registered_at
         }
 
     # ------------------------------------------------------------------ #

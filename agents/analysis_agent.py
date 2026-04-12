@@ -19,6 +19,7 @@ import os
 import re
 import sys
 import requests
+from typing import Optional
 from dotenv import load_dotenv
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -61,12 +62,15 @@ class AnalysisAgent(BaseAgent):
         Override for the LOCUS_API_KEY env var (useful in tests).
     """
 
-    def __init__(self, api_key: str | None = None) -> None:
+    def __init__(self, api_key: Optional[str] = None) -> None:
         super().__init__(
             name="Analysis Agent",
             description="Analyzes data and extracts key insights using Claude AI.",
             speciality="Data Analysis",
             rate_per_task=2.00,
+            agent_id="analysis_agent_v1",
+            developer="Team TS Xenkai",
+            developer_wallet="0x7a67133e923c88748607d39a98ede9b2d660dac7"
         )
         self._api_key = api_key or _LOCUS_API_KEY
 

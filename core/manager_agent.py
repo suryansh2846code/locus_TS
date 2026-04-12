@@ -1,3 +1,4 @@
+import os
 import time
 import json
 from config import LOCUS_API_KEY
@@ -17,6 +18,7 @@ try:
     from agents.search_agent import SearchAgent
     from agents.analysis_agent import AnalysisAgent
     from agents.writing_agent import WritingAgent
+    from agents.quality_agent import QualityAgent
     from agents.base_agent import BaseAgent
 except ImportError:
     # Fallback to base or mock if not yet fully implemented by partner
@@ -40,30 +42,53 @@ class ManagerAgent:
         self.registry = registry
         self.jobs_completed = 0
         
+        # Load agent config
+        config_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'agent_config.json')
+        self.registry.load_from_config(config_path)
+        
         # Instantiate agents for execution
         self.search_agent = SearchAgent()
         self.analysis_agent = AnalysisAgent()
         self.writing_agent = WritingAgent()
+        self.quality_agent = QualityAgent()
 
         # Assign addresses
         self.search_agent.wallet_address = SEARCH_ADDR
         self.analysis_agent.wallet_address = ANALYSIS_ADDR
         self.writing_agent.wallet_address = WRITING_ADDR
+        self.quality_agent.wallet_address = WRITING_ADDR # Quality also points to same wallet for now
         
         # Register specialist agents with the global registry
         self.registry.register_agent(self.search_agent)
         self.registry.register_agent(self.analysis_agent)
         self.registry.register_agent(self.writing_agent)
+        self.registry.register_agent(self.quality_agent)
         
         print("AgentMarket Manager Ready ✅")
 
     def calculate_splits(self, budget: float) -> dict:
-        """Calculates 20/20/20/40 budget splits."""
+        """Calculates budget splits using REAL rates from registry."""
+        search_rate = self.registry.get_agent_rate("Search Agent")
+        analysis_rate = self.registry.get_agent_rate("Analysis Agent")
+        writing_rate = self.registry.get_agent_rate("Writing Agent")
+        quality_rate = self.registry.get_agent_rate("Quality Check Agent")
+        
+        total_agent_cost = search_rate + analysis_rate + writing_rate + quality_rate
+        platform_fee = budget - total_agent_cost
+        
+        if platform_fee < 0:
+            return {
+                "valid": False,
+                "error": f"Budget too low! Minimum needed: ${total_agent_cost + 0.50}"
+            }
+        
         return {
-            "search": round(budget * 0.20, 2),
-            "analysis": round(budget * 0.20, 2),
-            "writing": round(budget * 0.20, 2),
-            "platform": round(budget * 0.40, 2)
+            "valid": True,
+            "search": search_rate,
+            "analysis": analysis_rate,
+            "writing": writing_rate,
+            "quality": quality_rate,
+            "platform": platform_fee
         }
 
     def pay_and_execute(self, agent, task, amount, step_name):
@@ -197,6 +222,34 @@ class ManagerAgent:
             })
             yield {"step": "writing_complete", "paid": splits["writing"], "tx_id": pay_result.get("tx_id")}
             
+            # 4. Quality Agent
+            yield {"step": "quality_started"}
+            print("🛡️ Paying then Reviewing final report...")
+            
+            quality_results, pay_result = self.pay_and_execute(
+                self.quality_agent, 
+                report_md, 
+                splits['quality'],
+                "quality_payment"
+            )
+            
+            payment_records.append({
+                "agent": "QualityAgent", 
+                "tx_id": pay_result.get("tx_id"), 
+                "amount": splits['quality'],
+                "success": True
+            })
+            
+            quality_score = quality_results.get("quality_score", 0)
+            report_md += f"\n\n---\n✅ Quality Score: {quality_score}/10"
+            
+            yield {
+                "step": "quality_complete", 
+                "paid": splits["quality"], 
+                "tx_id": pay_result.get("tx_id"),
+                "score": quality_score
+            }
+            
             elapsed = round(time.time() - start_time, 2)
             self.jobs_completed += 1
             
@@ -204,6 +257,7 @@ class ManagerAgent:
                 "success": True,
                 "query": query,
                 "report": report_md,
+                "quality": quality_results,
                 "transactions": payment_records,
                 "total_cost": budget,
                 "platform_profit": splits["platform"],

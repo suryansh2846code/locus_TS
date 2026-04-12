@@ -89,6 +89,97 @@ def status():
     marketplace_status["api_status"] = "healthy"
     return jsonify(marketplace_status)
 
+@app.route('/api/register-agent', methods=['POST'])
+def register_agent():
+    """Registers a new agent."""
+    data = request.json
+    result = manager.registry.register_new_agent(data)
+    return jsonify(result), 200 if result["success"] else 400
+
+@app.route('/api/agents/profile/<agent_id>', methods=['GET'])
+def get_agent_profile(agent_id):
+    """Returns complete agent profile."""
+    profile = manager.registry.get_agent_profile(agent_id)
+    if profile:
+        return jsonify(profile)
+    return jsonify({"success": False, "message": "Agent not found"}), 404
+
+@app.route('/api/agents/<agent_id>/rate', methods=['PUT'])
+def update_agent_rate(agent_id):
+    """Updates agent rate."""
+    data = request.json
+    new_rate = data.get("new_rate")
+    if new_rate is None:
+        return jsonify({"success": False, "message": "new_rate is required"}), 400
+    result = manager.registry.update_agent_rate(agent_id, float(new_rate))
+    return jsonify(result), 200 if result["success"] else 400
+
+@app.route('/api/agents/<agent_id>/review', methods=['POST'])
+def add_agent_review(agent_id):
+    """Adds a review for an agent."""
+    data = request.json
+    rating = data.get("rating")
+    comment = data.get("comment", "")
+    if rating is None:
+        return jsonify({"success": False, "message": "rating is required"}), 400
+    result = manager.registry.add_review(agent_id, float(rating), comment)
+    return jsonify(result), 200 if result["success"] else 400
+
+@app.route('/api/analyze-query', methods=['GET'])
+def analyze_query_endpoint():
+    """Analyzes query complexity and returns budget tiers."""
+    query = request.args.get("query", "")
+    if not query:
+        return jsonify({"success": False, "message": "query is required"}), 400
+    
+    word_count = len(query.split())
+    complex_keywords = [
+        "analysis", "research", "comprehensive", "detailed", "compare", 
+        "market", "industry", "report", "trends", "forecast", "strategy", "deep"
+    ]
+    
+    complexity = sum(1 for w in complex_keywords if w in query.lower())
+    complexity += min(word_count // 5, 3)
+    
+    # Get real agent rates from config
+    base_cost = manager.registry.get_total_agent_cost()
+    
+    if complexity <= 2:
+        low, medium, high = base_cost + 0.50, base_cost + 2.00, base_cost + 5.00
+        recommended = "low"
+    elif complexity <= 5:
+        low, medium, high = base_cost + 1.00, base_cost + 3.00, base_cost + 7.00
+        recommended = "medium"
+    else:
+        low, medium, high = base_cost + 2.00, base_cost + 5.00, base_cost + 10.00
+        recommended = "high"
+    
+    result = {
+        "complexity": complexity,
+        "recommended": recommended,
+        "tiers": {
+            "low": {
+                "amount": round(low, 2),
+                "label": "💚 Basic",
+                "quality": "Overview",
+                "description": "Quick summary of main points"
+            },
+            "medium": {
+                "amount": round(medium, 2),
+                "label": "💛 Standard",
+                "quality": "Detailed",
+                "description": "Thorough research recommended ✨"
+            },
+            "high": {
+                "amount": round(high, 2),
+                "label": "❤️ Premium",
+                "quality": "Comprehensive",
+                "description": "In-depth analysis and insights"
+            }
+        }
+    }
+    return jsonify(result)
+
 def print_routes():
     print("\n🌐 AgentMarket API Routes Loaded:")
     for rule in app.url_map.iter_rules():
