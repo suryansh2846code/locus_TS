@@ -1,7 +1,7 @@
 import time
 import json
 from config import LOCUS_API_KEY
-from .locus_payments import get_balance, pay_agent
+from .locus_payments import get_balance, pay_agent, SEARCH_AGENT_WALLET, ANALYSIS_AGENT_WALLET, WRITING_AGENT_WALLET
 from .agent_registry import AgentRegistry, registry
 
 # Specialist agents built by partner
@@ -21,9 +21,10 @@ except ImportError:
     AnalysisAgent = MockAgent
     WritingAgent = MockAgent
 
-SEARCH_ADDR = "0x1111111111111111111111111111111111111111"
-ANALYSIS_ADDR = "0x2222222222222222222222222222222222222222"
-WRITING_ADDR = "0x3333333333333333333333333333333333333333"
+# Agent wallet addresses from environment
+SEARCH_ADDR = SEARCH_AGENT_WALLET
+ANALYSIS_ADDR = ANALYSIS_AGENT_WALLET
+WRITING_ADDR = WRITING_AGENT_WALLET
 
 class ManagerAgent:
     def __init__(self):
