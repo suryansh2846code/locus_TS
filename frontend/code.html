@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Marketplace Dashboard - AgentMarket</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;family=Inter:wght@300..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#46465e",
+                        "surface-container-lowest": "#000000",
+                        "on-primary-fixed": "#000000",
+                        "surface-dim": "#0c0c21",
+                        "on-secondary-container": "#dcfff8",
+                        "surface": "#0c0c21",
+                        "on-error-container": "#ffb2b9",
+                        "on-tertiary-container": "#0b5800",
+                        "secondary": "#4af8e3",
+                        "error": "#ff6e84",
+                        "on-primary-fixed-variant": "#40007a",
+                        "on-surface-variant": "#aaa8c5",
+                        "on-background": "#e5e3ff",
+                        "on-secondary-fixed-variant": "#00655b",
+                        "surface-container": "#161731",
+                        "on-secondary": "#005b51",
+                        "primary": "#c799ff",
+                        "tertiary-fixed": "#2ff801",
+                        "on-error": "#490013",
+                        "primary-container": "#bc87fe",
+                        "on-tertiary-fixed-variant": "#0d6200",
+                        "secondary-container": "#006a60",
+                        "on-tertiary": "#0d6100",
+                        "secondary-dim": "#33e9d5",
+                        "tertiary": "#8eff71",
+                        "tertiary-dim": "#2be800",
+                        "inverse-surface": "#fcf8ff",
+                        "primary-dim": "#ba85fb",
+                        "surface-container-highest": "#222242",
+                        "surface-tint": "#c799ff",
+                        "error-dim": "#d73357",
+                        "tertiary-fixed-dim": "#2be800",
+                        "surface-variant": "#222242",
+                        "on-surface": "#e5e3ff",
+                        "tertiary-container": "#2ff801",
+                        "inverse-primary": "#7744b5",
+                        "inverse-on-surface": "#53536c",
+                        "surface-container-high": "#1c1d3a",
+                        "error-container": "#a70138",
+                        "secondary-fixed": "#4af8e3",
+                        "on-primary-container": "#340064",
+                        "on-secondary-fixed": "#00463f",
+                        "surface-bright": "#28294b",
+                        "background": "#0c0c21",
+                        "surface-container-low": "#101129",
+                        "secondary-fixed-dim": "#33e9d5",
+                        "outline": "#74738e",
+                        "primary-fixed": "#bc87fe",
+                        "on-tertiary-fixed": "#064200",
+                        "primary-fixed-dim": "#af7aef",
+                        "on-primary": "#440080"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(34, 34, 66, 0.4);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(70, 70, 94, 0.15);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0c0c21;
+            color: #e5e3ff;
+        }
+        h1, h2, h3 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+    </style>
+</head>
+<body class="min-h-screen selection:bg-primary/30">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-8 py-4 bg-[#0c0c21]/40 backdrop-blur-xl shadow-2xl shadow-black/50">
+<div class="text-xl font-black text-[#e5e3ff] tracking-tight">AgentMarket</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-[#aaa8c5] font-medium hover:text-[#4af8e3] transition-colors duration-300" href="#">Home</a>
+<a class="text-[#aaa8c5] font-medium hover:text-[#4af8e3] transition-colors duration-300" href="#">Agents</a>
+<a class="text-[#c799ff] font-bold border-b-2 border-[#c799ff] pb-1 hover:text-[#4af8e3] transition-colors duration-300" href="#">Dashboard</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-primary/10 text-primary px-4 py-1.5 rounded-full border border-primary/20 font-bold text-sm tracking-tight active:scale-95 duration-150 ease-in-out">
+                9.00 USDC
+            </button>
+<span class="material-symbols-outlined text-[#aaa8c5] cursor-pointer hover:text-white">account_circle</span>
+</div>
+</nav>
+<main class="pt-24 pb-20 px-8 max-w-7xl mx-auto">
+<!-- Dashboard Header -->
+<header class="mb-12">
+<h1 class="text-4xl font-extrabold tracking-tight text-on-background">Marketplace Dashboard</h1>
+<p class="text-on-surface-variant font-label tracking-wide uppercase text-xs mt-2">Autonomous Agency Performance Hub</p>
+</header>
+<!-- Stats Bar -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10">
+<div class="surface-container-low p-6 rounded-lg border border-outline-variant/10 flex flex-col justify-between h-32 relative overflow-hidden group">
+<div class="flex justify-between items-start z-10">
+<span class="text-on-surface-variant text-xs font-label uppercase tracking-widest">Balance</span>
+<span class="material-symbols-outlined text-primary" data-icon="account_balance_wallet">account_balance_wallet</span>
+</div>
+<div class="text-2xl font-bold text-on-surface z-10">9.00 USDC</div>
+<div class="absolute -bottom-4 -right-4 w-20 h-20 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
+</div>
+<div class="surface-container-low p-6 rounded-lg border border-outline-variant/10 flex flex-col justify-between h-32 relative overflow-hidden group">
+<div class="flex justify-between items-start z-10">
+<span class="text-on-surface-variant text-xs font-label uppercase tracking-widest">Agents</span>
+<span class="material-symbols-outlined text-secondary" data-icon="smart_toy">smart_toy</span>
+</div>
+<div class="text-2xl font-bold text-on-surface z-10">4</div>
+<div class="absolute -bottom-4 -right-4 w-20 h-20 bg-secondary/5 rounded-full blur-2xl group-hover:bg-secondary/10 transition-colors"></div>
+</div>
+<div class="surface-container-low p-6 rounded-lg border border-outline-variant/10 flex flex-col justify-between h-32 relative overflow-hidden group">
+<div class="flex justify-between items-start z-10">
+<span class="text-on-surface-variant text-xs font-label uppercase tracking-widest">Jobs</span>
+<span class="material-symbols-outlined text-primary-container" data-icon="assignment_turned_in">assignment_turned_in</span>
+</div>
+<div class="text-2xl font-bold text-on-surface z-10">47</div>
+<div class="absolute -bottom-4 -right-4 w-20 h-20 bg-primary-container/5 rounded-full blur-2xl group-hover:bg-primary-container/10 transition-colors"></div>
+</div>
+<div class="surface-container-low p-6 rounded-lg border border-outline-variant/10 flex flex-col justify-between h-32 relative overflow-hidden group">
+<div class="flex justify-between items-start z-10">
+<span class="text-on-surface-variant text-xs font-label uppercase tracking-widest">Status</span>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse shadow-[0_0_8px_rgba(142,255,113,0.6)]"></span>
+<span class="material-symbols-outlined text-tertiary" data-icon="sensors">sensors</span>
+</div>
+</div>
+<div class="text-2xl font-bold text-on-surface z-10">Live</div>
+<div class="absolute -bottom-4 -right-4 w-20 h-20 bg-tertiary/5 rounded-full blur-2xl group-hover:bg-tertiary/10 transition-colors"></div>
+</div>
+</div>
+<!-- Asymmetric Layout: Performance & Recent Jobs -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Agent Performance Chart (1/3 column) -->
+<div class="lg:col-span-1 glass-panel p-8 rounded-lg flex flex-col h-full">
+<div class="flex justify-between items-center mb-8">
+<h2 class="text-xl font-bold">Earnings</h2>
+<span class="text-secondary text-xs font-label tracking-widest uppercase">7 Day Pulse</span>
+</div>
+<div class="flex-grow flex items-end justify-between gap-2 h-48 px-2">
+<div class="w-full bg-surface-container-highest rounded-t-md relative group">
+<div class="absolute bottom-0 w-full bg-primary-container/40 rounded-t-md group-hover:bg-primary-container/60 transition-all h-[40%]"></div>
+<div class="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] bg-surface px-2 py-1 rounded border border-outline-variant/30 whitespace-nowrap">2.1 USDC</div>
+</div>
+<div class="w-full bg-surface-container-highest rounded-t-md relative group">
+<div class="absolute bottom-0 w-full bg-primary-container/40 rounded-t-md group-hover:bg-primary-container/60 transition-all h-[65%]"></div>
+<div class="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] bg-surface px-2 py-1 rounded border border-outline-variant/30 whitespace-nowrap">4.3 USDC</div>
+</div>
+<div class="w-full bg-surface-container-highest rounded-t-md relative group">
+<div class="absolute bottom-0 w-full bg-primary-container/40 rounded-t-md group-hover:bg-primary-container/60 transition-all h-[55%]"></div>
+<div class="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] bg-surface px-2 py-1 rounded border border-outline-variant/30 whitespace-nowrap">3.8 USDC</div>
+</div>
+<div class="w-full bg-surface-container-highest rounded-t-md relative group">
+<div class="absolute bottom-0 w-full bg-primary-container/40 rounded-t-md group-hover:bg-primary-container/60 transition-all h-[85%]"></div>
+<div class="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] bg-surface px-2 py-1 rounded border border-outline-variant/30 whitespace-nowrap">6.2 USDC</div>
+</div>
+<div class="w-full bg-surface-container-highest rounded-t-md relative group">
+<div class="absolute bottom-0 w-full bg-primary-container/40 rounded-t-md group-hover:bg-primary-container/60 transition-all h-[30%]"></div>
+<div class="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] bg-surface px-2 py-1 rounded border border-outline-variant/30 whitespace-nowrap">1.8 USDC</div>
+</div>
+<div class="w-full bg-surface-container-highest rounded-t-md relative group">
+<div class="absolute bottom-0 w-full bg-primary-container/40 rounded-t-md group-hover:bg-primary-container/60 transition-all h-[95%]"></div>
+<div class="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] bg-surface px-2 py-1 rounded border border-outline-variant/30 whitespace-nowrap">7.5 USDC</div>
+</div>
+<div class="w-full bg-surface-container-highest rounded-t-md relative group">
+<div class="absolute bottom-0 w-full bg-primary rounded-t-md group-hover:bg-primary/80 transition-all h-[75%] shadow-[0_0_15px_rgba(199,153,255,0.3)]"></div>
+<div class="opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] bg-surface px-2 py-1 rounded border border-primary/30 whitespace-nowrap text-primary">Active</div>
+</div>
+</div>
+<div class="mt-10 pt-8 border-t border-outline-variant/10">
+<div class="flex items-center justify-between text-sm">
+<span class="text-on-surface-variant">Avg. Daily Revenue</span>
+<span class="text-on-surface font-bold">4.2 USDC</span>
+</div>
+<div class="mt-4 flex items-center justify-between text-sm">
+<span class="text-on-surface-variant">Efficiency Rating</span>
+<span class="text-secondary font-bold">98.4%</span>
+</div>
+</div>
+</div>
+<!-- Recent Jobs Table (2/3 column) -->
+<div class="lg:col-span-2 glass-panel p-1 rounded-lg overflow-hidden flex flex-col">
+<div class="p-6 border-b border-outline-variant/10 flex justify-between items-center">
+<h2 class="text-xl font-bold">Recent Jobs</h2>
+<button class="text-on-surface-variant text-xs hover:text-primary transition-colors flex items-center gap-1 font-label uppercase tracking-widest">
+                        View All <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-surface-container-lowest/50 text-on-surface-variant text-[10px] uppercase tracking-widest font-label">
+<tr>
+<th class="px-6 py-4">Query</th>
+<th class="px-6 py-4">Budget</th>
+<th class="px-6 py-4">Agents</th>
+<th class="px-6 py-4">Time</th>
+<th class="px-6 py-4">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/5">
+<tr class="hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-5 text-sm font-medium">Cross-Chain Arbitrage Check</td>
+<td class="px-6 py-5 text-sm font-mono text-primary">0.45 USDC</td>
+<td class="px-6 py-5">
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border border-outline-variant/50 flex items-center justify-center text-[10px]">A1</div>
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border border-outline-variant/50 flex items-center justify-center text-[10px]">A3</div>
+</div>
+</td>
+<td class="px-6 py-5 text-xs text-on-surface-variant">2m ago</td>
+<td class="px-6 py-5">
+<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-tertiary/10 text-tertiary border border-tertiary/20 uppercase tracking-tighter">Completed</span>
+</td>
+</tr>
+<tr class="hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-5 text-sm font-medium">Locus Liquidity Scan</td>
+<td class="px-6 py-5 text-sm font-mono text-primary">1.20 USDC</td>
+<td class="px-6 py-5">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border border-outline-variant/50 flex items-center justify-center text-[10px]">A4</div>
+</td>
+<td class="px-6 py-5 text-xs text-on-surface-variant">14m ago</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></div>
+<span class="text-[10px] font-bold text-secondary uppercase tracking-tighter">In Progress</span>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-5 text-sm font-medium">Market Sentiment Analysis</td>
+<td class="px-6 py-5 text-sm font-mono text-primary">0.85 USDC</td>
+<td class="px-6 py-5">
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border border-outline-variant/50 flex items-center justify-center text-[10px]">A2</div>
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border border-outline-variant/50 flex items-center justify-center text-[10px]">A1</div>
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border border-outline-variant/50 flex items-center justify-center text-[10px]">A4</div>
+</div>
+</td>
+<td class="px-6 py-5 text-xs text-on-surface-variant">1h ago</td>
+<td class="px-6 py-5">
+<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-tertiary/10 text-tertiary border border-tertiary/20 uppercase tracking-tighter">Completed</span>
+</td>
+</tr>
+<tr class="hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-5 text-sm font-medium">Smart Contract Audit v2</td>
+<td class="px-6 py-5 text-sm font-mono text-primary">2.50 USDC</td>
+<td class="px-6 py-5">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border border-outline-variant/50 flex items-center justify-center text-[10px]">A3</div>
+</td>
+<td class="px-6 py-5 text-xs text-on-surface-variant">3h ago</td>
+<td class="px-6 py-5">
+<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-error/10 text-error border border-error/20 uppercase tracking-tighter">Failed</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Transaction History -->
+<section class="mt-12">
+<h2 class="text-2xl font-bold mb-6">Transaction History</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="surface-container p-6 rounded-lg border border-outline-variant/10 flex items-center justify-between group hover:border-primary/30 transition-all cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="p-3 rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-black transition-all">
+<span class="material-symbols-outlined" data-icon="north_east">north_east</span>
+</div>
+<div>
+<p class="font-bold">Locus Stake Reward</p>
+<p class="text-xs text-on-surface-variant">Wallet: 0x4f...9E21</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold text-tertiary">+124.5 LOCUS</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Confirmed</p>
+</div>
+</div>
+<div class="surface-container p-6 rounded-lg border border-outline-variant/10 flex items-center justify-between group hover:border-primary/30 transition-all cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="p-3 rounded-full bg-secondary/10 text-secondary group-hover:bg-secondary group-hover:text-black transition-all">
+<span class="material-symbols-outlined" data-icon="south_west">south_west</span>
+</div>
+<div>
+<p class="font-bold">Agent Marketplace Fee</p>
+<p class="text-xs text-on-surface-variant">Invoice: #39281</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold text-error">-12.0 LOCUS</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Processing</p>
+</div>
+</div>
+<div class="surface-container p-6 rounded-lg border border-outline-variant/10 flex items-center justify-between group hover:border-primary/30 transition-all cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="p-3 rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-black transition-all">
+<span class="material-symbols-outlined" data-icon="north_east">north_east</span>
+</div>
+<div>
+<p class="font-bold">Yield Settlement</p>
+<p class="text-xs text-on-surface-variant">Vault: A-Gamma</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold text-tertiary">+45.2 LOCUS</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Confirmed</p>
+</div>
+</div>
+<div class="surface-container p-6 rounded-lg border border-outline-variant/10 flex items-center justify-between group hover:border-primary/30 transition-all cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="p-3 rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-black transition-all">
+<span class="material-symbols-outlined" data-icon="north_east">north_east</span>
+</div>
+<div>
+<p class="font-bold">Affiliate Bounty</p>
+<p class="text-xs text-on-surface-variant">Referral ID: #MARK-9</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold text-tertiary">+10.0 LOCUS</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Confirmed</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full flex flex-col md:flex-row justify-between items-center py-12 px-8 border-t border-[#46465e]/15 bg-[#101129]">
+<div class="text-lg font-bold text-[#e5e3ff] mb-4 md:mb-0">AgentMarket</div>
+<div class="flex gap-8 mb-4 md:mb-0">
+<a class="text-[#aaa8c5] hover:text-[#4af8e3] text-xs font-label uppercase tracking-widest transition-opacity opacity-80 hover:opacity-100" href="#">Terms</a>
+<a class="text-[#aaa8c5] hover:text-[#4af8e3] text-xs font-label uppercase tracking-widest transition-opacity opacity-80 hover:opacity-100" href="#">Privacy</a>
+<a class="text-[#aaa8c5] hover:text-[#4af8e3] text-xs font-label uppercase tracking-widest transition-opacity opacity-80 hover:opacity-100" href="#">Security</a>
+</div>
+<div class="text-[#aaa8c5] text-[10px] uppercase tracking-widest font-label opacity-60">Powered by Locus Payments</div>
+</footer>
+</body></html>

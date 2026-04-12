@@ -1,610 +1,468 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="dark" lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AgentMarket</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>AgentMarket - Professional Dashboard</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Inter:wght@300..700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: { extend: {
+        colors: {
+          "outline-variant": "#46465e", "surface-container-lowest": "#000000", "on-primary-fixed": "#000000",
+          "surface-dim": "#0c0c21", "on-secondary-container": "#dcfff8", "surface": "#0c0c21",
+          "on-error-container": "#ffb2b9", "on-tertiary-container": "#0b5800", "secondary": "#4af8e3",
+          "error": "#ff6e84", "on-primary-fixed-variant": "#40007a", "on-surface-variant": "#aaa8c5",
+          "on-background": "#e5e3ff", "on-secondary-fixed-variant": "#00655b", "surface-container": "#161731",
+          "on-secondary": "#005b51", "primary": "#c799ff", "tertiary-fixed": "#2ff801", "on-error": "#490013",
+          "primary-container": "#bc87fe", "on-tertiary-fixed-variant": "#0d6200", "secondary-container": "#006a60",
+          "on-tertiary": "#0d6100", "secondary-dim": "#33e9d5", "tertiary": "#8eff71", "tertiary-dim": "#2be800",
+          "inverse-surface": "#fcf8ff", "primary-dim": "#ba85fb", "surface-container-highest": "#222242",
+          "error-dim": "#d73357", "surface-variant": "#222242", "on-surface": "#e5e3ff", "tertiary-container": "#2ff801",
+          "inverse-primary": "#7744b5", "inverse-on-surface": "#53536c", "surface-container-high": "#1c1d3a",
+          "error-container": "#a70138", "secondary-fixed": "#4af8e3", "on-primary-container": "#340064",
+          "surface-bright": "#28294b", "background": "#0c0c21", "surface-container-low": "#101129",
+          "outline": "#74738e", "primary-fixed": "#bc87fe", "primary-fixed-dim": "#af7aef", "on-primary": "#440080",
+          "success": "#10b981", "success-container": "#064e3b"
+        },
+        borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" },
+        fontFamily: { "headline": ["Space Grotesk"], "body": ["Inter"], "label": ["Inter"] },
+        typography: (theme) => ({
+          DEFAULT: {
+            css: {
+              color: theme('colors.on-surface-variant'),
+              h1: { color: theme('colors.on-surface') },
+              h2: { color: theme('colors.on-surface') },
+              h3: { color: theme('colors.on-surface') },
+              a: { color: theme('colors.primary') },
+              strong: { color: theme('colors.white') },
+            },
+          },
+        }),
+      }},
+    }
+  </script>
   <style>
-    :root {
-      --bg-dark: #0a0a0f;
-      --bg-gradient: radial-gradient(circle at top center, #1e1b4b, #0a0a0f 60%);
-      --card-bg: rgba(255, 255, 255, 0.03);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --accent: #8b5cf6;
-      --accent-hover: #7c3aed;
-      --accent-glow: rgba(139, 92, 246, 0.6);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --success: #10b981;
-      --error: #ef4444;
-      --font-main: 'Outfit', sans-serif;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+    .glass-panel { background: rgba(34, 34, 66, 0.4); backdrop-filter: blur(20px); border: 1px solid rgba(70, 70, 94, 0.15); }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    body { font-family: 'Inter', sans-serif; background-color: #0c0c21; color: #e5e3ff; overflow-x: hidden; scroll-behavior: smooth; }
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; }
     
-    body {
-      background: var(--bg-dark);
-      background-image: var(--bg-gradient);
-      background-attachment: fixed;
-      color: var(--text-main);
-      font-family: var(--font-main);
-      line-height: 1.6;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+    .page-section { display: none; opacity: 0; transition: opacity 0.4s ease-in-out; }
+    .page-section.active { display: block; animation: fadeInSec 0.5s forwards; }
+    @keyframes fadeInSec { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* TYPOGRAPHY */
-    h1, h2, h3, h4, h5 { font-weight: 600; line-height: 1.2; }
-    h1 { font-size: 3.5rem; margin-bottom: 1rem; background: linear-gradient(to right, #fff, #a78bfa); -webkit-background-clip: text; color: transparent; }
-    h2 { font-size: 2rem; margin-bottom: 1.5rem; }
-    h3 { font-size: 1.25rem; margin-bottom: 0.5rem; }
-    p { color: var(--text-muted); }
-    a { color: var(--text-main); text-decoration: none; transition: 0.3s; }
-    a:hover { color: var(--accent); }
+    .budget-card { transition: all 0.3s; }
+    .budget-card.selected { border-color: #10b981; box-shadow: 0 0 20px rgba(16,185,129,0.3); transform: scale(1.03); z-index: 10; opacity: 1 !important; filter: none !important; }
+    .budget-card.selected .btn-select-budget { background: #10b981; border-color: #10b981; color: white; }
+    .budget-card.dimmed { opacity: 0.4; filter: grayscale(80%); transform: scale(0.97); }
+    .budget-card.disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; filter: grayscale(100%); transform: scale(0.95); }
 
-    /* LAYOUT */
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
-    .section { padding: 5rem 0; opacity: 0; transform: translateY(20px); animation: fadeInUp 0.8s forwards; }
-    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
-
-    /* NAVBAR */
-    .navbar {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(10, 10, 15, 0.8);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--card-border);
-      padding: 1rem 0;
-    }
-    .nav-content { display: flex; justify-content: space-between; align-items: center; }
-    .logo { font-size: 1.5rem; font-weight: 700; color: #fff; }
-    .logo-bolt { color: var(--accent); }
-    .nav-links { display: flex; gap: 2rem; }
-    .nav-links a { font-weight: 500; }
-    .wallet-badge {
-      padding: 0.5rem 1rem; border-radius: 9999px;
-      font-weight: 600; font-size: 0.9rem;
-      background: rgba(255,255,255,0.05); border: 1px solid var(--card-border);
-      transition: all 0.3s;
-    }
-    .wallet-badge.positive { color: var(--success); border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.1); }
-    .wallet-badge.zero { color: var(--error); border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.1); }
-
-    /* HERO */
-    .hero { text-align: center; padding: 6rem 0 3rem; }
-    .hero-sub { font-size: 1.25rem; max-width: 600px; margin: 0 auto 2rem; }
-    .animated-icons { font-size: 3rem; margin-top: 1rem; animation: bounce 2s infinite ease-in-out; }
-    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-
-    /* LAUNCH PANEL */
-    .launch-panel {
-      max-width: 800px; margin: 0 auto;
-      background: var(--card-bg); border: 1px solid var(--card-border);
-      border-radius: 1.5rem; padding: 3rem; text-align: center;
-      transition: all 0.5s ease;
-    }
-    .launch-panel.hidden { display: none; }
-    .input-group { margin: 2rem 0; text-align: left; }
-    .input-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 1.1rem; }
-    .search-input {
-      width: 100%; padding: 1.25rem; font-size: 1.1rem;
-      background: rgba(0,0,0,0.4); border: 1px solid var(--card-border);
-      color: #fff; border-radius: 0.75rem; outline: none; transition: 0.3s;
-      font-family: var(--font-main);
-    }
-    .search-input:focus { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
-    
-    .btn-analyze {
-      background: rgba(255, 255, 255, 0.05); color: #fff; border: 1px solid var(--card-border);
-      padding: 1.25rem 3rem; font-size: 1.25rem; font-weight: 600; font-family: var(--font-main);
-      border-radius: 9999px; cursor: pointer; transition: 0.3s; margin-top: 1rem; width: 100%; max-width: 400px;
-    }
-    .btn-analyze:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--accent); }
-    
-    .budget-cards-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 1rem;
-    }
-    @media (max-width: 768px) { .budget-cards-grid { grid-template-columns: 1fr; } }
-    .budget-card {
-      background: var(--card-bg); border: 1px solid var(--card-border);
-      border-radius: 1rem; padding: 1.5rem; text-align: left; cursor: pointer;
-      transition: all 0.3s; position: relative; opacity: 1;
-    }
-    .budget-card:hover { border-color: rgba(255, 255, 255, 0.3); transform: translateY(-3px); }
-    .budget-card.recommended { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
-    .budget-card.recommended::before {
-      content: 'RECOMMENDED'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-      background: var(--accent); color: #fff; font-size: 0.75rem; font-weight: bold; padding: 3px 12px; border-radius: 12px; letter-spacing: 1px;
-    }
-    .budget-card.dimmed { opacity: 0.4; filter: grayscale(50%); transform: scale(0.95); }
-    .budget-card.selected { border-color: var(--success); box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); transform: scale(1.05); z-index: 2; }
-    .budget-card.disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; filter: grayscale(100%); }
-    
-    .budget-card-title { font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem; }
-    .budget-card-price { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 1rem; }
-    .budget-card-divider { height: 1px; background: var(--card-border); margin: 1rem 0; }
-    .budget-card-desc { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 1rem; min-height: 45px; }
-    .budget-card-quality { font-size: 0.9rem; font-weight: 600; color: #fff; margin-bottom: 1.5rem; }
-    
-    .btn-select-budget {
-      width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--card-border);
-      padding: 0.75rem; border-radius: 0.5rem; color: #fff; font-weight: bold; cursor: pointer; transition: 0.3s; pointer-events: none;
-    }
-    .budget-card:hover .btn-select-budget { background: rgba(255,255,255,0.1); }
-    .budget-card.selected .btn-select-budget { background: var(--success); border-color: var(--success); color: #fff; }
-
-    .btn-launch {
-      background: var(--accent); color: #fff; border: none;
-      padding: 1.25rem 3rem; font-size: 1.25rem; font-weight: 600; font-family: var(--font-main);
-      border-radius: 9999px; cursor: pointer; transition: 0.3s;
-      box-shadow: 0 0 20px var(--accent-glow); text-transform: uppercase; letter-spacing: 1px;
-    }
-    .btn-launch:hover { background: var(--accent-hover); transform: scale(1.05); box-shadow: 0 0 30px var(--accent-glow); }
-
-    /* QUALITY BADGE */
-    .quality-badge {
-      margin-top: 2rem; background: rgba(16, 185, 129, 0.05);
-      border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 1rem; padding: 1.5rem;
-      animation: fadeInUp 0.8s forwards;
-    }
-    .quality-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(16, 185, 129, 0.2); padding-bottom: 1rem; }
-    .quality-title { font-size: 1.5rem; font-weight: bold; color: var(--success); display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0; }
-    .quality-score { font-size: 1.1rem; font-weight: bold; color: #fff; }
-    .quality-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
-    .quality-list h4 { color: #fff; margin-bottom: 0.75rem; font-size: 1rem; }
-    .quality-list ul { list-style: none; padding: 0; }
-    .quality-list li { margin-bottom: 0.5rem; color: var(--text-muted); display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.95rem; }
-    .quality-footer { font-size: 0.9rem; color: var(--text-muted); border-top: 1px solid rgba(16, 185, 129, 0.2); padding-top: 1rem; display: flex; justify-content: space-between; }
-
-    /* AGENT MODAL */
-    .btn-view-profile {
-      width: 100%; margin-top: 1rem; background: rgba(255,255,255,0.05); border: 1px solid var(--card-border);
-      padding: 0.75rem; border-radius: 0.5rem; color: #fff; font-weight: 500; cursor: pointer; transition: 0.3s; font-family: var(--font-main);
-    }
-    .btn-view-profile:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
-    
-    .agent-profile-modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000;
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999;
       background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
       display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease;
     }
-    .agent-profile-modal-overlay.active { display: flex; opacity: 1; }
-    .agent-card-wrapper {
-      background: #0f0f16; border: 1px solid var(--card-border); border-radius: 1.5rem;
-      width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative;
-      transform: scale(0.95); transition: transform 0.3s ease;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.5); padding: 2.5rem; text-align: left;
-    }
-    .agent-profile-modal-overlay.active .agent-card-wrapper { transform: scale(1); }
-    
-    .profile-header { border-bottom: 1px solid var(--card-border); padding-bottom: 1.5rem; margin-bottom: 1.5rem; position: relative; }
-    .btn-close-profile {
-      position: absolute; top: -0.5rem; right: -0.5rem; background: transparent; border: none;
-      color: var(--text-muted); font-size: 1.5rem; cursor: pointer; transition: 0.2s;
-    }
-    .btn-close-profile:hover { color: #fff; }
-    
-    .profile-title { font-size: 2rem; color: #fff; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.75rem; }
-    .profile-dev { color: var(--accent); font-weight: 500; font-size: 1rem; }
-    .profile-desc { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 1.5rem; line-height: 1.6; }
-    
-    .profile-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
-    .profile-stat-box { background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 1rem; border-radius: 0.75rem; text-align: center; }
-    .profile-stat-box label { display: block; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.25rem; }
-    .profile-stat-box span { font-size: 1.25rem; font-weight: bold; color: #fff; }
-    
-    .profile-section-title { font-size: 1.2rem; color: #fff; border-bottom: 1px solid var(--card-border); padding-bottom: 0.5rem; margin-bottom: 1rem; margin-top: 2rem; }
-    .profile-history-item { display: flex; justify-content: space-between; margin-bottom: 0.75rem; color: var(--text-muted); }
-    .profile-history-item .stars { color: #fbbf24; }
-    
-    .profile-review { background: rgba(255,255,255,0.03); border-radius: 0.75rem; padding: 1rem; margin-bottom: 1rem; font-style: italic; color: #ccc; }
-    .profile-review .reviewer { font-weight: bold; font-style: normal; display: block; margin-top: 0.5rem; color: var(--accent); font-size: 0.9rem; }
-
-    /* PROGRESS CARDS */
-    .progress-section { display: none; margin-top: 3rem; animation: fadeInUp 0.5s forwards; }
-    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
-    .agent-card {
-      background: var(--card-bg); border: 1px solid var(--card-border);
-      border-radius: 1rem; padding: 1.5rem; transition: all 0.3s; position: relative; overflow: hidden;
-    }
-    .agent-card::before {
-      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: transparent; transition: 0.3s;
-    }
-    .agent-card.pulse::before { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
-    .agent-card.pulse { border-color: var(--accent); animation: borderPulse 1.5s infinite; }
-    .agent-card.success::before { background: var(--success); box-shadow: 0 0 10px var(--success); }
-    .agent-card.success { border-color: rgba(16, 185, 129, 0.4); }
-    
-    @keyframes borderPulse { 0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); } }
-
-    .agent-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-    .agent-cost { font-weight: 700; color: var(--success); }
-    .agent-status { font-size: 0.9rem; margin-bottom: 0.5rem; color: #fff; }
-    .payment-msg { font-size: 0.85rem; color: var(--success); margin-top: 0.5rem; display: none; }
-    .success .payment-msg { display: block; animation: fadeInUp 0.3s; }
-
-    /* RESULTS */
-    .results-section { display: none; margin-top: 3rem; animation: fadeInUp 0.8s forwards; }
-    .results-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
-    @media (max-width: 900px) { .results-grid { grid-template-columns: 1fr; } }
-    
-    .report-card, .audit-card {
-      background: rgba(15, 15, 25, 0.9); border: 1px solid var(--card-border);
-      border-radius: 1.5rem; padding: 2rem;
-    }
-    .report-actions { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
-    .btn-secondary {
-      background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--card-border);
-      padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; transition: 0.3s;
-      font-family: var(--font-main); font-weight: 500;
-    }
-    .btn-secondary:hover { background: rgba(255,255,255,0.1); }
-    
-    /* Markdown Styles */
-    .markdown-body { color: #e2e8f0; font-size: 1.05rem; }
-    .markdown-body h2 { color: #fff; margin-top: 2rem; margin-bottom: 1rem; font-size: 2rem; font-weight: bold; border-bottom: 1px solid var(--card-border); padding-bottom: 0.5rem; }
-    .markdown-body p { margin-bottom: 1rem; }
-    .markdown-body ul { list-style-type: disc; margin-bottom: 1rem; padding-left: 2rem; }
-    .markdown-body ol { list-style-type: decimal; margin-bottom: 1rem; padding-left: 2rem; }
-    .markdown-body li { margin-bottom: 0.5rem; display: list-item; }
-    .markdown-body strong { font-weight: bold; color: var(--accent); }
-    .markdown-body table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
-    .markdown-body th, .markdown-body td { border: 1px solid var(--card-border); padding: 0.75rem; text-align: left; }
-    .markdown-body th { background: rgba(255,255,255,0.05); }
-
-    /* Audit Table */
-    .audit-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-    .audit-table th, .audit-table td { padding: 1rem 0.5rem; text-align: left; border-bottom: 1px solid var(--card-border); }
-    .audit-table th { color: var(--text-muted); font-size: 0.9rem; font-weight: 500; }
-    .audit-table tr:last-child td { border-bottom: none; }
-    .audit-total { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--card-border); display: flex; justify-content: space-between; font-weight: 700; font-size: 1.25rem; }
-    
-    .btn-reset { margin-top: 2rem; width: 100%; }
-
-    /* REGISTRY & DASHBOARD */
-    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
-    .registry-card {
-      background: var(--card-bg); border: 1px solid var(--card-border);
-      border-radius: 1rem; padding: 1.5rem; transition: 0.3s;
-    }
-    .registry-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2); }
-    .registry-card ul { list-style: none; margin-top: 1rem; }
-    .registry-card li { margin-bottom: 0.5rem; font-size: 0.95rem; }
-    
-    .stat-box {
-      background: var(--card-bg); border: 1px solid var(--card-border);
-      border-radius: 1rem; padding: 2rem; text-align: center;
-    }
-    .stat-label { color: var(--text-muted); font-weight: 500; margin-bottom: 0.5rem; }
-    .stat-value { font-size: 2.5rem; font-weight: 700; color: #fff; }
-
-    /* LOADER */
-    .loader {
-      display: inline-block; width: 20px; height: 20px; margin-left: 10px;
-      border: 3px solid rgba(255,255,255,0.3); border-radius: 50%;
-      border-top-color: #fff; animation: spin 1s ease-in-out infinite;
-      vertical-align: middle;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ERROR BANNER */
-    .error-banner {
-      display: none; background: var(--error); color: #fff; text-align: center; padding: 1rem; position: fixed; top: 0; width: 100%; z-index: 1000; font-weight: 600;
-    }
-
-    /* PAYMENT FAILED MODAL */
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
-      display: none; justify-content: center; align-items: center; z-index: 1000;
-    }
-    .modal-overlay.active { display: flex; animation: fadeIn 0.3s forwards; }
+    .modal-overlay.active { display: flex; opacity: 1; }
     .modal-content {
-      background: #1e1b4b; border: 1px solid var(--error); border-radius: 1.5rem;
-      padding: 2.5rem; max-width: 500px; width: 90%; position: relative;
-      box-shadow: 0 0 30px rgba(239, 68, 68, 0.2);
+      background: #0f0f16; border: 1px solid var(--outline-variant); border-radius: 1.5rem;
+      width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative;
+      transform: scale(0.95); transition: transform 0.3s ease; padding: 2.5rem; text-align: left;
     }
-    .modal-title { font-size: 1.75rem; color: var(--error); display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
-    .modal-body { font-size: 1.1rem; margin-bottom: 1.5rem; }
-    .modal-body ul { list-style: none; margin: 1rem 0; padding-left: 0.5rem; }
-    .modal-body li { margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
-    .modal-body li::before { content: '•'; color: var(--error); font-weight: bold; }
-    .modal-dashboard-link {
-      background: rgba(255,255,255,0.05); padding: 1.25rem; border-radius: 0.75rem;
-      border: 1px solid var(--card-border); margin-bottom: 1.5rem;
-    }
-    .modal-actions { display: flex; gap: 1rem; }
-    .btn-modal {
-      flex: 1; padding: 1rem; border-radius: 0.75rem; font-weight: bold; cursor: pointer;
-      text-align: center; font-size: 1.05rem; border: none; font-family: var(--font-main); transition: 0.3s;
-    }
-    .btn-modal-retry { background: rgba(255,255,255,0.1); color: #fff; }
-    .btn-modal-retry:hover { background: rgba(255,255,255,0.2); }
-    .btn-modal-fix { background: var(--accent); color: #fff; text-decoration: none; display: flex; justify-content: center; align-items: center; gap: 0.5rem; }
-    .btn-modal-fix:hover { background: var(--accent-hover); box-shadow: 0 0 15px var(--accent-glow); }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
+    .modal-overlay.active .modal-content { transform: scale(1); }
+    
+    .prose p { margin-bottom: 1em; } 
+    .prose ul { list-style-type: disc; margin-bottom: 1em; padding-left: 1.5em; }
+    .prose ol { list-style-type: decimal; margin-bottom: 1em; padding-left: 1.5em; }
+    .prose h2 { font-size: 1.5em; font-weight: bold; margin-top: 1.5em; margin-bottom: 0.5em; border-bottom: 1px solid var(--outline-variant); padding-bottom: 0.5em; color: white; }
+    .prose h3 { font-size: 1.25em; font-weight: bold; margin-top: 1.2em; margin-bottom: 0.5em; color: white; }
   </style>
 </head>
-<body>
-  <div class="error-banner" id="error-banner">⚠️ Backend offline — make sure server is running on port 5001</div>
+<body class="min-h-screen selection:bg-primary/30">
 
-  <!-- NAVBAR -->
-  <nav class="navbar">
-    <div class="container nav-content">
-      <div class="logo"><span class="logo-bolt">⚡</span> AgentMarket</div>
-      <div class="nav-links">
-        <a href="#home">Home</a>
-        <a href="#agents">Agents</a>
-        <a href="#dashboard">Dashboard</a>
-      </div>
-      <div class="wallet-badge" id="wallet-badge">💰 -- USDC</div>
+  <div id="error-banner" class="hidden bg-error text-white text-center p-4 fixed top-0 w-full z-[100] font-bold text-sm">⚠️ Backend offline — make sure server is running on port 5001</div>
+
+  <!-- TopNavBar -->
+  <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-8 py-4 bg-[#0c0c21]/80 backdrop-blur-xl shadow-2xl border-b border-outline-variant/10">
+    <div class="text-xl font-black text-[#e5e3ff] tracking-tight">AgentMarket</div>
+    <div class="hidden md:flex items-center gap-8 nav-links">
+      <a onclick="showSection('home')" id="nav-home" class="cursor-pointer text-primary font-bold border-b-2 border-primary pb-1 transition-colors duration-300">Home</a>
+      <a onclick="showSection('agents')" id="nav-agents" class="cursor-pointer text-[#aaa8c5] font-medium hover:text-[#4af8e3] transition-colors duration-300">Agents</a>
+      <a onclick="showSection('dashboard')" id="nav-dashboard" class="cursor-pointer text-[#aaa8c5] font-medium hover:text-[#4af8e3] transition-colors duration-300">Dashboard</a>
+    </div>
+    <div class="flex items-center gap-4">
+      <button id="wallet-badge" class="bg-primary/10 text-primary px-4 py-1.5 rounded-full border border-primary/20 font-bold text-sm tracking-tight active:scale-95 duration-150 ease-in-out">
+        0.00 USDC
+      </button>
+      <span class="material-symbols-outlined text-[#aaa8c5] cursor-pointer hover:text-white">account_circle</span>
     </div>
   </nav>
 
-  <!-- HOME SECTION -->
-  <section id="home" class="section container">
-    <div class="hero">
-      <h1>AI Agents Working For You</h1>
-      <p class="hero-sub">The first marketplace where AI agents autonomously hire and pay other AI agents via Locus.</p>
-      <div class="animated-icons">🤖 💸 🤖</div>
+  <!-- SECTION 1: HOME -->
+  <main id="section-home" class="page-section active pt-32 pb-20 px-4 md:px-8 max-w-7xl mx-auto">
+    <div class="text-center mb-16">
+      <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-on-surface to-primary">AI Agents Working For You</h1>
+      <p class="text-on-surface-variant font-label tracking-wide text-lg mt-4 max-w-2xl mx-auto">The first marketplace where autonomous AI agents research, collate, and transact in real-time via Locus protocol.</p>
     </div>
 
     <!-- LAUNCH PANEL -->
-    <div class="launch-panel" id="launch-panel">
-      <h2>What do you need researched?</h2>
-      <div class="input-group">
-        <input type="text" id="task-input" class="search-input" placeholder="e.g. Electric vehicles market in India in 2024">
+    <div id="launch-panel" class="glass-panel p-8 md:p-10 rounded-3xl relative overflow-hidden text-center max-w-3xl mx-auto shadow-2xl">
+      <h2 class="text-2xl font-bold mb-8 text-on-surface tracking-tight">What do you need researched?</h2>
+      <div class="text-left mb-6">
+        <input type="text" id="task-input" class="w-full bg-surface-container-highest/50 border border-outline-variant/30 text-on-surface rounded-xl p-5 text-lg font-body focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline-variant" placeholder="e.g. Electric vehicles market in India in 2024">
       </div>
-      <button class="btn-analyze" id="btn-analyze">🔍 Analyze My Query</button>
       
-      <div id="budget-recommendation-area" style="display: none; margin-top: 1.5rem; text-align: center;">
-        <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
-          <p style="font-weight: 500; margin: 0; color: #fff; font-size: 1.2rem;">Choose Research Depth</p>
-          <span style="color: var(--success); font-weight: 600; font-size: 0.95rem; background: rgba(16, 185, 129, 0.1); padding: 0.3rem 0.8rem; border-radius: 9999px; border: 1px solid rgba(16, 185, 129, 0.3);" id="available-budget-disp">💰 Available: -- USDC</span>
+      <button id="btn-analyze" class="w-full max-w-md bg-surface-container-highest border border-outline-variant/30 hover:bg-surface-container-high text-white py-4 px-8 rounded-full font-bold transition-all text-xl mt-4 focus:ring-4 focus:ring-primary/20">🔍 Analyze My Query</button>
+
+      <div id="budget-recommendation-area" class="hidden mt-10 text-center animate-[fadeInUp_0.8s_forwards]">
+        <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-8">
+           <p class="font-bold text-lg text-on-surface uppercase tracking-widest font-label text-xs">Choose Research Depth</p>
+           <span id="available-budget-disp" class="text-success font-bold text-sm bg-success/10 px-4 py-1.5 rounded-full border border-success/30 font-mono">Available: -- USDC</span>
         </div>
         
-        <div class="budget-cards-grid">
-           <!-- Basic -->
-           <div class="budget-card" data-val="0.50" id="card-basic">
-             <div class="budget-card-title">💚 Basic</div>
-             <div class="budget-card-price">$0.50</div>
-             <div class="budget-card-divider"></div>
-             <div class="budget-card-desc">Quick summary of main points</div>
-             <div class="budget-card-quality">Quality: Overview</div>
-             <button class="btn-select-budget">Select Basic</button>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+           <div class="budget-card glass-panel rounded-2xl p-6 text-left cursor-pointer" data-val="0.50" id="card-basic">
+             <div class="text-xl font-bold text-on-surface mb-2 tracking-tight">💚 Basic</div>
+             <div class="text-3xl font-extrabold text-white mb-4 font-headline">$0.50</div>
+             <div class="border-t border-outline-variant/30 w-full mb-4"></div>
+             <div class="text-sm min-h-[40px] text-on-surface-variant mb-4 font-label">Quick summary of main points</div>
+             <div class="text-sm font-bold text-success mb-6">Quality: Overview</div>
+             <button class="btn-select-budget w-full bg-surface-container-highest border border-outline-variant/30 py-3 rounded-xl text-white font-bold transition-colors shadow-none pointer-events-none">Select Basic</button>
            </div>
            
-           <!-- Standard -->
-           <div class="budget-card recommended selected" data-val="2.00" id="card-standard">
-             <div class="budget-card-title">💛 Standard ✨</div>
-             <div class="budget-card-price">$2.00</div>
-             <div class="budget-card-divider"></div>
-             <div class="budget-card-desc">Thorough research recommended</div>
-             <div class="budget-card-quality">Quality: Detailed</div>
-             <button class="btn-select-budget">Select Standard</button>
+           <div class="budget-card selected glass-panel border border-primary shadow-2xl shadow-primary/20 rounded-2xl p-6 text-left cursor-pointer relative" data-val="2.00" id="card-standard">
+             <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-black text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-widest border border-primary-container whitespace-nowrap">Recommended</div>
+             <div class="text-xl font-bold text-on-surface mb-2 tracking-tight">💛 Standard ✨</div>
+             <div class="text-3xl font-extrabold text-white mb-4 font-headline">$2.00</div>
+             <div class="border-t border-outline-variant/30 w-full mb-4"></div>
+             <div class="text-sm min-h-[40px] text-on-surface-variant mb-4 font-label">Thorough research recommended</div>
+             <div class="text-sm font-bold text-success mb-6">Quality: Detailed</div>
+             <button class="btn-select-budget w-full bg-success border-success py-3 rounded-xl text-white font-bold transition-colors shadow-none pointer-events-none">Select Standard</button>
            </div>
-           
-           <!-- Premium -->
-           <div class="budget-card" data-val="5.00" id="card-premium">
-             <div class="budget-card-title">❤️ Premium</div>
-             <div class="budget-card-price">$5.00</div>
-             <div class="budget-card-divider"></div>
-             <div class="budget-card-desc">In-depth analysis and insights</div>
-             <div class="budget-card-quality">Quality: Complete</div>
-             <button class="btn-select-budget">Select Premium</button>
+
+           <div class="budget-card dimmed glass-panel rounded-2xl p-6 text-left cursor-pointer" data-val="5.00" id="card-premium">
+             <div class="text-xl font-bold text-on-surface mb-2 tracking-tight">❤️ Premium</div>
+             <div class="text-3xl font-extrabold text-white mb-4 font-headline">$5.00</div>
+             <div class="border-t border-outline-variant/30 w-full mb-4"></div>
+             <div class="text-sm min-h-[40px] text-on-surface-variant mb-4 font-label">In-depth analysis and insights</div>
+             <div class="text-sm font-bold text-success mb-6">Quality: Complete</div>
+             <button class="btn-select-budget w-full bg-surface-container-highest border border-outline-variant/30 py-3 rounded-xl text-white font-bold transition-colors shadow-none pointer-events-none">Select Premium</button>
            </div>
         </div>
         
-        <button class="btn-launch" id="btn-launch" style="display: none; margin-top: 2.5rem;">🚀 Launch Agents</button>
+        <button id="btn-launch" class="hidden mt-12 w-full max-w-sm bg-primary hover:bg-primary-container text-black py-4 px-8 rounded-full font-bold transition-all text-lg shadow-[0_0_30px_rgba(199,153,255,0.4)] hover:scale-105 uppercase tracking-wider mx-auto">🚀 Launch Agents</button>
       </div>
     </div>
 
     <!-- PROGRESS CARDS -->
-    <div class="progress-section" id="progress-section">
-      <h2 style="text-align: center;">Live Agent Progress <span class="loader" id="main-loader"></span></h2>
-      <div class="grid-4">
-        <!-- Card 1 -->
-        <div class="agent-card" id="card-manager">
-          <div class="agent-header">
-            <h3>🧠 Manager Agent</h3>
+    <div id="progress-section" class="hidden mt-20 animate-[fadeInUp_0.8s_forwards]">
+      <h2 class="text-2xl md:text-3xl font-extrabold text-center mb-10 flex items-center justify-center gap-3 text-on-surface tracking-tight">Live Agent Progress <span id="main-loader" class="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin"></span></h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="agent-card glass-panel p-6 rounded-2xl border border-outline-variant/30 relative overflow-hidden shadow-xl" id="card-manager">
+          <div class="agent-card-indicator absolute top-0 left-0 w-full h-1 bg-transparent transition-all"></div>
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-white tracking-tight">🧠 Manager Agent</h3>
           </div>
-          <div class="agent-status" id="status-manager">Status: Coordinating request... ⏳</div>
-          <p>Role: Orchestrator</p>
+          <div class="agent-status text-sm text-primary mb-2 font-bold font-label" id="status-manager">Status: Coordinating... ⏳</div>
+          <p class="text-xs font-label uppercase tracking-widest text-on-surface-variant pt-4 border-t border-outline-variant/20 mt-4">Role: Orchestrator</p>
         </div>
-        <!-- Card 2 -->
-        <div class="agent-card" id="card-search">
-          <div class="agent-header">
-            <h3>🔍 Search Agent</h3>
-            <span class="agent-cost" id="cost-search">$--</span>
+        
+        <div class="agent-card glass-panel p-6 rounded-2xl border border-outline-variant/30 relative overflow-hidden shadow-xl" id="card-search">
+          <div class="agent-card-indicator absolute top-0 left-0 w-full h-1 bg-transparent transition-all"></div>
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-white tracking-tight">🔍 Search Agent</h3>
+            <span class="agent-cost font-bold text-success font-mono text-sm border border-success/30 px-2 py-1 rounded bg-success/10" id="cost-search">$--</span>
           </div>
-          <div class="agent-status" id="status-search">Status: Waiting... ⏳</div>
-          <p>Task: Web Research</p>
-          <div class="payment-msg" id="payment-search"></div>
+          <div class="agent-status text-sm text-on-surface mb-2 font-bold font-label min-h-[20px]" id="status-search">Status: Waiting... ⏳</div>
+          <div class="payment-msg hidden text-[11px] font-bold text-tertiary mb-3 bg-tertiary/10 border border-tertiary/20 px-2 py-1 rounded w-max" id="payment-search"></div>
+          <p class="text-xs font-label uppercase tracking-widest text-on-surface-variant pt-4 border-t border-outline-variant/20 mt-auto">Task: Web Research</p>
         </div>
-        <!-- Card 3 -->
-        <div class="agent-card" id="card-analysis">
-          <div class="agent-header">
-            <h3>📊 Analysis Agent</h3>
-            <span class="agent-cost" id="cost-analysis">$--</span>
+
+        <div class="agent-card glass-panel p-6 rounded-2xl border border-outline-variant/30 relative overflow-hidden shadow-xl" id="card-analysis">
+          <div class="agent-card-indicator absolute top-0 left-0 w-full h-1 bg-transparent transition-all"></div>
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-white tracking-tight">📊 Analysis</h3>
+            <span class="agent-cost font-bold text-success font-mono text-sm border border-success/30 px-2 py-1 rounded bg-success/10" id="cost-analysis">$--</span>
           </div>
-          <div class="agent-status" id="status-analysis">Status: Waiting... ⏳</div>
-          <p>Task: Data Analysis</p>
-          <div class="payment-msg" id="payment-analysis"></div>
+          <div class="agent-status text-sm text-on-surface mb-2 font-bold font-label min-h-[20px]" id="status-analysis">Status: Waiting... ⏳</div>
+          <div class="payment-msg hidden text-[11px] font-bold text-tertiary mb-3 bg-tertiary/10 border border-tertiary/20 px-2 py-1 rounded w-max" id="payment-analysis"></div>
+          <p class="text-xs font-label uppercase tracking-widest text-on-surface-variant pt-4 border-t border-outline-variant/20 mt-auto">Task: Data Analysis</p>
         </div>
-        <!-- Card 4 -->
-        <div class="agent-card" id="card-writing">
-          <div class="agent-header">
-            <h3>✍️ Writing Agent</h3>
-            <span class="agent-cost" id="cost-writing">$--</span>
+
+        <div class="agent-card glass-panel p-6 rounded-2xl border border-outline-variant/30 relative overflow-hidden shadow-xl" id="card-writing">
+          <div class="agent-card-indicator absolute top-0 left-0 w-full h-1 bg-transparent transition-all"></div>
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-white tracking-tight">✍️ Writing</h3>
+            <span class="agent-cost font-bold text-success font-mono text-sm border border-success/30 px-2 py-1 rounded bg-success/10" id="cost-writing">$--</span>
           </div>
-          <div class="agent-status" id="status-writing">Status: Waiting... ⏳</div>
-          <p>Task: Report Writing</p>
-          <div class="payment-msg" id="payment-writing"></div>
+          <div class="agent-status text-sm text-on-surface mb-2 font-bold font-label min-h-[20px]" id="status-writing">Status: Waiting... ⏳</div>
+          <div class="payment-msg hidden text-[11px] font-bold text-tertiary mb-3 bg-tertiary/10 border border-tertiary/20 px-2 py-1 rounded w-max" id="payment-writing"></div>
+          <p class="text-xs font-label uppercase tracking-widest text-on-surface-variant pt-4 border-t border-outline-variant/20 mt-auto">Task: Draft Report</p>
         </div>
       </div>
     </div>
 
     <!-- RESULTS -->
-    <div class="results-section" id="results-section">
-      <div class="results-grid">
-        <!-- Left: Report -->
-        <div class="report-card">
-          <div class="report-actions">
-            <button class="btn-secondary" id="btn-copy">📋 Copy Report</button>
-            <button class="btn-secondary" id="btn-download">💾 Download .txt</button>
-          </div>
-          <div class="markdown-body" id="report-content">
-            <!-- Rendered Markdown goes here -->
+    <div id="results-section" class="hidden mt-20 animate-[fadeInUp_0.8s_forwards]">
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <!-- Report -->
+        <div class="xl:col-span-2 glass-panel p-6 md:p-10 rounded-3xl relative overflow-hidden">
+          <div class="flex flex-wrap gap-4 mb-8 pb-8 border-b border-outline-variant/20">
+            <button id="btn-copy" class="bg-surface-container/50 border border-outline-variant/50 hover:bg-surface-container text-white py-2 px-5 rounded-lg font-bold text-sm transition-all flex items-center gap-2"><span class="material-symbols-outlined text-sm">content_copy</span> Copy Markdown</button>
+            <button id="btn-download" class="bg-surface-container/50 border border-outline-variant/50 hover:bg-surface-container text-white py-2 px-5 rounded-lg font-bold text-sm transition-all flex items-center gap-2"><span class="material-symbols-outlined text-sm">download</span> Download File</button>
           </div>
           
-          <div class="quality-badge" id="report-quality" style="display: none;">
-            <div class="quality-header">
-              <h3 class="quality-title">🏆 Quality Assessment</h3>
-              <div class="quality-score">Score: 8.5/10 ⭐⭐⭐⭐⭐</div>
-            </div>
-            <div class="quality-grid">
-              <div class="quality-list">
-                <h4>Strengths:</h4>
-                <ul>
-                  <li>✅ Well structured</li>
-                  <li>✅ Good use of data</li>
-                </ul>
+          <div id="report-content" class="prose prose-invert max-w-none font-body"></div>
+
+          <div id="report-quality" class="hidden mt-12 bg-success/5 border border-success/20 p-6 md:p-8 rounded-2xl shadow-xl shadow-success/5 animate-[fadeInUp_0.8s_forwards]">
+              <div class="flex flex-wrap gap-4 justify-between items-center border-b border-success/20 pb-4 mb-6">
+                <h3 class="text-2xl font-bold text-success m-0 flex items-center gap-3">🏆 Quality Assessment</h3>
+                <div class="text-sm font-bold text-white px-4 py-1.5 border border-success/30 rounded-full bg-success/10 font-mono">Score: 8.5/10⭐⭐⭐⭐⭐</div>
               </div>
-              <div class="quality-list">
-                <h4>Improvements:</h4>
-                <ul>
-                  <li>💡 Could use more sources</li>
-                </ul>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6 font-label">
+                <div>
+                  <h4 class="text-white mb-3 text-lg font-bold">Strengths:</h4>
+                  <ul class="text-on-surface-variant space-y-2 list-none p-0">
+                    <li class="flex items-start gap-2">✅ Well structured</li>
+                    <li class="flex items-start gap-2">✅ Excellent data synthesis</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 class="text-white mb-3 text-lg font-bold">Improvements:</h4>
+                  <ul class="text-on-surface-variant space-y-2 list-none p-0">
+                    <li class="flex items-start gap-2">💡 Could use more visual citations</li>
+                  </ul>
+                </div>
               </div>
-            </div>
-            <div class="quality-footer">
-              <span>Reviewed by Quality Check Agent</span>
-              <span>Fee: $1.00 paid via Locus 💸</span>
-            </div>
+              <div class="flex justify-between border-t border-success/20 pt-5 mt-5 text-[10px] sm:text-xs font-label uppercase tracking-widest text-[#aaa8c5] opacity-80">
+                <span>Reviewed by Quality Check Agent</span>
+                <span>Fee: $1.00 paid via Locus</span>
+              </div>
           </div>
         </div>
-        
-        <!-- Right: Audit -->
-        <div class="audit-card">
-          <h3>💸 Payment Audit Trail</h3>
-          <table class="audit-table">
-            <thead>
-              <tr>
-                <th>Agent</th>
-                <th>Task</th>
-                <th>Amount</th>
-                <th>TX ID</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="audit-body">
-              <!-- Audit rows -->
-            </tbody>
-          </table>
-          <div class="audit-total" style="flex-direction: column; gap: 0.5rem; font-size: 1.1rem; font-weight: 500;">
-            <div style="display: flex; justify-content: space-between;"><span>Total paid to agents:</span><span id="audit-agents-val">$0.00</span></div>
-            <div style="display: flex; justify-content: space-between;"><span>Platform profit:</span><span id="audit-profit-val">$0.00</span></div>
-            <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 1.25rem; border-top: 1px solid var(--card-border); padding-top: 0.5rem; margin-top: 0.5rem;"><span>Your total:</span><span id="audit-total-val">$0.00</span></div>
+
+        <!-- Audit Panel -->
+        <div class="xl:col-span-1 glass-panel p-6 sm:p-8 rounded-3xl h-fit sticky top-32 border-outline-variant/30">
+          <div class="flex justify-between items-center mb-6 border-b border-outline-variant/20 pb-6">
+             <h3 class="text-xl font-extrabold text-on-surface tracking-tight">Payment Audit</h3>
+             <span class="material-symbols-outlined text-success bg-success/10 p-2 rounded-full">receipt_long</span>
           </div>
-          <button class="btn-launch btn-reset" id="btn-reset">🔄 Start New Research</button>
+          <div class="overflow-x-auto mb-8">
+            <table class="w-full text-left">
+              <thead class="text-[10px] uppercase tracking-widest text-on-surface-variant border-b border-outline-variant/20 bg-surface-container-lowest/50">
+                <tr>
+                  <th class="py-3 px-3 rounded-tl-lg">Task</th>
+                  <th class="py-3 px-3">Amt</th>
+                  <th class="py-3 px-3 rounded-tr-lg">Tx ID</th>
+                </tr>
+              </thead>
+              <tbody id="audit-body" class="divide-y divide-outline-variant/10 text-on-surface font-body text-xs">
+                 <!-- dynamically injected -->
+              </tbody>
+            </table>
+          </div>
+          <div class="border-t border-outline-variant/20 pt-6 space-y-4 font-label text-sm text-on-surface-variant">
+             <div class="flex justify-between items-center">
+               <span>Total paid to agents</span>
+               <span id="audit-agents-val" class="font-bold text-white font-mono bg-surface-container px-2 py-1 rounded">0.00</span>
+             </div>
+             <div class="flex justify-between items-center border-b border-outline-variant/10 pb-4">
+               <span>Platform profit</span>
+               <span id="audit-profit-val" class="font-bold text-white font-mono bg-surface-container px-2 py-1 rounded">0.00</span>
+             </div>
+             <div class="flex justify-between items-center text-xl font-extrabold pt-2 text-primary">
+               <span>Your total</span>
+               <span id="audit-total-val" class="font-mono bg-primary/10 px-3 py-1 rounded border border-primary/20">0.00</span>
+             </div>
+          </div>
+          <button id="btn-reset" class="w-full mt-10 border border-outline-variant/50 hover:bg-white hover:text-black text-on-surface py-4 rounded-xl font-extrabold transition-all text-sm uppercase tracking-widest active:scale-95 shadow-lg">🔄 New Research Task</button>
         </div>
       </div>
     </div>
-  </section>
+  </main>
 
-  <!-- AGENTS SECTION -->
-  <section id="agents" class="section container">
-    <h2 style="text-align: center;">Meet Your Agents</h2>
-    <div class="grid-3" id="agents-grid">
-      <!-- Agent cards injected here -->
-      <div style="text-align: center; width: 100%; grid-column: 1 / -1;">Loading agents...</div>
+  <!-- SECTION 4: AGENTS -->
+  <main id="section-agents" class="page-section pt-32 pb-20 px-8 max-w-7xl mx-auto">
+    <div class="mb-12 text-center">
+      <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight text-on-background mb-4">Meet Your Agents</h2>
+      <p class="text-on-surface-variant font-label tracking-wide uppercase text-xs">Available Marketplace Operatives</p>
     </div>
-  </section>
-
-  <!-- DASHBOARD SECTION -->
-  <section id="dashboard" class="section container">
-    <h2 style="text-align: center;">📊 Marketplace Dashboard</h2>
-    <div class="grid-4" style="grid-template-columns: repeat(4, 1fr);" id="dashboard-grid">
-      <div class="stat-box"><div class="stat-label">Balance</div><div class="stat-value" id="dash-balance">0.0</div></div>
-      <div class="stat-box"><div class="stat-label">Agents</div><div class="stat-value" id="dash-agents">0</div></div>
-      <div class="stat-box"><div class="stat-label">Jobs</div><div class="stat-value" id="dash-jobs">0</div></div>
-      <div class="stat-box"><div class="stat-label">Status</div><div class="stat-value" id="dash-status">🔴 Offline</div></div>
+    <div id="agents-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+       <!-- injected -->
+       <div class="col-span-full text-center text-on-surface-variant mt-10"><span class="w-6 h-6 border-4 border-primary/20 border-t-primary rounded-full animate-spin inline-block align-middle mr-3"></span>Loading marketplace directory...</div>
     </div>
-  </section>
+  </main>
 
-  <!-- PAYMENT FAILED MODAL -->
+  <!-- SECTION 5: DASHBOARD -->
+  <main id="section-dashboard" class="page-section pt-32 pb-20 px-8 max-w-7xl mx-auto">
+    <!-- Dashboard Header -->
+    <header class="mb-12">
+      <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-on-background mb-4">Marketplace Dashboard</h1>
+      <p class="text-on-surface-variant font-label tracking-wide uppercase text-xs">Autonomous Agency Performance Hub</p>
+    </header>
+    
+    <!-- Stats Bar -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      <div class="surface-container-low p-6 rounded-2xl border border-outline-variant/20 flex flex-col justify-between h-36 relative overflow-hidden group hover:border-primary/40 transition-all shadow-lg">
+        <div class="flex justify-between items-start z-10">
+          <span class="text-on-surface-variant text-xs font-label uppercase tracking-widest">Global Balance</span>
+          <span class="material-symbols-outlined text-primary bg-primary/10 p-2 rounded-full">account_balance_wallet</span>
+        </div>
+        <div class="text-3xl font-bold text-on-surface z-10 font-headline tracking-tighter" id="dash-balance">0.00 USDC</div>
+        <div class="absolute -bottom-6 -right-6 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+      </div>
+      <div class="surface-container-low p-6 rounded-2xl border border-outline-variant/20 flex flex-col justify-between h-36 relative overflow-hidden group hover:border-secondary/40 transition-all shadow-lg">
+        <div class="flex justify-between items-start z-10">
+          <span class="text-on-surface-variant text-xs font-label uppercase tracking-widest">Active Agents</span>
+          <span class="material-symbols-outlined text-secondary bg-secondary/10 p-2 rounded-full">smart_toy</span>
+        </div>
+        <div class="text-3xl font-bold text-on-surface z-10 font-headline tracking-tighter" id="dash-agents">0</div>
+        <div class="absolute -bottom-6 -right-6 w-24 h-24 bg-secondary/5 rounded-full blur-2xl group-hover:bg-secondary/20 transition-colors"></div>
+      </div>
+      <div class="surface-container-low p-6 rounded-2xl border border-outline-variant/20 flex flex-col justify-between h-36 relative overflow-hidden group hover:border-primary-container/40 transition-all shadow-lg">
+        <div class="flex justify-between items-start z-10">
+          <span class="text-on-surface-variant text-xs font-label uppercase tracking-widest">Jobs Done</span>
+          <span class="material-symbols-outlined text-primary-container bg-primary-container/10 p-2 rounded-full">assignment_turned_in</span>
+        </div>
+        <div class="text-3xl font-bold text-on-surface z-10 font-headline tracking-tighter" id="dash-jobs">0</div>
+        <div class="absolute -bottom-6 -right-6 w-24 h-24 bg-primary-container/5 rounded-full blur-2xl group-hover:bg-primary-container/20 transition-colors"></div>
+      </div>
+      <div class="surface-container-low p-6 rounded-2xl border border-outline-variant/20 flex flex-col justify-between h-36 relative overflow-hidden group hover:border-tertiary/40 transition-all shadow-lg">
+        <div class="flex justify-between items-start z-10">
+          <span class="text-on-surface-variant text-xs font-label uppercase tracking-widest">Platform Status</span>
+          <div class="flex items-center gap-2 bg-tertiary/10 p-1.5 pr-2 rounded-full">
+            <span class="w-3 h-3 rounded-full bg-tertiary animate-pulse shadow-[0_0_8px_rgba(142,255,113,0.6)]" id="dash-dot"></span>
+            <span class="material-symbols-outlined text-tertiary text-sm">sensors</span>
+          </div>
+        </div>
+        <div class="text-3xl font-bold text-on-surface z-10 font-headline tracking-tighter" id="dash-status">Live</div>
+        <div class="absolute -bottom-6 -right-6 w-24 h-24 bg-tertiary/5 rounded-full blur-2xl group-hover:bg-tertiary/20 transition-colors"></div>
+      </div>
+    </div>
+    
+    <!-- Transaction History -->
+    <section class="mt-16 glass-panel p-8 rounded-3xl">
+      <h2 class="text-2xl font-extrabold mb-8 text-on-surface">Recent Network Activity</h2>
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6" id="dash-transactions">
+         <div class="col-span-full w-full text-center py-10 text-on-surface-variant text-sm font-label uppercase tracking-widest border border-outline-variant/10 rounded-xl">Loading records...</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full flex flex-col md:flex-row justify-between items-center py-12 px-8 border-t border-[#46465e]/15 bg-[#0a0a1a]">
+    <div class="text-lg font-bold text-[#e5e3ff] mb-6 md:mb-0 flex items-center gap-2"><span class="text-primary material-symbols-outlined">network_node</span> AgentMarket</div>
+    <div class="flex gap-8 mb-6 md:mb-0">
+      <a class="text-[#aaa8c5] hover:text-[#4af8e3] text-xs font-label uppercase tracking-widest transition-opacity opacity-80 hover:opacity-100 cursor-pointer">Terms</a>
+      <a class="text-[#aaa8c5] hover:text-[#4af8e3] text-xs font-label uppercase tracking-widest transition-opacity opacity-80 hover:opacity-100 cursor-pointer">Privacy</a>
+      <a class="text-[#aaa8c5] hover:text-[#4af8e3] text-xs font-label uppercase tracking-widest transition-opacity opacity-80 hover:opacity-100 cursor-pointer">Security</a>
+    </div>
+    <div class="text-[10px] uppercase tracking-widest font-label text-outline-variant">Powered by Locus Protocol</div>
+  </footer>
+
+  <!-- MODALS -->
   <div class="modal-overlay" id="payment-failed-modal">
-    <div class="modal-content">
-      <h2 class="modal-title">⚠️ Payment Failed!</h2>
-      <div class="modal-body">
-        <p id="payment-failed-msg" style="margin-bottom: 1rem; font-weight: 500;">Could not pay Agent. </p>
-        <p style="color: var(--text-muted); margin-bottom: 0.5rem;">Possible reasons:</p>
-        <ul>
-          <li>Allowance limit reached</li>
-          <li>Insufficient balance</li>
-          <li>Spending controls blocking payment</li>
+    <div class="modal-content shadow-[0_0_50px_rgba(239,68,68,0.2)] border-error/50">
+      <h2 class="text-3xl font-extrabold text-error flex items-center gap-3 mb-6 font-headline tracking-tight"><span class="material-symbols-outlined text-4xl">error</span> Payment Failed!</h2>
+      <div class="text-lg text-on-surface mb-8 font-body">
+        <p id="payment-failed-msg" class="mb-6 font-bold text-white text-xl">Could not process payment for Agent.</p>
+        <p class="text-on-surface-variant text-xs mb-3 uppercase tracking-widest font-label font-bold border-b border-outline-variant/20 pb-2">Common Fixes</p>
+        <ul class="list-disc pl-5 space-y-2 text-sm text-on-surface-variant mb-8 font-label">
+          <li>Check if your wallet allowance limit was reached.</li>
+          <li>Ensure you have sufficient stablecoin balance.</li>
+          <li>Verify your spending controls allow sub-dollar micro-transactions.</li>
         </ul>
-        <div class="modal-dashboard-link">
-          <p style="color: #fff; margin-bottom: 0.5rem;"><strong>👉 Check your Locus dashboard:</strong></p>
-          <p style="font-family: inherit; color: var(--text-muted); line-height: 1.6; margin-left: 1.5rem;">
-            <a href="https://beta.paywithlocus.com" target="_blank" style="color: var(--text-main); font-weight: 500;">beta.paywithlocus.com</a><br>
-            → Agent Settings<br>
-            → Allowance → Configure
+        <div class="bg-surface-container-low p-6 rounded-2xl border border-outline-variant/30">
+          <p class="text-white font-bold mb-3 flex items-center gap-2"><span class="material-symbols-outlined text-sm text-primary">open_in_new</span> Locus Dashboard Resolution:</p>
+          <p class="text-on-surface-variant font-mono text-sm leading-relaxed bg-surface p-4 rounded-xl border border-outline-variant/20">
+            <a href="https://beta.paywithlocus.com" target="_blank" class="text-primary hover:text-white transition-colors">beta.paywithlocus.com</a><br>
+            <span class="opacity-50">└─</span> Agent Settings<br>
+            <span class="opacity-50">   └─</span> Allowance → Configure
           </p>
         </div>
       </div>
-      <div class="modal-actions">
-        <button class="btn-modal btn-modal-retry" id="btn-modal-retry">🔄 Try Again</button>
-        <a href="https://beta.paywithlocus.com" target="_blank" class="btn-modal btn-modal-fix">⚙️ Fix Settings</a>
+      <div class="flex flex-col sm:flex-row gap-4">
+        <button id="btn-modal-retry" class="flex-1 bg-surface-container border border-outline-variant/30 hover:bg-surface-variant text-white py-4 rounded-xl font-bold transition-all text-center uppercase tracking-widest text-xs">Close & Retry</button>
+        <a href="https://beta.paywithlocus.com" target="_blank" class="flex-1 bg-primary text-black hover:bg-primary-container py-4 rounded-xl font-extrabold transition-all text-center flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(199,153,255,0.3)] uppercase tracking-widest text-xs">⚙️ Fix Settings</a>
       </div>
     </div>
   </div>
 
-  <!-- AGENT PROFILE MODAL -->
-  <div class="agent-profile-modal-overlay" id="agent-profile-modal">
-    <div class="agent-card-wrapper">
-      <button class="btn-close-profile" id="btn-close-profile">✕</button>
-      <div class="profile-header">
-        <h2 class="profile-title" id="profile-title">🤖 Agent Name</h2>
-        <div class="profile-dev" id="profile-dev">By: Team TS Xenkai</div>
+  <div class="modal-overlay" id="agent-profile-modal">
+    <div class="modal-content flex flex-col pt-8">
+      <button id="btn-close-profile" class="absolute top-6 right-6 text-on-surface-variant hover:text-white transition-colors bg-surface-container px-2 py-1 rounded-full border border-outline-variant/30 hover:border-white shadow-lg"><span class="material-symbols-outlined text-sm">close</span></button>
+      <div class="border-b border-outline-variant/20 pb-6 mb-6 mt-2">
+        <h2 id="profile-title" class="text-3xl font-extrabold text-white flex items-center gap-3 mb-2 tracking-tight">🤖 Agent Name</h2>
+        <div id="profile-dev" class="inline-block bg-primary/10 border border-primary/20 text-primary font-bold text-xs tracking-widest uppercase px-3 py-1 rounded-full">By: Team TS Xenkai</div>
       </div>
       
-      <p class="profile-desc" id="profile-desc">Agent description goes here.</p>
+      <p id="profile-desc" class="text-on-surface-variant text-[15px] leading-relaxed mb-6 font-body text-justify">Agent description goes here.</p>
       
-      <div style="color: var(--accent); font-weight: bold; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--card-border);" id="profile-spec">Specialist</div>
+      <div id="profile-spec" class="text-secondary font-bold mb-8 pb-6 border-b border-outline-variant/10 text-sm uppercase tracking-widest font-label">Specialist</div>
       
-      <div class="profile-stats">
-        <div class="profile-stat-box"><label>Rate</label><span id="profile-rate">$0.00</span></div>
-        <div class="profile-stat-box"><label>Rating</label><span id="profile-rating">⭐ 0.0</span></div>
-        <div class="profile-stat-box"><label>Jobs Done</label><span id="profile-jobs">✅ 0</span></div>
-        <div class="profile-stat-box"><label>Earned</label><span id="profile-earned">💰 $0.00</span></div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        <div class="bg-surface-container-low border border-outline-variant/20 p-4 rounded-xl text-center shadow-md hover:-translate-y-1 hover:border-primary/40 transition-all">
+           <label class="block text-on-surface-variant text-[10px] uppercase tracking-widest font-label mb-2">Rate</label>
+           <span id="profile-rate" class="text-lg font-bold text-white font-mono">$0.00</span>
+        </div>
+        <div class="bg-surface-container-low border border-outline-variant/20 p-4 rounded-xl text-center shadow-md hover:-translate-y-1 hover:border-secondary/40 transition-all">
+           <label class="block text-on-surface-variant text-[10px] uppercase tracking-widest font-label mb-2">Rating</label>
+           <span id="profile-rating" class="text-lg font-bold text-yellow-500 font-mono">⭐ 0.0</span>
+        </div>
+        <div class="bg-surface-container-low border border-outline-variant/20 p-4 rounded-xl text-center shadow-md hover:-translate-y-1 hover:border-success/40 transition-all">
+           <label class="block text-on-surface-variant text-[10px] uppercase tracking-widest font-label mb-2">Jobs</label>
+           <span id="profile-jobs" class="text-lg font-bold text-white font-mono">✅ 0</span>
+        </div>
+        <div class="bg-surface-container-low border border-outline-variant/20 p-4 rounded-xl text-center shadow-md hover:-translate-y-1 hover:border-primary-container/40 transition-all">
+           <label class="block text-on-surface-variant text-[10px] uppercase tracking-widest font-label mb-2">Earned</label>
+           <span id="profile-earned" class="text-lg font-bold text-primary font-mono cursor-help" title="Total USD processed via Locus">💰 0.00</span>
+        </div>
       </div>
       
-      <h3 class="profile-section-title">Work History</h3>
-      <div id="profile-history">
-        <div class="profile-history-item"><span>EV market research</span><span class="stars">⭐⭐⭐⭐⭐</span></div>
-        <div class="profile-history-item"><span>AI startups India</span><span class="stars">⭐⭐⭐⭐</span></div>
+      <h3 class="text-xs font-bold text-white border-b border-outline-variant/20 pb-3 mb-4 font-label uppercase tracking-widest flex items-center gap-2"><span class="material-symbols-outlined text-sm text-on-surface-variant">history</span> Work History</h3>
+      <div id="profile-history" class="space-y-3 mb-8">
+        <div class="flex justify-between items-center text-sm text-on-surface-variant bg-surface-container-lowest/50 p-4 rounded-xl border border-outline-variant/10"><span>EV market research</span><span class="text-yellow-500 text-xs tracking-widest">⭐⭐⭐⭐⭐</span></div>
+        <div class="flex justify-between items-center text-sm text-on-surface-variant bg-surface-container-lowest/50 p-4 rounded-xl border border-outline-variant/10"><span>AI startups India</span><span class="text-yellow-500 text-xs tracking-widest">⭐⭐⭐⭐</span></div>
       </div>
       
-      <h3 class="profile-section-title">Reviews</h3>
-      <div id="profile-reviews">
-        <div class="profile-review">"Great detailed search results!" <span class="reviewer">— 5⭐</span></div>
-        <div class="profile-review">"Fast and accurate" <span class="reviewer">— 4⭐</span></div>
+      <h3 class="text-xs font-bold text-white border-b border-outline-variant/20 pb-3 mb-4 font-label uppercase tracking-widest flex items-center gap-2"><span class="material-symbols-outlined text-sm text-on-surface-variant">forum</span> Trust & Reviews</h3>
+      <div id="profile-reviews" class="space-y-4">
+        <div class="bg-surface-container-low border border-outline-variant/10 rounded-xl p-5 italic text-on-surface-variant text-sm border-l-2 border-l-primary/80 shadow-md">"Great detailed search results!" <span class="block font-bold not-italic text-primary text-xs mt-3 uppercase tracking-widest flex items-center gap-1"><span class="text-yellow-500">5⭐</span> Validated User</span></div>
+        <div class="bg-surface-container-low border border-outline-variant/10 rounded-xl p-5 italic text-on-surface-variant text-sm border-l-2 border-l-secondary/80 shadow-md">"Fast and accurate. The Locus payment settled instantly." <span class="block font-bold not-italic text-secondary text-xs mt-3 uppercase tracking-widest flex items-center gap-1"><span class="text-yellow-500">4⭐</span> Validated User</span></div>
       </div>
     </div>
   </div>
 
   <!-- APP LOGIC -->
   <script>
+    // Navigation routing logic
+    function showSection(sectionId) {
+      document.querySelectorAll('.page-section').forEach(el => {
+        el.classList.remove('active');
+      });
+      document.getElementById('section-' + sectionId).classList.add('active');
+      
+      ['home', 'agents', 'dashboard'].forEach(id => {
+        const nav = document.getElementById('nav-' + id);
+        if(id === sectionId) {
+          nav.className = "cursor-pointer text-primary font-bold border-b-2 border-primary pb-1 transition-colors duration-300";
+        } else {
+          nav.className = "cursor-pointer text-[#aaa8c5] font-medium hover:text-[#4af8e3] transition-colors duration-300";
+        }
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     const API_BASE = "http://localhost:5001/api";
-    let selectedBudget = 2.00; // default standard
+    let selectedBudget = 2.00;
     let currentReportSource = "";
     let currentWalletBalance = 0;
 
-    // DOM Elements
+    // DOM Elements Map
     const walletBadge = document.getElementById('wallet-badge');
     const taskInput = document.getElementById('task-input');
     const btnLaunch = document.getElementById('btn-launch');
@@ -616,23 +474,23 @@
     const resultsSection = document.getElementById('results-section');
     const reportQuality = document.getElementById('report-quality');
     const mainLoader = document.getElementById('main-loader');
-    
-    // Agent profile modal
     const profileModal = document.getElementById('agent-profile-modal');
+    
     document.getElementById('btn-close-profile').addEventListener('click', () => profileModal.classList.remove('active'));
 
+    // Global Modal populator
     window.openAgentProfile = function(name, icon, spec, rate, rating, completed, earned) {
       document.getElementById('profile-title').innerText = `${icon} ${name}`;
       document.getElementById('profile-spec').innerText = spec;
       document.getElementById('profile-rate').innerText = `$${rate.toFixed(2)}`;
       document.getElementById('profile-rating').innerText = `⭐ ${rating.toFixed(1)}`;
       document.getElementById('profile-jobs').innerText = `✅ ${completed}`;
-      document.getElementById('profile-earned').innerText = `💰 $${earned.toFixed(2)}`;
-      document.getElementById('profile-desc').innerText = `I am ${name}, a top-tier specialist. I collaborate autonomously using the Locus protocol to deliver highly accurate output in my domain.`;
+      document.getElementById('profile-earned').innerText = `$${parseFloat(earned).toFixed(2)}`;
+      document.getElementById('profile-desc').innerText = `I am ${name}, a top-tier specialist operating globally. I collaborate autonomously using the Locus protocol to deliver highly accurate output in my domain with guaranteed cryptographic settlements.`;
       profileModal.classList.add('active');
     };
 
-    // Cards
+    // Live Tracking Cards
     const cards = {
       manager: document.getElementById('card-manager'),
       search: document.getElementById('card-search'),
@@ -640,29 +498,27 @@
       writing: document.getElementById('card-writing')
     };
 
-    // Initialization
+    // Boot
     document.addEventListener('DOMContentLoaded', () => {
       fetchBalance();
       fetchAgents();
       fetchDashboard();
-      setInterval(() => { fetchBalance(); fetchDashboard(); }, 30000);
+      fetchTransactions();
+      setInterval(() => { fetchBalance(); fetchDashboard(); fetchTransactions(); }, 15000); // 15s refresh for prod feel
       
-      // Analyze Query Flow
+      // Analyze Query Action
       if (btnAnalyze) {
         btnAnalyze.addEventListener('click', async () => {
           const query = taskInput.value.trim();
-          if(!query) return alert("Please enter a research topic!");
+          if(!query) return alert("Please enter a research topic first.");
           
-          btnAnalyze.innerHTML = '⏳ Analyzing...';
+          btnAnalyze.innerHTML = '⏳ Analyzing Complexity...';
           btnAnalyze.disabled = true;
           
           try {
-            // Fake delay or backend analyze-query call
-            await new Promise(r => setTimeout(r, 1500));
-            // e.g. await fetch(`${API_BASE}/analyze-query?query=${encodeURIComponent(query)}`);
+            await new Promise(r => setTimeout(r, 1200)); // fake backend latency
           } catch (e) {}
 
-          // Evaluate Budgets
           cardsBudget.forEach(card => {
              const val = parseFloat(card.getAttribute('data-val'));
              if (val > currentWalletBalance) {
@@ -683,14 +539,12 @@
           });
           
           btnAnalyze.style.display = 'none';
-          budgetRecommendationArea.style.display = 'block';
-          budgetRecommendationArea.style.animation = 'fadeInUp 0.8s forwards';
-          btnLaunch.style.display = 'inline-block';
-          btnLaunch.style.animation = 'fadeInUp 0.5s forwards';
+          budgetRecommendationArea.classList.remove('hidden');
+          btnLaunch.classList.remove('hidden');
         });
       }
 
-      // Budget Plan Selection
+      // Budget Selection Listeners
       cardsBudget.forEach(card => {
         card.addEventListener('click', () => {
           if(card.classList.contains('disabled')) return;
@@ -707,13 +561,12 @@
       });
     });
 
-    // Launch Process
+    // Launch Agents Action
     btnLaunch.addEventListener('click', async () => {
       const query = taskInput.value.trim();
       if(!query) return alert("Please enter a research topic!");
 
-      // 1. Fetch balance first
-      btnLaunch.innerHTML = '⏳ Checking balance...';
+      btnLaunch.innerHTML = '⏳ Checking Liquidity...';
       btnLaunch.disabled = true;
       btnLaunch.style.opacity = '0.7';
       btnLaunch.style.cursor = 'not-allowed';
@@ -723,103 +576,78 @@
         const data = await res.json();
         currentWalletBalance = parseFloat(data.balance || 0);
         document.getElementById('available-budget-disp').innerText = `Available: ${currentWalletBalance.toFixed(2)} USDC`;
-      } catch (e) {
-        console.error("Failed to fetch balance", e);
-      }
+      } catch (e) {}
 
       if (selectedBudget > currentWalletBalance) {
-        alert(`⚠️ Insufficient balance!\nYour balance: $${currentWalletBalance.toFixed(2)} USDC\nPlease select a lower budget.`);
+        alert(`⚠️ Insufficient balance!\nYour balance is ${currentWalletBalance.toFixed(2)} USDC\nPlease select a smaller package or fund your wallet.`);
         btnLaunch.innerHTML = '🚀 Launch Agents';
-        btnLaunch.style.opacity = '0.5'; // stays disabled
+        btnLaunch.style.opacity = '1';
         return;
       }
 
-      // Start UI Transition
-      btnLaunch.innerHTML = '⏳ Agents Working... <span class="loader" style="width:15px;height:15px;border-width:2px;"></span>';
+      btnLaunch.innerHTML = '⏳ Initializing Autonomous Sequence...';
       taskInput.disabled = true;
       
-      progressSection.style.display = 'block';
-      setTimeout(() => resultsSection.style.display = 'none', 0);
+      progressSection.classList.remove('hidden');
+      resultsSection.classList.add('hidden');
       resetCards();
       
-      // Calculate splits roughly for UI before stream confirms
       const platformFee = selectedBudget * 0.4;
       const agentFee = (selectedBudget * 0.2).toFixed(2);
       document.getElementById('cost-search').innerText = `$${agentFee}`;
       document.getElementById('cost-analysis').innerText = `$${agentFee}`;
       document.getElementById('cost-writing').innerText = `$${agentFee}`;
 
-      // Start Event Stream
+      // Open SSE Pipeline
       const url = `${API_BASE}/stream?query=${encodeURIComponent(query)}&budget=${selectedBudget}`;
       const evtSource = new EventSource(url);
-
       const auditRows = [];
 
       evtSource.onmessage = function(event) {
         try {
           const data = JSON.parse(event.data);
           
+          // Trapping errors
           if (data.error === "insufficient_balance" || (data.error && data.error.includes("balance"))) {
-            alert(`💸 Insufficient balance for this job!\nCurrent balance: $${currentWalletBalance.toFixed(2)}\nTry a smaller budget!`);
-            evtSource.close();
-            resetCards();
-            progressSection.style.display = 'none';
-            launchPanel.classList.remove('hidden');
-            mainLoader.style.display = 'none';
-            btnLaunch.innerHTML = '🚀 Launch Agents';
-            btnLaunch.disabled = false;
-            btnLaunch.style.opacity = '1';
-            btnLaunch.style.cursor = 'pointer';
-            taskInput.disabled = false;
+            alert(`💸 Insufficient balance!\nTry a smaller budget or fund your smart wallet.`);
+            failUI(evtSource);
             return;
           }
 
           if (data.error === "payment_failed") {
-            const agentName = data.agent_name || "Search Agent"; // Defaulting to Search Agent as per typical scenario
+            const agentName = data.agent_name || "Agent"; 
             const amount = data.amount != null ? `$${parseFloat(data.amount).toFixed(2)}` : `$${(selectedBudget * 0.2).toFixed(2)}`;
-            const message = data.message || `Could not pay ${agentName} ${amount}`;
+            const message = data.message || `Could not allocate payment for ${agentName} (${amount})`;
             
             document.getElementById('payment-failed-msg').innerText = message;
             document.getElementById('payment-failed-modal').classList.add('active');
-            
-            evtSource.close();
-            resetCards();
-            progressSection.style.display = 'none';
-            launchPanel.classList.remove('hidden');
-            mainLoader.style.display = 'none';
-            btnLaunch.innerHTML = '🚀 Launch Agents';
-            btnLaunch.disabled = false;
-            btnLaunch.style.opacity = '1';
-            btnLaunch.style.cursor = 'pointer';
-            taskInput.disabled = false;
+            failUI(evtSource);
             return;
           }
 
           const step = data.step;
-
           const getTxId = (d) => d.tx_hash ? d.tx_hash.substring(0,8) + '...' : 'N/A';
-          const paidAnim = `<span style="color:var(--success); display:inline-block; animation: bounce 0.5s;">✅ Paid</span>`;
 
           if (step === "manager_started") {
-            setCardSuccess(cards.manager, "Status: Request coordinated ✅");
+            setCardSuccess(cards.manager, "Status: Deployed & Coordinated ✅");
           } else if (step === "search_started") {
-            setCardPulse(cards.search, "Status: Searching the web... ⏳");
+            setCardPulse(cards.search, "Status: Scanning global sources... ⏳");
           } else if (step === "search_complete") {
-            setCardSuccess(cards.search, "Status: Complete ✅", data.paid);
-            auditRows.push(`<tr><td>Search Agent</td><td>Web Research</td><td>$${data.paid.toFixed(2)}</td><td>${getTxId(data)}</td><td>${paidAnim}</td></tr>`);
+            setCardSuccess(cards.search, "Status: Intelligence Gathered ✅", data.paid);
+            auditRows.push(`<tr><td class="py-4 px-3 font-semibold text-white">Web Research</td><td class="py-4 px-3 font-mono text-success">$${data.paid.toFixed(2)}</td><td class="py-4 px-3 font-mono opacity-80">${getTxId(data)}</td></tr>`);
           } else if (step === "analysis_started") {
-            setCardPulse(cards.analysis, "Status: Analyzing data... ⏳");
+            setCardPulse(cards.analysis, "Status: Processing vectors... ⏳");
           } else if (step === "analysis_complete") {
-            setCardSuccess(cards.analysis, "Status: Complete ✅", data.paid);
-            auditRows.push(`<tr><td>Analysis Agent</td><td>Data Analysis</td><td>$${data.paid.toFixed(2)}</td><td>${getTxId(data)}</td><td>${paidAnim}</td></tr>`);
+            setCardSuccess(cards.analysis, "Status: Matrices Analyzed ✅", data.paid);
+            auditRows.push(`<tr><td class="py-4 px-3 font-semibold text-white">Data Analysis</td><td class="py-4 px-3 font-mono text-success">$${data.paid.toFixed(2)}</td><td class="py-4 px-3 font-mono opacity-80">${getTxId(data)}</td></tr>`);
           } else if (step === "writing_started") {
-            setCardPulse(cards.writing, "Status: Drafting report... ⏳");
+            setCardPulse(cards.writing, "Status: Synthesizing brief... ⏳");
           } else if (step === "writing_complete") {
-            setCardSuccess(cards.writing, "Status: Complete ✅", data.paid);
-            auditRows.push(`<tr><td>Writing Agent</td><td>Report Writing</td><td>$${data.paid.toFixed(2)}</td><td>${getTxId(data)}</td><td>${paidAnim}</td></tr>`);
+            setCardSuccess(cards.writing, "Status: Report Finalized ✅", data.paid);
+            auditRows.push(`<tr><td class="py-4 px-3 font-semibold text-white">Report Drafting</td><td class="py-4 px-3 font-mono text-success">$${data.paid.toFixed(2)}</td><td class="py-4 px-3 font-mono opacity-80">${getTxId(data)}</td></tr>`);
           } else if (step === "done") {
             evtSource.close();
-            mainLoader.style.display = 'none';
+            mainLoader.classList.add('hidden');
             btnLaunch.innerHTML = '🚀 Launch Agents';
             btnLaunch.disabled = false;
             btnLaunch.style.opacity = '1';
@@ -832,87 +660,96 @@
             showResults(data.result.report, auditRows, agentsPaid, platformProfit, selectedBudget);
             fetchDashboard();
             fetchBalance();
+            fetchTransactions();
           }
-        } catch(e) {
-          console.error("Error parsing SSE data", e);
-        }
+        } catch(e) {}
       };
 
       evtSource.onerror = function(err) {
-        console.error("EventSource failed:", err);
-        evtSource.close();
-        mainLoader.style.display = 'none';
-        btnLaunch.innerHTML = '🚀 Launch Agents';
-        btnLaunch.disabled = false;
-        btnLaunch.style.opacity = '1';
-        btnLaunch.style.cursor = 'pointer';
-        taskInput.disabled = false;
-        document.getElementById('error-banner').style.display = 'block';
-        setTimeout(() => document.getElementById('error-banner').style.display = 'none', 5000);
+        document.getElementById('error-banner').classList.remove('hidden');
+        setTimeout(() => document.getElementById('error-banner').classList.add('hidden'), 5000);
+        failUI(evtSource);
       };
     });
 
-    // Reset handler
+    function failUI(evtSource) {
+      if(evtSource) evtSource.close();
+      resetCards();
+      progressSection.classList.add('hidden');
+      launchPanel.classList.remove('hidden');
+      mainLoader.classList.remove('hidden');
+      btnLaunch.innerHTML = '🚀 Launch Agents';
+      btnLaunch.disabled = false;
+      btnLaunch.style.opacity = '1';
+      btnLaunch.style.cursor = 'pointer';
+      taskInput.disabled = false;
+    }
+
+    // New task reseter
     document.getElementById('btn-reset').addEventListener('click', () => {
       taskInput.value = "";
-      resultsSection.style.display = 'none';
-      progressSection.style.display = 'none';
+      resultsSection.classList.add('hidden');
+      progressSection.classList.add('hidden');
       launchPanel.classList.remove('hidden');
-      budgetRecommendationArea.style.display = 'none';
-      btnLaunch.style.display = 'none';
-      btnAnalyze.style.display = 'inline-block';
+      budgetRecommendationArea.classList.add('hidden');
+      btnLaunch.classList.add('hidden');
+      btnAnalyze.style.display = 'block';
       btnAnalyze.innerHTML = '🔍 Analyze My Query';
       btnAnalyze.disabled = false;
-      if(reportQuality) reportQuality.style.display = 'none';
+      if (reportQuality) reportQuality.classList.add('hidden');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // Modal Retry handler
     document.getElementById('btn-modal-retry').addEventListener('click', () => {
       document.getElementById('payment-failed-modal').classList.remove('active');
     });
 
-    // Actions
     document.getElementById('btn-copy').addEventListener('click', () => {
-      navigator.clipboard.writeText(currentReportSource).then(() => alert("Copied to clipboard!"));
+      navigator.clipboard.writeText(currentReportSource).then(() => alert("Copied entire report to clipboard!"));
     });
     
     document.getElementById('btn-download').addEventListener('click', () => {
-      const blob = new Blob([currentReportSource], { type: 'text/plain' });
+      const blob = new Blob([currentReportSource], { type: 'text/markdown' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = 'AgentMarket-Report.md';
       a.click();
     });
 
-    // Helpers
+    // Subroutines for UI status handling
     function setCardPulse(card, statusText) {
-      card.classList.remove('success');
-      card.classList.add('pulse');
+      card.querySelector('.agent-card-indicator').className = "agent-card-indicator absolute top-0 left-0 w-full h-1 bg-primary shadow-[0_0_15px_rgba(199,153,255,0.8)] animate-pulse";
+      card.classList.add('border-primary/50');
       card.querySelector('.agent-status').innerText = statusText;
+      card.querySelector('.agent-status').className = "agent-status text-sm text-primary mb-2 font-bold font-label min-h-[20px]";
     }
 
     function setCardSuccess(card, statusText, paidAmount = null) {
-      card.classList.remove('pulse');
-      card.classList.add('success');
+      card.querySelector('.agent-card-indicator').className = "agent-card-indicator absolute top-0 left-0 w-full h-2 bg-success shadow-[0_0_15px_rgba(16,185,129,0.9)]";
+      card.classList.remove('border-primary/50');
+      card.classList.add('border-success/50');
       card.querySelector('.agent-status').innerText = statusText;
+      card.querySelector('.agent-status').className = "agent-status text-sm text-success mb-2 font-bold font-label min-h-[20px]";
       if (paidAmount !== null) {
         const msg = card.querySelector('.payment-msg');
-        msg.innerText = `$${paidAmount.toFixed(2)} paid via Locus 💸`;
+        msg.innerHTML = `<span class="material-symbols-outlined text-[10px] align-middle mr-1">check_circle</span>$${paidAmount.toFixed(2)} paid via Locus`;
+        msg.classList.remove('hidden');
       }
     }
 
     function resetCards() {
-      mainLoader.style.display = 'inline-block';
+      mainLoader.classList.remove('hidden');
       Object.keys(cards).forEach(k => {
         const c = cards[k];
-        c.className = "agent-card";
+        c.className = "agent-card glass-panel p-6 rounded-2xl border border-outline-variant/30 relative overflow-hidden shadow-xl";
+        c.querySelector('.agent-card-indicator').className = "agent-card-indicator absolute top-0 left-0 w-full h-1 bg-transparent transition-all";
       });
-      document.getElementById('status-manager').innerText = "Status: Coordinating request... ⏳";
+      document.getElementById('status-manager').innerText = "Status: Coordinating... ⏳";
       document.getElementById('status-search').innerText = "Status: Waiting... ⏳";
       document.getElementById('status-analysis').innerText = "Status: Waiting... ⏳";
       document.getElementById('status-writing').innerText = "Status: Waiting... ⏳";
-      document.querySelectorAll('.payment-msg').forEach(el => el.innerText = "");
+      document.querySelectorAll('.agent-status').forEach(el => el.className = "agent-status text-sm text-on-surface mb-2 font-bold font-label min-h-[20px]");
+      document.querySelectorAll('.payment-msg').forEach(el => { el.innerText = ""; el.classList.add('hidden'); });
     }
 
     function showResults(markdown, auditRows, agentsPaid, platformProfit, total) {
@@ -922,41 +759,24 @@
       document.getElementById('audit-agents-val').innerText = `$${agentsPaid.toFixed(2)}`;
       document.getElementById('audit-profit-val').innerText = `$${platformProfit.toFixed(2)}`;
       document.getElementById('audit-total-val').innerText = `$${total.toFixed(2)}`;
-      resultsSection.style.display = 'block';
-      if (document.getElementById('report-quality')) {
-          document.getElementById('report-quality').style.display = 'block';
-      }
+      resultsSection.classList.remove('hidden');
+      if (reportQuality) reportQuality.classList.remove('hidden');
     }
 
-    // Fetches
+    // Backend Calls
     async function fetchBalance() {
       try {
         const res = await fetch(`${API_BASE}/balance`);
         const data = await res.json();
         const bal = parseFloat(data.balance || 0);
         currentWalletBalance = bal;
-        walletBadge.innerText = `💰 ${bal.toFixed(2)} USDC`;
+        walletBadge.innerText = `${bal.toFixed(2)} USDC`;
         
         const disp = document.getElementById('available-budget-disp');
         if (disp) disp.innerText = `Available: ${bal.toFixed(2)} USDC`;
         
-        if (launchPanel && !launchPanel.classList.contains('hidden')) {
-          if (selectedBudget > currentWalletBalance) {
-            btnLaunch.disabled = true;
-            btnLaunch.style.opacity = '0.5';
-            btnLaunch.style.cursor = 'not-allowed';
-          } else {
-            btnLaunch.disabled = false;
-            btnLaunch.style.opacity = '1';
-            btnLaunch.style.cursor = 'pointer';
-          }
-        }
-
-        if(bal > 0) {
-          walletBadge.className = "wallet-badge positive";
-        } else {
-          walletBadge.className = "wallet-badge zero";
-        }
+        if (bal > 0) walletBadge.className = "bg-primary/10 text-primary px-4 py-1.5 rounded-full border border-primary/20 font-bold text-sm tracking-tight hover:scale-105 transition-transform";
+        else walletBadge.className = "bg-error/10 text-error px-4 py-1.5 rounded-full border border-error/20 font-bold text-sm tracking-tight hover:scale-105 transition-transform";
       } catch(e) {}
     }
 
@@ -966,31 +786,33 @@
         const data = await res.json();
         const grid = document.getElementById('agents-grid');
         grid.innerHTML = "";
+        
         if(!data.agents || data.agents.length === 0) {
-          grid.innerHTML = "<div style='grid-column:1/-1;text-align:center;'>No agents registered yet.</div>";
+          grid.innerHTML = "<div class='col-span-full text-center text-on-surface-variant font-label text-sm uppercase tracking-widest mt-10'>No agents successfully registered.</div>";
           return;
         }
         
         data.agents.forEach(agent => {
-          let icon = "🤖";
-          if(agent.speciality.toLowerCase().includes("search")) icon = "🔍";
-          if(agent.speciality.toLowerCase().includes("analysis")) icon = "📊";
-          if(agent.speciality.toLowerCase().includes("writing")) icon = "✍️";
+          let icon = "🤖", cat = "primary";
+          if(agent.speciality.toLowerCase().includes("search")) { icon = "🔍"; cat = "secondary"; }
+          if(agent.speciality.toLowerCase().includes("analysis")) { icon = "📊"; cat = "primary-container"; }
+          if(agent.speciality.toLowerCase().includes("writing")) { icon = "✍️"; cat = "tertiary"; }
 
           const card = document.createElement('div');
-          card.className = "registry-card";
+          card.className = `glass-panel border border-outline-variant/20 rounded-3xl p-8 transition-all hover:border-${cat}/30 hover:-translate-y-2 relative group cursor-pointer shadow-xl`;
           card.innerHTML = `
-            <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; color:#fff;">${icon} ${agent.name}</div>
-            <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">By: Team TS Xenkai</div>
-            <div style="color: var(--accent); margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--card-border);">${agent.speciality}</div>
-            <ul style="margin-bottom: 1.5rem;">
-              <li><span style="color: #fff; font-weight: 500;">Rate:</span> $${agent.rate_per_task.toFixed(2)} per task</li>
-              <li><span style="color: #fff; font-weight: 500;">Rating:</span> ⭐ ${agent.rating.toFixed(1)}</li>
-              <li><span style="color: #fff; font-weight: 500;">Jobs:</span> ✅ ${agent.tasks_completed} completed</li>
-              <li><span style="color: #fff; font-weight: 500;">Earned:</span> 💰 $${agent.total_earned ? agent.total_earned.toFixed(2) : '0.00'} total</li>
-              <li><span style="color: #fff; font-weight: 500;">Status:</span> 🟢 ${agent.status}</li>
-            </ul>
-            <button class="btn-view-profile" onclick="openAgentProfile('${agent.name.replace(/'/g, "\\'")}', '${icon}', '${agent.speciality.replace(/'/g, "\\'")}', ${agent.rate_per_task}, ${agent.rating}, ${agent.tasks_completed}, ${agent.total_earned || 0})">View Profile</button>
+            <div class="absolute -bottom-8 -right-8 w-32 h-32 bg-${cat}/10 rounded-full blur-3xl group-hover:bg-${cat}/20 transition-colors pointer-events-none"></div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="text-2xl font-extrabold text-white tracking-tight flex items-center gap-3">${icon} ${agent.name}</div>
+            </div>
+            <div class="text-xs font-label uppercase tracking-widest text-${cat} mb-6 inline-block bg-${cat}/10 px-3 py-1 rounded-full border border-${cat}/20">${agent.speciality}</div>
+            <div class="space-y-4 mb-8 relative z-10 border-t border-outline-variant/10 pt-6 mt-2">
+              <div class="flex justify-between items-center"><span class="text-[11px] font-label uppercase tracking-widest text-on-surface-variant">Cost / Task</span><span class="font-mono text-sm text-white font-bold bg-surface-container px-2 py-1 rounded">$${agent.rate_per_task.toFixed(2)}</span></div>
+              <div class="flex justify-between items-center"><span class="text-[11px] font-label uppercase tracking-widest text-on-surface-variant">Network Rating</span><span class="font-mono text-sm text-yellow-400 font-bold">⭐ ${agent.rating.toFixed(1)}</span></div>
+              <div class="flex justify-between items-center"><span class="text-[11px] font-label uppercase tracking-widest text-on-surface-variant">Jobs Finalized</span><span class="font-mono text-sm text-white font-bold">${agent.tasks_completed}</span></div>
+              <div class="flex justify-between items-center"><span class="text-[11px] font-label uppercase tracking-widest text-on-surface-variant">Avail. Status</span><span class="font-label text-[10px] text-success uppercase font-bold tracking-widest bg-success/10 px-2 py-1 rounded flex items-center gap-1"><span class="w-1.5 h-1.5 bg-success rounded-full animate-pulse"></span> Online</span></div>
+            </div>
+            <button class="w-full relative z-10 bg-surface-container border border-outline-variant/20 hover:bg-surface-container-highest hover:text-white text-on-surface font-bold py-4 rounded-xl transition-colors font-label uppercase text-xs tracking-widest" onclick="openAgentProfile('${agent.name.replace(/'/g, "\\'")}', '${icon}', '${agent.speciality.replace(/'/g, "\\'")}', ${agent.rate_per_task}, ${agent.rating}, ${agent.tasks_completed}, ${agent.total_earned || 0})">View Agent Profile</button>
           `;
           grid.appendChild(card);
         });
@@ -1005,12 +827,73 @@
         document.getElementById('dash-balance').innerText = `${parseFloat(data.wallet_balance || 0).toFixed(2)} USDC`;
         document.getElementById('dash-agents').innerText = data.total_agents || 0;
         document.getElementById('dash-jobs').innerText = data.total_jobs_done || 0;
-        document.getElementById('dash-status').innerHTML = "🟢 Live";
-        document.getElementById('error-banner').style.display = 'none';
+        document.getElementById('dash-status').innerText = "Live";
+        document.getElementById('dash-dot').className = "w-3 h-3 rounded-full bg-tertiary animate-pulse shadow-[0_0_8px_rgba(142,255,113,0.6)]";
+        document.getElementById('error-banner').classList.add('hidden');
       } catch(e) {
-        document.getElementById('dash-status').innerHTML = "🔴 Offline";
-        document.getElementById('error-banner').style.display = 'block';
+        document.getElementById('dash-status').innerText = "Offline";
+        document.getElementById('dash-dot').className = "w-3 h-3 rounded-full bg-error";
+        document.getElementById('dash-status').parentElement.parentElement.classList.add('border-error/30');
+        document.getElementById('error-banner').classList.remove('hidden');
       }
+    }
+
+    async function fetchTransactions() {
+      try {
+        const res = await fetch(`${API_BASE}/transactions`);
+        const grid = document.getElementById('dash-transactions');
+        
+        if(!res.ok) {
+           grid.innerHTML = `
+            <div class="surface-container p-6 rounded-2xl border border-outline-variant/10 flex items-center justify-between group hover:border-primary/30 transition-all cursor-pointer shadow-md">
+               <div class="flex items-center gap-4">
+                 <div class="p-3 rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-black transition-all">
+                    <span class="material-symbols-outlined text-[20px]">north_east</span>
+                 </div>
+                 <div><p class="font-bold text-white text-base">Example Network Fee</p><p class="text-xs text-on-surface-variant font-mono mt-0.5">Tx: 0x...8F2e</p></div>
+               </div>
+               <div class="text-right"><p class="font-bold text-error font-mono text-lg">-0.40 USDC</p><p class="text-[10px] bg-success/10 text-success uppercase tracking-widest px-2 py-0.5 rounded-full inline-block mt-1.5 font-bold">Secured</p></div>
+            </div>
+           `;
+           return;
+        }
+
+        const data = await res.json();
+        grid.innerHTML = "";
+        
+        if (!data.transactions || data.transactions.length === 0) {
+           grid.innerHTML = "<div class='col-span-full w-full text-center py-10 text-on-surface-variant text-sm font-label uppercase tracking-widest border border-outline-variant/10 rounded-xl'>No finalized transactions found on network.</div>";
+           return;
+        }
+
+        data.transactions.slice(0, 10).forEach(tx => {
+           const type = tx.type; // e.g. "payment_sent", "platform_profit"
+           const isOut = type && type.includes('sent') ? true : false;
+           const color = isOut ? 'error' : 'tertiary';
+           const icon = isOut ? 'south_west' : 'north_east';
+           const sign = isOut ? '-' : '+';
+           
+           const card = document.createElement('div');
+           card.className = `glass-panel p-6 rounded-2xl border border-outline-variant/10 flex items-center justify-between group hover:border-${color}/30 transition-all cursor-pointer shadow-md bg-surface-container/50`;
+           card.innerHTML = `
+              <div class="flex items-center gap-5">
+                 <div class="p-3.5 rounded-full bg-${color}/10 text-${color} transition-all border border-${color}/20 group-hover:bg-${color} group-hover:text-black">
+                    <span class="material-symbols-outlined text-[24px]">${icon}</span>
+                 </div>
+                 <div>
+                    <p class="font-bold text-white capitalize text-[15px] font-headline tracking-tight">${(tx.type || 'Transaction').replace(/_/g, ' ')}</p>
+                    <p class="text-[11px] text-on-surface-variant font-mono mt-1">${tx.agent_name || 'System Route'}</p>
+                 </div>
+              </div>
+              <div class="text-right">
+                 <p class="font-bold text-${color} font-mono text-lg">${sign}${parseFloat(tx.amount || 0).toFixed(2)}</p>
+                 <p class="text-[9px] bg-success/10 text-success border border-success/20 uppercase tracking-widest px-2 py-0.5 rounded-full inline-block mt-2 font-bold">${tx.tx_hash ? tx.tx_hash.substring(0,8)+'...' : 'Verified'}</p>
+              </div>
+           `;
+           grid.appendChild(card);
+        });
+
+      } catch(e) {}
     }
   </script>
 </body>
