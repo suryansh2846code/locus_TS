@@ -2,6 +2,14 @@ import requests
 import os
 from config import LOCUS_API_KEY, LOCUS_API_BASE
 
+SEARCH_AGENT_WALLET = os.getenv("SEARCH_AGENT_WALLET")
+ANALYSIS_AGENT_WALLET = os.getenv("ANALYSIS_AGENT_WALLET")
+WRITING_AGENT_WALLET = os.getenv("WRITING_AGENT_WALLET")
+
+print(f"📡 Wallet Loaded - Search Agent: {SEARCH_AGENT_WALLET}")
+print(f"📡 Wallet Loaded - Analysis Agent: {ANALYSIS_AGENT_WALLET}")
+print(f"📡 Wallet Loaded - Writing Agent: {WRITING_AGENT_WALLET}")
+
 # Base headers for all Locus API requests
 HEADERS = {
     "Authorization": f"Bearer {LOCUS_API_KEY}",
@@ -35,6 +43,15 @@ def pay_agent(to_address, amount, agent_name, task):
     Returns: transaction_id (str) or None
     """
     url = f"{LOCUS_API_BASE}/pay/send"
+    
+    # Update to_address based on agent_name
+    if agent_name in ["SearchAgent", "Search Agent"]:
+        to_address = SEARCH_AGENT_WALLET
+    elif agent_name in ["AnalysisAgent", "Analysis Agent"]:
+        to_address = ANALYSIS_AGENT_WALLET
+    elif agent_name in ["WritingAgent", "Writing Agent"]:
+        to_address = WRITING_AGENT_WALLET
+        
     memo = f"Hiring {agent_name} for {task}"
     payload = {
         "to_address": to_address,
