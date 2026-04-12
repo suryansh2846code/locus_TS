@@ -237,12 +237,15 @@
       <div class="input-group">
         <input type="text" id="task-input" class="search-input" placeholder="e.g. Electric vehicles market in India in 2024">
       </div>
-      <p style="margin-bottom: 1rem; font-weight: 500;">Select Budget</p>
+      <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+        <p style="font-weight: 500; margin: 0;">Select Budget</p>
+        <span style="color: var(--success); font-weight: 600; font-size: 0.95rem; background: rgba(16, 185, 129, 0.1); padding: 0.25rem 0.75rem; border-radius: 9999px; border: 1px solid rgba(16, 185, 129, 0.3);" id="available-budget-disp">Available: -- USDC</span>
+      </div>
       <div class="budget-selector" id="budget-selector">
-        <button class="budget-pill" data-val="5">$5</button>
-        <button class="budget-pill active" data-val="10">$10</button>
-        <button class="budget-pill" data-val="15">$15</button>
-        <button class="budget-pill" data-val="20">$20</button>
+        <button class="budget-pill active" data-val="0.50">$0.50</button>
+        <button class="budget-pill" data-val="1.00">$1.00</button>
+        <button class="budget-pill" data-val="2.00">$2.00</button>
+        <button class="budget-pill" data-val="5.00">$5.00</button>
       </div>
       <button class="btn-launch" id="btn-launch">🚀 Launch Agents</button>
     </div>
@@ -357,8 +360,9 @@
   <!-- APP LOGIC -->
   <script>
     const API_BASE = "http://localhost:5001/api";
-    let selectedBudget = 10;
+    let selectedBudget = 0.50;
     let currentReportSource = "";
+    let currentWalletBalance = 0;
 
     // DOM Elements
     const walletBadge = document.getElementById('wallet-badge');
@@ -395,19 +399,48 @@
         budgetPills.forEach(p => p.classList.remove('active'));
         e.target.classList.add('active');
         selectedBudget = parseFloat(e.target.getAttribute('data-val'));
+        
+        if (selectedBudget > currentWalletBalance) {
+          btnLaunch.disabled = true;
+          btnLaunch.style.opacity = '0.5';
+          btnLaunch.style.cursor = 'not-allowed';
+        } else {
+          btnLaunch.disabled = false;
+          btnLaunch.style.opacity = '1';
+          btnLaunch.style.cursor = 'pointer';
+        }
       });
     });
 
     // Launch Process
-    btnLaunch.addEventListener('click', () => {
+    btnLaunch.addEventListener('click', async () => {
       const query = taskInput.value.trim();
       if(!query) return alert("Please enter a research topic!");
 
-      // Start UI Transition
-      btnLaunch.innerHTML = '⏳ Agents Working... <span class="loader" style="width:15px;height:15px;border-width:2px;"></span>';
+      // 1. Fetch balance first
+      btnLaunch.innerHTML = '⏳ Checking balance...';
       btnLaunch.disabled = true;
       btnLaunch.style.opacity = '0.7';
       btnLaunch.style.cursor = 'not-allowed';
+      
+      try {
+        const res = await fetch(`${API_BASE}/balance`);
+        const data = await res.json();
+        currentWalletBalance = parseFloat(data.balance || 0);
+        document.getElementById('available-budget-disp').innerText = `Available: ${currentWalletBalance.toFixed(2)} USDC`;
+      } catch (e) {
+        console.error("Failed to fetch balance", e);
+      }
+
+      if (selectedBudget > currentWalletBalance) {
+        alert(`⚠️ Insufficient balance!\nYour balance: $${currentWalletBalance.toFixed(2)} USDC\nPlease select a lower budget.`);
+        btnLaunch.innerHTML = '🚀 Launch Agents';
+        btnLaunch.style.opacity = '0.5'; // stays disabled
+        return;
+      }
+
+      // Start UI Transition
+      btnLaunch.innerHTML = '⏳ Agents Working... <span class="loader" style="width:15px;height:15px;border-width:2px;"></span>';
       taskInput.disabled = true;
       
       progressSection.style.display = 'block';
@@ -430,6 +463,22 @@
       evtSource.onmessage = function(event) {
         try {
           const data = JSON.parse(event.data);
+          
+          if (data.error === "insufficient_balance" || (data.error && data.error.includes("balance"))) {
+            alert(`💸 Insufficient balance for this job!\nCurrent balance: $${currentWalletBalance.toFixed(2)}\nTry a smaller budget!`);
+            evtSource.close();
+            resetCards();
+            progressSection.style.display = 'none';
+            launchPanel.classList.remove('hidden');
+            mainLoader.style.display = 'none';
+            btnLaunch.innerHTML = '🚀 Launch Agents';
+            btnLaunch.disabled = false;
+            btnLaunch.style.opacity = '1';
+            btnLaunch.style.cursor = 'pointer';
+            taskInput.disabled = false;
+            return;
+          }
+
           const step = data.step;
 
           const getTxId = (d) => d.tx_hash ? d.tx_hash.substring(0,8) + '...' : 'N/A';
@@ -555,7 +604,24 @@
         const res = await fetch(`${API_BASE}/balance`);
         const data = await res.json();
         const bal = parseFloat(data.balance || 0);
+        currentWalletBalance = bal;
         walletBadge.innerText = `💰 ${bal.toFixed(2)} USDC`;
+        
+        const disp = document.getElementById('available-budget-disp');
+        if (disp) disp.innerText = `Available: ${bal.toFixed(2)} USDC`;
+        
+        if (launchPanel && !launchPanel.classList.contains('hidden')) {
+          if (selectedBudget > currentWalletBalance) {
+            btnLaunch.disabled = true;
+            btnLaunch.style.opacity = '0.5';
+            btnLaunch.style.cursor = 'not-allowed';
+          } else {
+            btnLaunch.disabled = false;
+            btnLaunch.style.opacity = '1';
+            btnLaunch.style.cursor = 'pointer';
+          }
+        }
+
         if(bal > 0) {
           walletBadge.className = "wallet-badge positive";
         } else {
