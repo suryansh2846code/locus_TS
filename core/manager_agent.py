@@ -4,6 +4,14 @@ from config import LOCUS_API_KEY
 from .locus_payments import get_balance, pay_agent, SEARCH_AGENT_WALLET, ANALYSIS_AGENT_WALLET, WRITING_AGENT_WALLET
 from .agent_registry import AgentRegistry, registry
 
+class PaymentFailedError(Exception):
+    """Raised when an agent payment fails."""
+    def __init__(self, message, agent_name, amount, step_failed):
+        super().__init__(message)
+        self.agent_name = agent_name
+        self.amount = amount
+        self.step_failed = step_failed
+
 # Specialist agents built by partner
 try:
     from agents.search_agent import SearchAgent
@@ -58,6 +66,30 @@ class ManagerAgent:
             "platform": round(budget * 0.40, 2)
         }
 
+    def pay_and_execute(self, agent, task, amount, step_name):
+        """Pays the agent first, then executes the task only if payment succeeds."""
+        # Pay FIRST
+        payment = pay_agent(
+            agent.wallet_address, 
+            amount, 
+            agent.name, 
+            task
+        )
+        
+        # Check payment succeeded
+        if not payment["success"]:
+            raise PaymentFailedError(
+                message=f"Could not pay {agent.name}. Please check your Locus allowance settings.",
+                agent_name=agent.name,
+                amount=amount,
+                step_failed=step_name
+            )
+        
+        # ONLY execute after confirmed payment
+        print(f"💰 Payment for {agent.name} confirmed. Proceeding with execution...")
+        result = agent.execute(task)
+        return result, payment
+
     def process_request(self, query: str, budget: float):
         """Orchestrates the agent pipeline: Search -> Analysis -> Writing."""
         start_time = time.time()
@@ -105,73 +137,93 @@ class ManagerAgent:
         
         yield {"step": "manager_started", "query": query, "budget": budget}
         
-        # 1. Search Agent
-        yield {"step": "search_started"}
-        print(f"🔍 Executing Search for: {query}")
-        # search_agent.execute returns a dict
-        search_results = self.search_agent.execute(query)
-        search_str = json.dumps(search_results) if isinstance(search_results, dict) else str(search_results)
-        
-        pay_result = pay_agent(SEARCH_ADDR, splits['search'], "SearchAgent", "Web Search")
-        tx_id = pay_result.get("tx_id")
-        payment_records.append({
-            "agent": "SearchAgent", 
-            "tx_id": tx_id, 
-            "amount": splits['search'],
-            "success": pay_result.get("success", False),
-            "error": pay_result.get("error")
-        })
-        yield {"step": "search_complete", "paid": splits["search"], "tx_id": tx_id}
-        
-        # 2. Analysis Agent
-        yield {"step": "analysis_started"}
-        print("📊 Analyzing search patterns...")
-        # analysis_agent.execute returns a dict of insights
-        analysis_data = self.analysis_agent.execute(search_str)
-        analysis_str = json.dumps(analysis_data) if isinstance(analysis_data, dict) else str(analysis_data)
-        
-        pay_result = pay_agent(ANALYSIS_ADDR, splits['analysis'], "AnalysisAgent", "Data Analysis")
-        tx_id = pay_result.get("tx_id")
-        payment_records.append({
-            "agent": "AnalysisAgent", 
-            "tx_id": tx_id, 
-            "amount": splits['analysis'],
-            "success": pay_result.get("success", False),
-            "error": pay_result.get("error")
-        })
-        yield {"step": "analysis_complete", "paid": splits["analysis"], "tx_id": tx_id}
-        
-        # 3. Writing Agent
-        yield {"step": "writing_started"}
-        print("📝 Drafting final report...")
-        # writing_agent.execute returns a markdown string
-        report_md = self.writing_agent.execute(analysis_str)
-        
-        pay_result = pay_agent(WRITING_ADDR, splits['writing'], "WritingAgent", "Report Generation")
-        tx_id = pay_result.get("tx_id")
-        payment_records.append({
-            "agent": "WritingAgent", 
-            "tx_id": tx_id, 
-            "amount": splits['writing'],
-            "success": pay_result.get("success", False),
-            "error": pay_result.get("error")
-        })
-        yield {"step": "writing_complete", "paid": splits["writing"], "tx_id": tx_id}
-        
-        elapsed = round(time.time() - start_time, 2)
-        self.jobs_completed += 1
-        
-        final_result = {
-            "success": True,
-            "query": query,
-            "report": report_md,
-            "transactions": payment_records,
-            "total_cost": budget,
-            "platform_profit": splits["platform"],
-            "time_taken": f"{elapsed}s"
-        }
-        
-        yield {"step": "done", "report": report_md, "result": final_result}
+        try:
+            # 1. Search Agent
+            yield {"step": "search_started"}
+            print(f"🔍 Paying then Executing Search for: {query}")
+            
+            search_results, pay_result = self.pay_and_execute(
+                self.search_agent, 
+                "Web Search", 
+                splits['search'],
+                "search_payment"
+            )
+            
+            search_str = json.dumps(search_results) if isinstance(search_results, dict) else str(search_results)
+            payment_records.append({
+                "agent": "SearchAgent", 
+                "tx_id": pay_result.get("tx_id"), 
+                "amount": splits['search'],
+                "success": True
+            })
+            yield {"step": "search_complete", "paid": splits["search"], "tx_id": pay_result.get("tx_id")}
+            
+            # 2. Analysis Agent
+            yield {"step": "analysis_started"}
+            print("📊 Paying then Analyzing search patterns...")
+            
+            analysis_data, pay_result = self.pay_and_execute(
+                self.analysis_agent, 
+                "Data Analysis", 
+                splits['analysis'],
+                "analysis_payment"
+            )
+            
+            analysis_str = json.dumps(analysis_data) if isinstance(analysis_data, dict) else str(analysis_data)
+            payment_records.append({
+                "agent": "AnalysisAgent", 
+                "tx_id": pay_result.get("tx_id"), 
+                "amount": splits['analysis'],
+                "success": True
+            })
+            yield {"step": "analysis_complete", "paid": splits["analysis"], "tx_id": pay_result.get("tx_id")}
+            
+            # 3. Writing Agent
+            yield {"step": "writing_started"}
+            print("📝 Paying then Drafting final report...")
+            
+            report_md, pay_result = self.pay_and_execute(
+                self.writing_agent, 
+                "Report Generation", 
+                splits['writing'],
+                "writing_payment"
+            )
+            
+            payment_records.append({
+                "agent": "WritingAgent", 
+                "tx_id": pay_result.get("tx_id"), 
+                "amount": splits['writing'],
+                "success": True
+            })
+            yield {"step": "writing_complete", "paid": splits["writing"], "tx_id": pay_result.get("tx_id")}
+            
+            elapsed = round(time.time() - start_time, 2)
+            self.jobs_completed += 1
+            
+            final_result = {
+                "success": True,
+                "query": query,
+                "report": report_md,
+                "transactions": payment_records,
+                "total_cost": budget,
+                "platform_profit": splits["platform"],
+                "time_taken": f"{elapsed}s"
+            }
+            
+            yield {"step": "done", "report": report_md, "result": final_result}
+
+        except PaymentFailedError as e:
+            yield {
+                "step": "error",
+                "result": {
+                    "success": False,
+                    "error": "payment_failed",
+                    "message": str(e),
+                    "step_failed": e.step_failed,
+                    "amount_attempted": e.amount
+                }
+            }
+            return
 
     def get_status(self) -> dict:
         """Returns marketplace health status."""
