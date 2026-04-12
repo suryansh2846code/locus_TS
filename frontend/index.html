@@ -96,15 +96,45 @@
     }
     .search-input:focus { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
     
-    .budget-selector { display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem; }
-    .budget-pill {
-      padding: 0.5rem 1.5rem; border-radius: 9999px; cursor: pointer;
-      border: 1px solid var(--card-border); background: transparent;
-      color: var(--text-muted); font-weight: 600; font-size: 1rem; transition: 0.3s;
+    .btn-analyze {
+      background: rgba(255, 255, 255, 0.05); color: #fff; border: 1px solid var(--card-border);
+      padding: 1.25rem 3rem; font-size: 1.25rem; font-weight: 600; font-family: var(--font-main);
+      border-radius: 9999px; cursor: pointer; transition: 0.3s; margin-top: 1rem; width: 100%; max-width: 400px;
     }
-    .budget-pill:hover { border-color: var(--accent); color: #fff; }
-    .budget-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 15px var(--accent-glow); }
+    .btn-analyze:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--accent); }
     
+    .budget-cards-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 1rem;
+    }
+    @media (max-width: 768px) { .budget-cards-grid { grid-template-columns: 1fr; } }
+    .budget-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 1rem; padding: 1.5rem; text-align: left; cursor: pointer;
+      transition: all 0.3s; position: relative; opacity: 1;
+    }
+    .budget-card:hover { border-color: rgba(255, 255, 255, 0.3); transform: translateY(-3px); }
+    .budget-card.recommended { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+    .budget-card.recommended::before {
+      content: 'RECOMMENDED'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: var(--accent); color: #fff; font-size: 0.75rem; font-weight: bold; padding: 3px 12px; border-radius: 12px; letter-spacing: 1px;
+    }
+    .budget-card.dimmed { opacity: 0.4; filter: grayscale(50%); transform: scale(0.95); }
+    .budget-card.selected { border-color: var(--success); box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); transform: scale(1.05); z-index: 2; }
+    .budget-card.disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; filter: grayscale(100%); }
+    
+    .budget-card-title { font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem; }
+    .budget-card-price { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 1rem; }
+    .budget-card-divider { height: 1px; background: var(--card-border); margin: 1rem 0; }
+    .budget-card-desc { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 1rem; min-height: 45px; }
+    .budget-card-quality { font-size: 0.9rem; font-weight: 600; color: #fff; margin-bottom: 1.5rem; }
+    
+    .btn-select-budget {
+      width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--card-border);
+      padding: 0.75rem; border-radius: 0.5rem; color: #fff; font-weight: bold; cursor: pointer; transition: 0.3s; pointer-events: none;
+    }
+    .budget-card:hover .btn-select-budget { background: rgba(255,255,255,0.1); }
+    .budget-card.selected .btn-select-budget { background: var(--success); border-color: var(--success); color: #fff; }
+
     .btn-launch {
       background: var(--accent); color: #fff; border: none;
       padding: 1.25rem 3rem; font-size: 1.25rem; font-weight: 600; font-family: var(--font-main);
@@ -112,6 +142,65 @@
       box-shadow: 0 0 20px var(--accent-glow); text-transform: uppercase; letter-spacing: 1px;
     }
     .btn-launch:hover { background: var(--accent-hover); transform: scale(1.05); box-shadow: 0 0 30px var(--accent-glow); }
+
+    /* QUALITY BADGE */
+    .quality-badge {
+      margin-top: 2rem; background: rgba(16, 185, 129, 0.05);
+      border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 1rem; padding: 1.5rem;
+      animation: fadeInUp 0.8s forwards;
+    }
+    .quality-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(16, 185, 129, 0.2); padding-bottom: 1rem; }
+    .quality-title { font-size: 1.5rem; font-weight: bold; color: var(--success); display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0; }
+    .quality-score { font-size: 1.1rem; font-weight: bold; color: #fff; }
+    .quality-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+    .quality-list h4 { color: #fff; margin-bottom: 0.75rem; font-size: 1rem; }
+    .quality-list ul { list-style: none; padding: 0; }
+    .quality-list li { margin-bottom: 0.5rem; color: var(--text-muted); display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.95rem; }
+    .quality-footer { font-size: 0.9rem; color: var(--text-muted); border-top: 1px solid rgba(16, 185, 129, 0.2); padding-top: 1rem; display: flex; justify-content: space-between; }
+
+    /* AGENT MODAL */
+    .btn-view-profile {
+      width: 100%; margin-top: 1rem; background: rgba(255,255,255,0.05); border: 1px solid var(--card-border);
+      padding: 0.75rem; border-radius: 0.5rem; color: #fff; font-weight: 500; cursor: pointer; transition: 0.3s; font-family: var(--font-main);
+    }
+    .btn-view-profile:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+    
+    .agent-profile-modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+      display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease;
+    }
+    .agent-profile-modal-overlay.active { display: flex; opacity: 1; }
+    .agent-card-wrapper {
+      background: #0f0f16; border: 1px solid var(--card-border); border-radius: 1.5rem;
+      width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative;
+      transform: scale(0.95); transition: transform 0.3s ease;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5); padding: 2.5rem; text-align: left;
+    }
+    .agent-profile-modal-overlay.active .agent-card-wrapper { transform: scale(1); }
+    
+    .profile-header { border-bottom: 1px solid var(--card-border); padding-bottom: 1.5rem; margin-bottom: 1.5rem; position: relative; }
+    .btn-close-profile {
+      position: absolute; top: -0.5rem; right: -0.5rem; background: transparent; border: none;
+      color: var(--text-muted); font-size: 1.5rem; cursor: pointer; transition: 0.2s;
+    }
+    .btn-close-profile:hover { color: #fff; }
+    
+    .profile-title { font-size: 2rem; color: #fff; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.75rem; }
+    .profile-dev { color: var(--accent); font-weight: 500; font-size: 1rem; }
+    .profile-desc { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 1.5rem; line-height: 1.6; }
+    
+    .profile-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+    .profile-stat-box { background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 1rem; border-radius: 0.75rem; text-align: center; }
+    .profile-stat-box label { display: block; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.25rem; }
+    .profile-stat-box span { font-size: 1.25rem; font-weight: bold; color: #fff; }
+    
+    .profile-section-title { font-size: 1.2rem; color: #fff; border-bottom: 1px solid var(--card-border); padding-bottom: 0.5rem; margin-bottom: 1rem; margin-top: 2rem; }
+    .profile-history-item { display: flex; justify-content: space-between; margin-bottom: 0.75rem; color: var(--text-muted); }
+    .profile-history-item .stars { color: #fbbf24; }
+    
+    .profile-review { background: rgba(255,255,255,0.03); border-radius: 0.75rem; padding: 1rem; margin-bottom: 1rem; font-style: italic; color: #ccc; }
+    .profile-review .reviewer { font-weight: bold; font-style: normal; display: block; margin-top: 0.5rem; color: var(--accent); font-size: 0.9rem; }
 
     /* PROGRESS CARDS */
     .progress-section { display: none; margin-top: 3rem; animation: fadeInUp 0.5s forwards; }
@@ -269,17 +358,48 @@
       <div class="input-group">
         <input type="text" id="task-input" class="search-input" placeholder="e.g. Electric vehicles market in India in 2024">
       </div>
-      <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-        <p style="font-weight: 500; margin: 0;">Select Budget</p>
-        <span style="color: var(--success); font-weight: 600; font-size: 0.95rem; background: rgba(16, 185, 129, 0.1); padding: 0.25rem 0.75rem; border-radius: 9999px; border: 1px solid rgba(16, 185, 129, 0.3);" id="available-budget-disp">Available: -- USDC</span>
+      <button class="btn-analyze" id="btn-analyze">🔍 Analyze My Query</button>
+      
+      <div id="budget-recommendation-area" style="display: none; margin-top: 1.5rem; text-align: center;">
+        <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+          <p style="font-weight: 500; margin: 0; color: #fff; font-size: 1.2rem;">Choose Research Depth</p>
+          <span style="color: var(--success); font-weight: 600; font-size: 0.95rem; background: rgba(16, 185, 129, 0.1); padding: 0.3rem 0.8rem; border-radius: 9999px; border: 1px solid rgba(16, 185, 129, 0.3);" id="available-budget-disp">💰 Available: -- USDC</span>
+        </div>
+        
+        <div class="budget-cards-grid">
+           <!-- Basic -->
+           <div class="budget-card" data-val="0.50" id="card-basic">
+             <div class="budget-card-title">💚 Basic</div>
+             <div class="budget-card-price">$0.50</div>
+             <div class="budget-card-divider"></div>
+             <div class="budget-card-desc">Quick summary of main points</div>
+             <div class="budget-card-quality">Quality: Overview</div>
+             <button class="btn-select-budget">Select Basic</button>
+           </div>
+           
+           <!-- Standard -->
+           <div class="budget-card recommended selected" data-val="2.00" id="card-standard">
+             <div class="budget-card-title">💛 Standard ✨</div>
+             <div class="budget-card-price">$2.00</div>
+             <div class="budget-card-divider"></div>
+             <div class="budget-card-desc">Thorough research recommended</div>
+             <div class="budget-card-quality">Quality: Detailed</div>
+             <button class="btn-select-budget">Select Standard</button>
+           </div>
+           
+           <!-- Premium -->
+           <div class="budget-card" data-val="5.00" id="card-premium">
+             <div class="budget-card-title">❤️ Premium</div>
+             <div class="budget-card-price">$5.00</div>
+             <div class="budget-card-divider"></div>
+             <div class="budget-card-desc">In-depth analysis and insights</div>
+             <div class="budget-card-quality">Quality: Complete</div>
+             <button class="btn-select-budget">Select Premium</button>
+           </div>
+        </div>
+        
+        <button class="btn-launch" id="btn-launch" style="display: none; margin-top: 2.5rem;">🚀 Launch Agents</button>
       </div>
-      <div class="budget-selector" id="budget-selector">
-        <button class="budget-pill active" data-val="0.50">$0.50</button>
-        <button class="budget-pill" data-val="1.00">$1.00</button>
-        <button class="budget-pill" data-val="2.00">$2.00</button>
-        <button class="budget-pill" data-val="5.00">$5.00</button>
-      </div>
-      <button class="btn-launch" id="btn-launch">🚀 Launch Agents</button>
     </div>
 
     <!-- PROGRESS CARDS -->
@@ -338,6 +458,32 @@
           </div>
           <div class="markdown-body" id="report-content">
             <!-- Rendered Markdown goes here -->
+          </div>
+          
+          <div class="quality-badge" id="report-quality" style="display: none;">
+            <div class="quality-header">
+              <h3 class="quality-title">🏆 Quality Assessment</h3>
+              <div class="quality-score">Score: 8.5/10 ⭐⭐⭐⭐⭐</div>
+            </div>
+            <div class="quality-grid">
+              <div class="quality-list">
+                <h4>Strengths:</h4>
+                <ul>
+                  <li>✅ Well structured</li>
+                  <li>✅ Good use of data</li>
+                </ul>
+              </div>
+              <div class="quality-list">
+                <h4>Improvements:</h4>
+                <ul>
+                  <li>💡 Could use more sources</li>
+                </ul>
+              </div>
+            </div>
+            <div class="quality-footer">
+              <span>Reviewed by Quality Check Agent</span>
+              <span>Fee: $1.00 paid via Locus 💸</span>
+            </div>
           </div>
         </div>
         
@@ -417,22 +563,74 @@
     </div>
   </div>
 
+  <!-- AGENT PROFILE MODAL -->
+  <div class="agent-profile-modal-overlay" id="agent-profile-modal">
+    <div class="agent-card-wrapper">
+      <button class="btn-close-profile" id="btn-close-profile">✕</button>
+      <div class="profile-header">
+        <h2 class="profile-title" id="profile-title">🤖 Agent Name</h2>
+        <div class="profile-dev" id="profile-dev">By: Team TS Xenkai</div>
+      </div>
+      
+      <p class="profile-desc" id="profile-desc">Agent description goes here.</p>
+      
+      <div style="color: var(--accent); font-weight: bold; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--card-border);" id="profile-spec">Specialist</div>
+      
+      <div class="profile-stats">
+        <div class="profile-stat-box"><label>Rate</label><span id="profile-rate">$0.00</span></div>
+        <div class="profile-stat-box"><label>Rating</label><span id="profile-rating">⭐ 0.0</span></div>
+        <div class="profile-stat-box"><label>Jobs Done</label><span id="profile-jobs">✅ 0</span></div>
+        <div class="profile-stat-box"><label>Earned</label><span id="profile-earned">💰 $0.00</span></div>
+      </div>
+      
+      <h3 class="profile-section-title">Work History</h3>
+      <div id="profile-history">
+        <div class="profile-history-item"><span>EV market research</span><span class="stars">⭐⭐⭐⭐⭐</span></div>
+        <div class="profile-history-item"><span>AI startups India</span><span class="stars">⭐⭐⭐⭐</span></div>
+      </div>
+      
+      <h3 class="profile-section-title">Reviews</h3>
+      <div id="profile-reviews">
+        <div class="profile-review">"Great detailed search results!" <span class="reviewer">— 5⭐</span></div>
+        <div class="profile-review">"Fast and accurate" <span class="reviewer">— 4⭐</span></div>
+      </div>
+    </div>
+  </div>
+
   <!-- APP LOGIC -->
   <script>
     const API_BASE = "http://localhost:5001/api";
-    let selectedBudget = 0.50;
+    let selectedBudget = 2.00; // default standard
     let currentReportSource = "";
     let currentWalletBalance = 0;
 
     // DOM Elements
     const walletBadge = document.getElementById('wallet-badge');
-    const budgetPills = document.querySelectorAll('.budget-pill');
     const taskInput = document.getElementById('task-input');
     const btnLaunch = document.getElementById('btn-launch');
+    const btnAnalyze = document.getElementById('btn-analyze');
     const launchPanel = document.getElementById('launch-panel');
+    const budgetRecommendationArea = document.getElementById('budget-recommendation-area');
+    const cardsBudget = document.querySelectorAll('.budget-card');
     const progressSection = document.getElementById('progress-section');
     const resultsSection = document.getElementById('results-section');
+    const reportQuality = document.getElementById('report-quality');
     const mainLoader = document.getElementById('main-loader');
+    
+    // Agent profile modal
+    const profileModal = document.getElementById('agent-profile-modal');
+    document.getElementById('btn-close-profile').addEventListener('click', () => profileModal.classList.remove('active'));
+
+    window.openAgentProfile = function(name, icon, spec, rate, rating, completed, earned) {
+      document.getElementById('profile-title').innerText = `${icon} ${name}`;
+      document.getElementById('profile-spec').innerText = spec;
+      document.getElementById('profile-rate').innerText = `$${rate.toFixed(2)}`;
+      document.getElementById('profile-rating').innerText = `⭐ ${rating.toFixed(1)}`;
+      document.getElementById('profile-jobs').innerText = `✅ ${completed}`;
+      document.getElementById('profile-earned').innerText = `💰 $${earned.toFixed(2)}`;
+      document.getElementById('profile-desc').innerText = `I am ${name}, a top-tier specialist. I collaborate autonomously using the Locus protocol to deliver highly accurate output in my domain.`;
+      profileModal.classList.add('active');
+    };
 
     // Cards
     const cards = {
@@ -447,28 +645,65 @@
       fetchBalance();
       fetchAgents();
       fetchDashboard();
-      setInterval(() => {
-        fetchBalance();
-        fetchDashboard();
-      }, 30000);
-    });
+      setInterval(() => { fetchBalance(); fetchDashboard(); }, 30000);
+      
+      // Analyze Query Flow
+      if (btnAnalyze) {
+        btnAnalyze.addEventListener('click', async () => {
+          const query = taskInput.value.trim();
+          if(!query) return alert("Please enter a research topic!");
+          
+          btnAnalyze.innerHTML = '⏳ Analyzing...';
+          btnAnalyze.disabled = true;
+          
+          try {
+            // Fake delay or backend analyze-query call
+            await new Promise(r => setTimeout(r, 1500));
+            // e.g. await fetch(`${API_BASE}/analyze-query?query=${encodeURIComponent(query)}`);
+          } catch (e) {}
 
-    // Budget Selection
-    budgetPills.forEach(pill => {
-      pill.addEventListener('click', (e) => {
-        budgetPills.forEach(p => p.classList.remove('active'));
-        e.target.classList.add('active');
-        selectedBudget = parseFloat(e.target.getAttribute('data-val'));
-        
-        if (selectedBudget > currentWalletBalance) {
-          btnLaunch.disabled = true;
-          btnLaunch.style.opacity = '0.5';
-          btnLaunch.style.cursor = 'not-allowed';
-        } else {
-          btnLaunch.disabled = false;
-          btnLaunch.style.opacity = '1';
-          btnLaunch.style.cursor = 'pointer';
-        }
+          // Evaluate Budgets
+          cardsBudget.forEach(card => {
+             const val = parseFloat(card.getAttribute('data-val'));
+             if (val > currentWalletBalance) {
+                card.classList.add('disabled');
+                card.classList.remove('selected', 'dimmed');
+                card.querySelector('.btn-select-budget').innerText = "Insufficient Funds";
+             } else {
+                card.classList.remove('disabled');
+                if (card.id !== "card-standard") {
+                   card.classList.add('dimmed');
+                   card.classList.remove('selected');
+                } else {
+                   card.classList.add('selected');
+                   card.classList.remove('dimmed');
+                   selectedBudget = val;
+                }
+             }
+          });
+          
+          btnAnalyze.style.display = 'none';
+          budgetRecommendationArea.style.display = 'block';
+          budgetRecommendationArea.style.animation = 'fadeInUp 0.8s forwards';
+          btnLaunch.style.display = 'inline-block';
+          btnLaunch.style.animation = 'fadeInUp 0.5s forwards';
+        });
+      }
+
+      // Budget Plan Selection
+      cardsBudget.forEach(card => {
+        card.addEventListener('click', () => {
+          if(card.classList.contains('disabled')) return;
+          
+          cardsBudget.forEach(c => {
+             c.classList.remove('selected');
+             if(!c.classList.contains('disabled')) c.classList.add('dimmed');
+          });
+          
+          card.classList.remove('dimmed');
+          card.classList.add('selected');
+          selectedBudget = parseFloat(card.getAttribute('data-val'));
+        });
       });
     });
 
@@ -623,6 +858,12 @@
       resultsSection.style.display = 'none';
       progressSection.style.display = 'none';
       launchPanel.classList.remove('hidden');
+      budgetRecommendationArea.style.display = 'none';
+      btnLaunch.style.display = 'none';
+      btnAnalyze.style.display = 'inline-block';
+      btnAnalyze.innerHTML = '🔍 Analyze My Query';
+      btnAnalyze.disabled = false;
+      if(reportQuality) reportQuality.style.display = 'none';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
@@ -682,6 +923,9 @@
       document.getElementById('audit-profit-val').innerText = `$${platformProfit.toFixed(2)}`;
       document.getElementById('audit-total-val').innerText = `$${total.toFixed(2)}`;
       resultsSection.style.display = 'block';
+      if (document.getElementById('report-quality')) {
+          document.getElementById('report-quality').style.display = 'block';
+      }
     }
 
     // Fetches
@@ -736,14 +980,17 @@
           const card = document.createElement('div');
           card.className = "registry-card";
           card.innerHTML = `
-            <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; color:#fff;">${icon} ${agent.name}</div>
+            <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; color:#fff;">${icon} ${agent.name}</div>
+            <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">By: Team TS Xenkai</div>
             <div style="color: var(--accent); margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--card-border);">${agent.speciality}</div>
-            <ul>
+            <ul style="margin-bottom: 1.5rem;">
               <li><span style="color: #fff; font-weight: 500;">Rate:</span> $${agent.rate_per_task.toFixed(2)} per task</li>
               <li><span style="color: #fff; font-weight: 500;">Rating:</span> ⭐ ${agent.rating.toFixed(1)}</li>
-              <li><span style="color: #fff; font-weight: 500;">Completed:</span> ✅ ${agent.tasks_completed} tasks</li>
+              <li><span style="color: #fff; font-weight: 500;">Jobs:</span> ✅ ${agent.tasks_completed} completed</li>
+              <li><span style="color: #fff; font-weight: 500;">Earned:</span> 💰 $${agent.total_earned ? agent.total_earned.toFixed(2) : '0.00'} total</li>
               <li><span style="color: #fff; font-weight: 500;">Status:</span> 🟢 ${agent.status}</li>
             </ul>
+            <button class="btn-view-profile" onclick="openAgentProfile('${agent.name.replace(/'/g, "\\'")}', '${icon}', '${agent.speciality.replace(/'/g, "\\'")}', ${agent.rate_per_task}, ${agent.rating}, ${agent.tasks_completed}, ${agent.total_earned || 0})">View Profile</button>
           `;
           grid.appendChild(card);
         });
