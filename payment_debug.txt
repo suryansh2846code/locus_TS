@@ -1,0 +1,57 @@
+--- NEW DEBUG SESSION ---
+
+[Search Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   SUCCESS: TxID=f0a3d9b7-b0b0-4bf7-92c4-303c0aff842c, RawRes={'success': True, 'data': {'transaction_id': 'f0a3d9b7-b0b0-4bf7-92c4-303c0aff842c', 'queue_job_id': 'b4b09445-2ee0-47ac-b93d-ce02d241dfb3', 'status': 'QUEUED', 'from_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'to_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'amount': 0.1, 'token': 'USDC'}}
+
+[Analysis Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   SUCCESS: TxID=192239d7-1678-4c53-91b6-c92bb35231a0, RawRes={'success': True, 'data': {'transaction_id': '192239d7-1678-4c53-91b6-c92bb35231a0', 'queue_job_id': 'c8947bbf-2889-44af-bb04-918b3063c162', 'status': 'QUEUED', 'from_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'to_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'amount': 0.1, 'token': 'USDC'}}
+
+[Writing Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   SUCCESS: TxID=d34892a8-813d-4cf9-8624-28cb0540d32e, RawRes={'success': True, 'data': {'transaction_id': 'd34892a8-813d-4cf9-8624-28cb0540d32e', 'queue_job_id': 'cc21e33c-ce24-453f-9507-30a711fd2815', 'status': 'QUEUED', 'from_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'to_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'amount': 0.1, 'token': 'USDC'}}
+
+[Quality Check Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   FAILURE: RawRes={'success': False, 'error': 'Validation failed', 'details': [{'field': 'memo', 'message': 'Memo must be at most 500 characters'}]}
+
+[Search Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   SUCCESS: TxID=c52fc94e-097e-46ce-a680-1df3710afcd4, RawRes={'success': True, 'data': {'transaction_id': 'c52fc94e-097e-46ce-a680-1df3710afcd4', 'queue_job_id': 'b73e66f0-63ae-4859-9ffd-4b0900bd2235', 'status': 'QUEUED', 'from_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'to_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'amount': 0.1, 'token': 'USDC'}}
+
+[Analysis Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   SUCCESS: TxID=28dc33e5-a200-44f7-884f-e11201a8ebd0, RawRes={'success': True, 'data': {'transaction_id': '28dc33e5-a200-44f7-884f-e11201a8ebd0', 'queue_job_id': '5562bd27-72ba-450a-a559-5323869ddd6d', 'status': 'QUEUED', 'from_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'to_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'amount': 0.1, 'token': 'USDC'}}
+
+[Writing Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   SUCCESS: TxID=fc1cae08-b36c-44f9-ad6d-80ed06910304, RawRes={'success': True, 'data': {'transaction_id': 'fc1cae08-b36c-44f9-ad6d-80ed06910304', 'queue_job_id': '82b1fd1e-b140-4537-a13c-69d7963bd874', 'status': 'QUEUED', 'from_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'to_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'amount': 0.1, 'token': 'USDC'}}
+
+[Quality Check Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   SUCCESS: TxID=7c493ef1-03be-4231-ba3a-b866fe996c25, RawRes={'success': True, 'data': {'transaction_id': '7c493ef1-03be-4231-ba3a-b866fe996c25', 'queue_job_id': 'dfe8bb6d-0c35-4d2c-b789-587690979710', 'status': 'QUEUED', 'from_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'to_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'amount': 0.1, 'token': 'USDC'}}
+
+[Platform] Attempting payment to 0x0b3743ca11a26c28c074dbdef4606c5991a29fc2 of $0.15
+   SUCCESS: TxID=28c6a43d-afd4-461c-a48a-0d2a69ea5537, RawRes={'success': True, 'data': {'transaction_id': '28c6a43d-afd4-461c-a48a-0d2a69ea5537', 'queue_job_id': '05ad212a-6860-402a-a4ff-3f2702faea14', 'status': 'QUEUED', 'from_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'to_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'amount': 0.15, 'token': 'USDC'}}
+
+[Search Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   SUCCESS: TxID=2b9bbd05-bdbe-4153-94da-0fe943edce6f, RawRes={'success': True, 'data': {'transaction_id': '2b9bbd05-bdbe-4153-94da-0fe943edce6f', 'queue_job_id': 'bab60a7d-e0bc-41a8-a0d6-547b33fc9290', 'status': 'QUEUED', 'from_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'to_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'amount': 0.1, 'token': 'USDC'}}
+
+[Analysis Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   SUCCESS: TxID=17d26aa3-ce0e-4c49-af6d-cc1924cd2dd8, RawRes={'success': True, 'data': {'transaction_id': '17d26aa3-ce0e-4c49-af6d-cc1924cd2dd8', 'queue_job_id': '07942ff2-b174-4446-8448-fa4ce57609f9', 'status': 'QUEUED', 'from_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'to_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'amount': 0.1, 'token': 'USDC'}}
+
+[Writing Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   SUCCESS: TxID=75f95e6e-4911-48fd-88df-3b7f9e0c3970, RawRes={'success': True, 'data': {'transaction_id': '75f95e6e-4911-48fd-88df-3b7f9e0c3970', 'queue_job_id': 'e6a0fe9c-fa62-478f-8024-8dffc6c9be20', 'status': 'QUEUED', 'from_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'to_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'amount': 0.1, 'token': 'USDC'}}
+
+[Quality Check Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   SUCCESS: TxID=b4ce8f5b-94cb-4acc-a5c1-3f9fe0a2c100, RawRes={'success': True, 'data': {'transaction_id': 'b4ce8f5b-94cb-4acc-a5c1-3f9fe0a2c100', 'queue_job_id': '4d98844e-35dd-4854-963f-9fad58c6ec4f', 'status': 'QUEUED', 'from_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'to_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'amount': 0.1, 'token': 'USDC'}}
+
+[Platform] Attempting payment to 0x0b3743ca11a26c28c074dbdef4606c5991a29fc2 of $0.15
+
+[Search Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   SUCCESS: TxID=bfd18964-7c5f-42b8-8cab-beba5d0fb3d3, RawRes={'success': True, 'data': {'transaction_id': 'bfd18964-7c5f-42b8-8cab-beba5d0fb3d3', 'queue_job_id': 'b2986ecc-3557-41e0-ada5-21f21f0cd8c7', 'status': 'QUEUED', 'from_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'to_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'amount': 0.1, 'token': 'USDC'}}
+
+[Analysis Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   SUCCESS: TxID=b4c6b68d-3869-41ef-b4dc-9e6985ee6f67, RawRes={'success': True, 'data': {'transaction_id': 'b4c6b68d-3869-41ef-b4dc-9e6985ee6f67', 'queue_job_id': '1dc5f5e9-67d5-46b1-87f2-686b9f62422f', 'status': 'QUEUED', 'from_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'to_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'amount': 0.1, 'token': 'USDC'}}
+
+[Writing Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   SUCCESS: TxID=a7205ab7-4ab6-4e90-99a2-67defb29d845, RawRes={'success': True, 'data': {'transaction_id': 'a7205ab7-4ab6-4e90-99a2-67defb29d845', 'queue_job_id': '0835f73e-1e50-4cf0-a115-a442d9dfddfc', 'status': 'QUEUED', 'from_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'to_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'amount': 0.1, 'token': 'USDC'}}
+
+[Quality Check Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   SUCCESS: TxID=e7cfc62f-678d-4db0-98d2-aa1ea691c160, RawRes={'success': True, 'data': {'transaction_id': 'e7cfc62f-678d-4db0-98d2-aa1ea691c160', 'queue_job_id': '5fe0fd9d-cb06-444f-a4de-b233c28790f0', 'status': 'QUEUED', 'from_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'to_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'amount': 0.1, 'token': 'USDC'}}
+
+[Platform] Attempting payment to 0x0b3743ca11a26c28c074dbdef4606c5991a29fc2 of $0.15
+   SUCCESS: TxID=09819a12-bb36-4288-bc72-50efc169c8d5, RawRes={'success': True, 'data': {'transaction_id': '09819a12-bb36-4288-bc72-50efc169c8d5', 'queue_job_id': '5c9df5e4-7ff3-41a2-8293-524537d3025c', 'status': 'QUEUED', 'from_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'to_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'amount': 0.15, 'token': 'USDC'}}

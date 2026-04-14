@@ -1,0 +1,193 @@
+/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+📡 Wallet Loaded - Search Agent: 0x7a67133e923c88748607d39a98ede9b2d660dac7
+📡 Wallet Loaded - Analysis Agent: 0x7a67133e923c88748607d39a98ede9b2d660dac7
+📡 Wallet Loaded - Writing Agent: 0x7a67133e923c88748607d39a98ede9b2d660dac7
+✅ Loaded from Config: Search Agent
+✅ Loaded from Config: Analysis Agent
+✅ Loaded from Config: Writing Agent
+✅ Loaded from Config: Quality Check Agent
+✅ Registered: Search Agent  [Web Research]
+✅ Registered: Analysis Agent  [Data Analysis]
+✅ Registered: Writing Agent  [Report Writing]
+✅ Registered: Quality Check Agent  [Quality Assurance]
+AgentMarket Manager Ready ✅
+
+🌐 AgentMarket API Routes Loaded:
+   [OPTIONS, HEAD, GET] / -> index
+   [OPTIONS, POST] /api/research -> research
+   [OPTIONS, HEAD, GET] /api/stream -> stream
+   [OPTIONS, HEAD, GET] /api/balance -> balance
+   [OPTIONS, HEAD, GET] /api/transactions -> transactions
+   [OPTIONS, HEAD, GET] /api/agents -> agents
+   [OPTIONS, HEAD, GET] /api/status -> status
+   [OPTIONS, POST] /api/register-agent -> register_agent
+   [OPTIONS, HEAD, GET] /api/agents/profile/<agent_id> -> get_agent_profile
+   [OPTIONS, PUT] /api/agents/<agent_id>/rate -> update_agent_rate
+   [OPTIONS, POST] /api/agents/<agent_id>/review -> add_agent_review
+   [OPTIONS, HEAD, GET] /api/analyze-query -> analyze_query_endpoint
+
+🚀 Server starting on http://127.0.0.1:5001
+
+ * Serving Flask app 'app'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.1.10:5001
+[33mPress CTRL+C to quit[0m
+127.0.0.1 - - [14/Apr/2026 16:35:30] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:35:36] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:35:36] "GET /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:35:37] "GET /api/transactions HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:35:38] "GET /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:35:38] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:35:38] "GET /api/transactions HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:36:00] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:36:00] "GET /api/balance HTTP/1.1" 200 -
+[2026-04-14 16:36:00,982] ERROR in app: Exception on /api/agents [GET]
+Traceback (most recent call last):
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/api/app.py", line 83, in agents
+    return jsonify({"agents": all_agents})
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/flask/json/__init__.py", line 170, in jsonify
+    return current_app.json.response(*args, **kwargs)  # type: ignore[return-value]
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/flask/json/provider.py", line 214, in response
+    f"{self.dumps(obj, **dump_args)}\n", mimetype=self.mimetype
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/flask/json/provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/json/__init__.py", line 234, in dumps
+    return cls(
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/json/encoder.py", line 199, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/json/encoder.py", line 257, in iterencode
+    return _iterencode(o, 0)
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/flask/json/provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type SearchAgent is not JSON serializable
+127.0.0.1 - - [14/Apr/2026 16:36:00] "[35m[1mGET /api/agents HTTP/1.1[0m" 500 -
+127.0.0.1 - - [14/Apr/2026 16:36:01] "GET /api/transactions HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:36:02] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:36:02] "GET /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:36:02] "GET /api/transactions HTTP/1.1" 200 -
+[2026-04-14 16:36:06,263] ERROR in app: Exception on /api/agents [GET]
+Traceback (most recent call last):
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/api/app.py", line 83, in agents
+    return jsonify({"agents": all_agents})
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/flask/json/__init__.py", line 170, in jsonify
+    return current_app.json.response(*args, **kwargs)  # type: ignore[return-value]
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/flask/json/provider.py", line 214, in response
+    f"{self.dumps(obj, **dump_args)}\n", mimetype=self.mimetype
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/flask/json/provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/json/__init__.py", line 234, in dumps
+    return cls(
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/json/encoder.py", line 199, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/json/encoder.py", line 257, in iterencode
+    return _iterencode(o, 0)
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/flask/json/provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type SearchAgent is not JSON serializable
+127.0.0.1 - - [14/Apr/2026 16:36:06] "[35m[1mGET /api/agents HTTP/1.1[0m" 500 -
+127.0.0.1 - - [14/Apr/2026 16:36:07] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:36:07] "GET /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:36:07] "GET /api/transactions HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:36:15] "GET /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:36:17] "GET /api/stream?query=incresing%20popularity%20of%20daily%20soap%20in%20indian%20womens&budget=0.5 HTTP/1.1" 200 -
+Error on request:
+Traceback (most recent call last):
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/werkzeug/serving.py", line 371, in run_wsgi
+    execute(self.server.app)
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/werkzeug/serving.py", line 334, in execute
+    for data in application_iter:
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/werkzeug/wsgi.py", line 270, in __next__
+    return self._next()
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/werkzeug/wrappers/response.py", line 32, in _iter_encoded
+    for item in iterable:
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/api/app.py", line 61, in event_stream
+    for update in manager.process_request(query, budget):
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/core/manager_agent.py", line 173, in process_request
+    splits['search'],
+KeyError: 'search'
+127.0.0.1 - - [14/Apr/2026 16:36:22] "GET /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:36:22] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:36:22] "GET /api/transactions HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:36:36] "GET /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:36:36] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:36:37] "GET /api/transactions HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:36:37] "GET /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:36:37] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:36:37] "GET /api/transactions HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:36:52] "GET /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:36:52] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:36:52] "GET /api/transactions HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:37:07] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:37:07] "GET /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:37:07] "GET /api/transactions HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:37:22] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:37:22] "GET /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:37:22] "GET /api/transactions HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:37:36] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:37:36] "GET /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:37:37] "GET /api/transactions HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:37:37] "GET /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:37:37] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:37:37] "GET /api/transactions HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:37:52] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:37:52] "GET /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:37:52] "GET /api/transactions HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:37:59] "GET /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:38:00] "GET /api/stream?query=incresing%20popularity%20of%20daily%20soap%20in%20indian%20womens&budget=0.5 HTTP/1.1" 200 -
+Error on request:
+Traceback (most recent call last):
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/werkzeug/serving.py", line 371, in run_wsgi
+    execute(self.server.app)
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/werkzeug/serving.py", line 334, in execute
+    for data in application_iter:
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/werkzeug/wsgi.py", line 270, in __next__
+    return self._next()
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/venv/lib/python3.9/site-packages/werkzeug/wrappers/response.py", line 32, in _iter_encoded
+    for item in iterable:
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/api/app.py", line 61, in event_stream
+    for update in manager.process_request(query, budget):
+  File "/Users/suryanshsingh/workspace/locus_hackathon/agentmarket-locus/core/manager_agent.py", line 173, in process_request
+    splits['search'],
+KeyError: 'search'
+127.0.0.1 - - [14/Apr/2026 16:38:07] "GET /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:38:07] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:38:08] "GET /api/transactions HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:38:22] "GET /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:38:22] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:38:23] "GET /api/transactions HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:38:37] "GET /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:38:37] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:38:37] "GET /api/transactions HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:38:37] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:38:37] "GET /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:38:38] "GET /api/transactions HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:38:53] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:38:53] "GET /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:38:53] "GET /api/transactions HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:39:07] "GET /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:39:07] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 16:39:08] "GET /api/transactions HTTP/1.1" 200 -

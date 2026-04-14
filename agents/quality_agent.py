@@ -57,7 +57,7 @@ class QualityAgent(BaseAgent):
             name="Quality Check Agent",
             description="Reviews research reports for quality using Claude AI.",
             speciality="Quality Assurance",
-            rate_per_task=1.00,
+            rate_per_task=0.10,
             agent_id="quality_agent_v1"
         )
         self._api_key = api_key or _LOCUS_API_KEY

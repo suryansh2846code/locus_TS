@@ -63,7 +63,7 @@ class WritingAgent(BaseAgent):
             name="Writing Agent",
             description="Writes professional research reports from analysis insights.",
             speciality="Report Writing",
-            rate_per_task=2.00,
+            rate_per_task=0.10,
             agent_id="writing_agent_v1",
             developer="Team TS Xenkai",
             developer_wallet="0x7a67133e923c88748607d39a98ede9b2d660dac7"

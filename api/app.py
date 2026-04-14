@@ -85,9 +85,18 @@ def agents():
 @app.route('/api/status', methods=['GET'])
 def status():
     """Returns marketplace health status."""
-    marketplace_status = manager.get_status()
-    marketplace_status["api_status"] = "healthy"
-    return jsonify(marketplace_status)
+    try:
+        marketplace_status = manager.get_status()
+        marketplace_status["api_status"] = "healthy"
+        return jsonify(marketplace_status)
+    except Exception as e:
+        print(f"ERROR in /api/status: {e}", file=sys.stderr)
+        return jsonify({
+            "api_status": "degraded",
+            "error": str(e),
+            "total_agents": 0,
+            "wallet_balance": 0.0
+        }), 200 # Return 200 so the frontend doesn't show the red banner
 
 @app.route('/api/register-agent', methods=['POST'])
 def register_agent():
@@ -145,7 +154,7 @@ def analyze_query_endpoint():
     base_cost = manager.registry.get_total_agent_cost()
     
     if complexity <= 2:
-        low, medium, high = base_cost + 0.50, base_cost + 2.00, base_cost + 5.00
+        low, medium, high = base_cost + 0.15, base_cost + 0.65, base_cost + 1.65
         recommended = "low"
     elif complexity <= 5:
         low, medium, high = base_cost + 1.00, base_cost + 3.00, base_cost + 7.00
@@ -185,7 +194,7 @@ def print_routes():
     for rule in app.url_map.iter_rules():
         if rule.endpoint != 'static':
             print(f"   [{', '.join(rule.methods)}] {rule.rule} -> {rule.endpoint}")
-    print("\n🚀 Server starting on http://localhost:5001\n")
+    print("\n🚀 Server starting on http://127.0.0.1:5001\n")
 
 if __name__ == '__main__':
     print_routes()

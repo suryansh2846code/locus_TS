@@ -35,6 +35,7 @@ except ImportError:
 SEARCH_ADDR = SEARCH_AGENT_WALLET
 ANALYSIS_ADDR = ANALYSIS_AGENT_WALLET
 WRITING_ADDR = WRITING_AGENT_WALLET
+PLATFORM_ADDR = "0x0b3743ca11a26c28c074dbdef4606c5991a29fc2"
 
 class ManagerAgent:
     def __init__(self):
@@ -56,7 +57,7 @@ class ManagerAgent:
         self.search_agent.wallet_address = SEARCH_ADDR
         self.analysis_agent.wallet_address = ANALYSIS_ADDR
         self.writing_agent.wallet_address = WRITING_ADDR
-        self.quality_agent.wallet_address = WRITING_ADDR # Quality also points to same wallet for now
+        self.quality_agent.wallet_address = "0x7a67133e923c88748607d39a98ede9b2d660dac7"
         
         # Register specialist agents with the global registry
         self.registry.register_agent(self.search_agent)
@@ -88,7 +89,7 @@ class ManagerAgent:
             "analysis": analysis_rate,
             "writing": writing_rate,
             "quality": quality_rate,
-            "platform": platform_fee
+            "platform": round(platform_fee, 2)
         }
 
     def pay_and_execute(self, agent, task, amount, step_name):
@@ -123,10 +124,11 @@ class ManagerAgent:
         if budget < 0.50:
             yield {
                 "step": "error",
+                "error": "budget_too_low",
+                "message": "Minimum budget is $0.50",
                 "result": {
                     "success": False,
-                    "error": "budget_too_low",
-                    "message": "Minimum budget is $0.50"
+                    "error": "budget_too_low"
                 }
             }
             return
@@ -135,10 +137,11 @@ class ManagerAgent:
         if budget > 20.00:
             yield {
                 "step": "error",
+                "error": "budget_too_high",
+                "message": "Maximum budget is $20.00",
                 "result": {
                     "success": False,
-                    "error": "budget_too_high",
-                    "message": "Maximum budget is $20.00"
+                    "error": "budget_too_high"
                 }
             }
             return
@@ -148,28 +151,44 @@ class ManagerAgent:
         if budget > current_balance:
             yield {
                 "step": "error",
+                "error": "insufficient_balance",
+                "message": f"Budget ${budget} exceeds wallet balance ${current_balance}",
                 "result": {
                     "success": False,
                     "error": "insufficient_balance",
-                    "message": f"Budget ${budget} exceeds wallet balance ${current_balance}",
                     "current_balance": current_balance
                 }
             }
             return
 
         splits = self.calculate_splits(budget)
+        if not splits.get("valid", True):
+            yield {
+                "step": "error",
+                "error": "insufficient_budget",
+                "message": splits.get("error", "Budget too low for selected agents."),
+                "result": {
+                    "success": False,
+                    "error": "insufficient_budget"
+                }
+            }
+            return
+
         payment_records = []
         
         yield {"step": "manager_started", "query": query, "budget": budget}
         
         try:
             # 1. Search Agent
+            time.sleep(2) # Min Pacing
             yield {"step": "search_started"}
+            import sys
+            sys.stdout.flush()
             print(f"🔍 Paying then Executing Search for: {query}")
             
             search_results, pay_result = self.pay_and_execute(
                 self.search_agent, 
-                "Web Search", 
+                query, # Pass actual query
                 splits['search'],
                 "search_payment"
             )
@@ -184,12 +203,14 @@ class ManagerAgent:
             yield {"step": "search_complete", "paid": splits["search"], "tx_id": pay_result.get("tx_id")}
             
             # 2. Analysis Agent
+            time.sleep(3) # Pacing
             yield {"step": "analysis_started"}
+            sys.stdout.flush()
             print("📊 Paying then Analyzing search patterns...")
             
             analysis_data, pay_result = self.pay_and_execute(
                 self.analysis_agent, 
-                "Data Analysis", 
+                f"Topic: {query}\n\nData: {search_str}", # Pass search results with context
                 splits['analysis'],
                 "analysis_payment"
             )
@@ -204,12 +225,14 @@ class ManagerAgent:
             yield {"step": "analysis_complete", "paid": splits["analysis"], "tx_id": pay_result.get("tx_id")}
             
             # 3. Writing Agent
+            time.sleep(5) # Deep Pacing for late stage
             yield {"step": "writing_started"}
+            sys.stdout.flush()
             print("📝 Paying then Drafting final report...")
             
             report_md, pay_result = self.pay_and_execute(
                 self.writing_agent, 
-                "Report Generation", 
+                f"Topic: {query}\n\nAnalysis: {analysis_str}", # Pass analysis with context
                 splits['writing'],
                 "writing_payment"
             )
@@ -223,7 +246,9 @@ class ManagerAgent:
             yield {"step": "writing_complete", "paid": splits["writing"], "tx_id": pay_result.get("tx_id")}
             
             # 4. Quality Agent
+            time.sleep(5) # Deep Pacing for late stage
             yield {"step": "quality_started"}
+            sys.stdout.flush()
             print("🛡️ Paying then Reviewing final report...")
             
             quality_results, pay_result = self.pay_and_execute(
@@ -240,7 +265,10 @@ class ManagerAgent:
                 "success": True
             })
             
-            quality_score = quality_results.get("quality_score", 0)
+            quality_score = 0
+            if isinstance(quality_results, dict):
+                quality_score = quality_results.get("quality_score", 0)
+            
             report_md += f"\n\n---\n✅ Quality Score: {quality_score}/10"
             
             yield {
@@ -249,6 +277,26 @@ class ManagerAgent:
                 "tx_id": pay_result.get("tx_id"),
                 "score": quality_score
             }
+
+            # Step 6: Platform Fee Collection
+            time.sleep(5) # Deep Pacing for late stage
+            platform_fee = splits.get("platform", 0)
+            sys.stdout.flush()
+            if platform_fee > 0:
+                print(f"🎖️ Collecting platform fee: ${platform_fee}")
+                platform_pay = pay_agent(
+                    PLATFORM_ADDR,
+                    platform_fee,
+                    "Platform",
+                    f"Fee for query: {query[:30]}..."
+                )
+                if platform_pay["success"]:
+                    payment_records.append({
+                        "agent": "Platform",
+                        "tx_id": platform_pay.get("tx_id"),
+                        "amount": platform_fee,
+                        "success": True
+                    })
             
             elapsed = round(time.time() - start_time, 2)
             self.jobs_completed += 1
@@ -269,12 +317,27 @@ class ManagerAgent:
         except PaymentFailedError as e:
             yield {
                 "step": "error",
+                "error": "payment_failed",
+                "message": str(e),
                 "result": {
                     "success": False,
                     "error": "payment_failed",
-                    "message": str(e),
                     "step_failed": e.step_failed,
                     "amount_attempted": e.amount
+                }
+            }
+            return
+        except Exception as e:
+            print(f"❌ Pipeline CRITICAL ERROR: {e}")
+            import traceback
+            traceback.print_exc()
+            yield {
+                "step": "error",
+                "error": "pipeline_crash",
+                "message": f"Pipeline crashed: {str(e)}",
+                "result": {
+                    "success": False,
+                    "error": str(e)
                 }
             }
             return

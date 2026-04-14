@@ -51,13 +51,24 @@ def pay_agent(to_address, amount, agent_name, task):
         to_address = ANALYSIS_AGENT_WALLET
     elif agent_name in ["WritingAgent", "Writing Agent"]:
         to_address = WRITING_AGENT_WALLET
+    elif "Quality" in agent_name:
+        to_address = "0x7a67133e923c88748607d39a98ede9b2d660dac7"
+    elif agent_name == "Platform":
+        to_address = "0x0b3743ca11a26c28c074dbdef4606c5991a29fc2"
         
-    memo = f"Hiring {agent_name} for {task}"
+    memo = f"Hiring {agent_name} for {str(task)[:100]}..."
+    # Force 2 decimal places for USDC precision
+    amount = round(float(amount), 2)
+    
     payload = {
         "to_address": to_address,
         "amount": amount,
         "memo": memo
     }
+    
+    # Forensic Logging
+    with open("payment_debug.txt", "a") as f:
+        f.write(f"\n[{agent_name}] Attempting payment to {to_address} of ${amount}\n")
     
     try:
         response = requests.post(url, headers=HEADERS, json=payload)
@@ -68,10 +79,15 @@ def pay_agent(to_address, amount, agent_name, task):
             status = data["data"].get("status")
             print(f"✅ Paid {agent_name} ${amount} for {task}")
             print(f"   Status: {status} | Tx ID: {tx_id}")
+            with open("payment_debug.txt", "a") as f:
+                f.write(f"   SUCCESS: TxID={tx_id}, RawRes={data}\n")
             return {"success": True, "tx_id": tx_id, "status": status}
         else:
             message = data.get("message", "Insufficient balance or internal error")
             print(f"❌ Payment failed: {message}")
+            print(f"DEBUG - Full Locus Error Response: {data}")
+            with open("payment_debug.txt", "a") as f:
+                f.write(f"   FAILURE: RawRes={data}\n")
             return {
                 "success": False,
                 "tx_id": None,

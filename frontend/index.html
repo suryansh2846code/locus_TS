@@ -161,7 +161,7 @@
     <!-- PROGRESS CARDS -->
     <div id="progress-section" class="hidden mt-20 animate-[fadeInUp_0.8s_forwards]">
       <h2 class="text-2xl md:text-3xl font-extrabold text-center mb-10 flex items-center justify-center gap-3 text-on-surface tracking-tight">Live Agent Progress <span id="main-loader" class="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin"></span></h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <div class="agent-card glass-panel p-6 rounded-2xl border border-outline-variant/30 relative overflow-hidden shadow-xl" id="card-manager">
           <div class="agent-card-indicator absolute top-0 left-0 w-full h-1 bg-transparent transition-all"></div>
           <div class="flex justify-between items-center mb-4">
@@ -202,6 +202,17 @@
           <div class="agent-status text-sm text-on-surface mb-2 font-bold font-label min-h-[20px]" id="status-writing">Status: Waiting... ⏳</div>
           <div class="payment-msg hidden text-[11px] font-bold text-tertiary mb-3 bg-tertiary/10 border border-tertiary/20 px-2 py-1 rounded w-max" id="payment-writing"></div>
           <p class="text-xs font-label uppercase tracking-widest text-on-surface-variant pt-4 border-t border-outline-variant/20 mt-auto">Task: Draft Report</p>
+        </div>
+
+        <div class="agent-card glass-panel p-6 rounded-2xl border border-outline-variant/30 relative overflow-hidden shadow-xl" id="card-quality">
+          <div class="agent-card-indicator absolute top-0 left-0 w-full h-1 bg-transparent transition-all"></div>
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-white tracking-tight">⚖️ Quality QA</h3>
+            <span class="agent-cost font-bold text-success font-mono text-sm border border-success/30 px-2 py-1 rounded bg-success/10" id="cost-quality">$--</span>
+          </div>
+          <div class="agent-status text-sm text-on-surface mb-2 font-bold font-label min-h-[20px]" id="status-quality">Status: Waiting... ⏳</div>
+          <div class="payment-msg hidden text-[11px] font-bold text-tertiary mb-3 bg-tertiary/10 border border-tertiary/20 px-2 py-1 rounded w-max" id="payment-quality"></div>
+          <p class="text-xs font-label uppercase tracking-widest text-on-surface-variant pt-4 border-t border-outline-variant/20 mt-auto">Task: Final Audit</p>
         </div>
       </div>
     </div>
@@ -495,7 +506,8 @@
       manager: document.getElementById('card-manager'),
       search: document.getElementById('card-search'),
       analysis: document.getElementById('card-analysis'),
-      writing: document.getElementById('card-writing')
+      writing: document.getElementById('card-writing'),
+      quality: document.getElementById('card-quality')
     };
 
     // Boot
@@ -516,32 +528,55 @@
           btnAnalyze.disabled = true;
           
           try {
-            await new Promise(r => setTimeout(r, 1200)); // fake backend latency
-          } catch (e) {}
-
-          cardsBudget.forEach(card => {
-             const val = parseFloat(card.getAttribute('data-val'));
-             if (val > currentWalletBalance) {
-                card.classList.add('disabled');
-                card.classList.remove('selected', 'dimmed');
-                card.querySelector('.btn-select-budget').innerText = "Insufficient Funds";
-             } else {
-                card.classList.remove('disabled');
-                if (card.id !== "card-standard") {
-                   card.classList.add('dimmed');
-                   card.classList.remove('selected');
-                } else {
-                   card.classList.add('selected');
-                   card.classList.remove('dimmed');
-                   selectedBudget = val;
-                }
-             }
-          });
+            const res = await fetch(`${API_BASE}/analyze-query?query=${encodeURIComponent(query)}`);
+            const data = await res.json();
+            
+            if (data.tiers) {
+              const tiers = data.tiers;
+              
+              // Update Basic Card
+              const basicCard = document.getElementById('card-basic');
+              basicCard.setAttribute('data-val', tiers.low.amount);
+              basicCard.querySelector('.font-headline').innerText = `$${tiers.low.amount.toFixed(2)}`;
+              
+              // Update Standard Card
+              const standardCard = document.getElementById('card-standard');
+              standardCard.setAttribute('data-val', tiers.medium.amount);
+              standardCard.querySelector('.font-headline').innerText = `$${tiers.medium.amount.toFixed(2)}`;
+              
+              // Update Premium Card
+              const premiumCard = document.getElementById('card-premium');
+              premiumCard.setAttribute('data-val', tiers.high.amount);
+              premiumCard.querySelector('.font-headline').innerText = `$${tiers.high.amount.toFixed(2)}`;
+              
+              // Set recommended choice
+              if (data.recommended === "high") {
+                 updateSelectedCard('card-premium');
+              } else if (data.recommended === "low") {
+                 updateSelectedCard('card-basic');
+              } else {
+                 updateSelectedCard('card-standard');
+              }
+            }
+          } catch (e) {
+            console.error("Analysis failed, using defaults", e);
+          }
           
           btnAnalyze.style.display = 'none';
           budgetRecommendationArea.classList.remove('hidden');
           btnLaunch.classList.remove('hidden');
         });
+      }
+
+      function updateSelectedCard(id) {
+        cardsBudget.forEach(c => {
+          c.classList.remove('selected');
+          c.classList.add('dimmed');
+        });
+        const card = document.getElementById(id);
+        card.classList.remove('dimmed');
+        card.classList.add('selected');
+        selectedBudget = parseFloat(card.getAttribute('data-val'));
       }
 
       // Budget Selection Listeners
@@ -592,11 +627,12 @@
       resultsSection.classList.add('hidden');
       resetCards();
       
-      const platformFee = selectedBudget * 0.4;
+      const platformFee = selectedBudget * 0.2;
       const agentFee = (selectedBudget * 0.2).toFixed(2);
       document.getElementById('cost-search').innerText = `$${agentFee}`;
       document.getElementById('cost-analysis').innerText = `$${agentFee}`;
       document.getElementById('cost-writing').innerText = `$${agentFee}`;
+      document.getElementById('cost-quality').innerText = `$${agentFee}`;
 
       // Open SSE Pipeline
       const url = `${API_BASE}/stream?query=${encodeURIComponent(query)}&budget=${selectedBudget}`;
@@ -607,10 +643,21 @@
         try {
           const data = JSON.parse(event.data);
           
-          // Trapping errors
+          const step = data.step;
+          
+          if (step === "error") {
+            const errorMsg = data.message || data.error || "Unknown pipeline error";
+            alert(`⚠️ Workflow Error:\n${errorMsg}`);
+            evtSource.close();
+            failUI();
+            return;
+          }
+
+          // Trapping specialized errors for UI modals
           if (data.error === "insufficient_balance" || (data.error && data.error.includes("balance"))) {
             alert(`💸 Insufficient balance!\nTry a smaller budget or fund your smart wallet.`);
-            failUI(evtSource);
+            evtSource.close();
+            failUI();
             return;
           }
 
@@ -621,11 +668,10 @@
             
             document.getElementById('payment-failed-msg').innerText = message;
             document.getElementById('payment-failed-modal').classList.add('active');
-            failUI(evtSource);
+            evtSource.close();
+            failUI();
             return;
           }
-
-          const step = data.step;
           const getTxId = (d) => d.tx_hash ? d.tx_hash.substring(0,8) + '...' : 'N/A';
 
           if (step === "manager_started") {
@@ -643,8 +689,13 @@
           } else if (step === "writing_started") {
             setCardPulse(cards.writing, "Status: Synthesizing brief... ⏳");
           } else if (step === "writing_complete") {
-            setCardSuccess(cards.writing, "Status: Report Finalized ✅", data.paid);
+            setCardSuccess(cards.writing, "Draft Complete ✅", data.paid);
             auditRows.push(`<tr><td class="py-4 px-3 font-semibold text-white">Report Drafting</td><td class="py-4 px-3 font-mono text-success">$${data.paid.toFixed(2)}</td><td class="py-4 px-3 font-mono opacity-80">${getTxId(data)}</td></tr>`);
+          } else if (step === "quality_started") {
+            setCardPulse(cards.quality, "Verifying Report... ⚖️");
+          } else if (step === "quality_complete") {
+            setCardSuccess(cards.quality, "Report Verified ✅", data.paid);
+            auditRows.push(`<tr><td class="py-4 px-3 font-semibold text-white">Quality Assurance</td><td class="py-4 px-3 font-mono text-success">$${data.paid.toFixed(2)}</td><td class="py-4 px-3 font-mono opacity-80">${getTxId(data)}</td></tr>`);
           } else if (step === "done") {
             evtSource.close();
             mainLoader.classList.add('hidden');

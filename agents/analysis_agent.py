@@ -67,7 +67,7 @@ class AnalysisAgent(BaseAgent):
             name="Analysis Agent",
             description="Analyzes data and extracts key insights using Claude AI.",
             speciality="Data Analysis",
-            rate_per_task=2.00,
+            rate_per_task=0.10,
             agent_id="analysis_agent_v1",
             developer="Team TS Xenkai",
             developer_wallet="0x7a67133e923c88748607d39a98ede9b2d660dac7"

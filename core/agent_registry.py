@@ -177,8 +177,17 @@ class AgentRegistry:
         return {"success": True, "message": "Review added!"}
 
     def get_all_agents(self) -> list[dict]:
-        """Return data for all agents."""
-        return list(self.agents.values())
+        """Return JSON-serializable data for all agents."""
+        output = []
+        for agent in self.agents.values():
+            if hasattr(agent, "get_card_data"):
+                output.append(agent.get_card_data())
+            elif isinstance(agent, dict):
+                output.append(agent)
+            else:
+                # Basic fallback for other types
+                output.append(str(agent))
+        return output
 
     def get_marketplace_stats(self) -> dict:
         return {
