@@ -55,3 +55,9 @@
 
 [Platform] Attempting payment to 0x0b3743ca11a26c28c074dbdef4606c5991a29fc2 of $0.15
    SUCCESS: TxID=09819a12-bb36-4288-bc72-50efc169c8d5, RawRes={'success': True, 'data': {'transaction_id': '09819a12-bb36-4288-bc72-50efc169c8d5', 'queue_job_id': '5c9df5e4-7ff3-41a2-8293-524537d3025c', 'status': 'QUEUED', 'from_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'to_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'amount': 0.15, 'token': 'USDC'}}
+
+[Search Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   SUCCESS: TxID=b379b3d6-39b1-4d00-9ed3-96852e5f8467, RawRes={'success': True, 'data': {'transaction_id': 'b379b3d6-39b1-4d00-9ed3-96852e5f8467', 'queue_job_id': 'cfd3ece9-2973-4da9-99cb-ee52baa5d82b', 'status': 'QUEUED', 'from_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'to_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'amount': 0.1, 'token': 'USDC'}}
+
+[Analysis Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   FAILURE: RawRes={'success': False, 'error': 'Policy check failed', 'message': 'Transaction amount exceeds remaining allowance of 0.049648 USDC', 'details': {'allowance': '0.049648', 'proposedAmount': '0.1'}}

@@ -154,7 +154,7 @@ def analyze_query_endpoint():
     base_cost = manager.registry.get_total_agent_cost()
     
     if complexity <= 2:
-        low, medium, high = base_cost + 0.15, base_cost + 0.65, base_cost + 1.65
+        low, medium, high = base_cost + 0.10, base_cost + 0.60, base_cost + 1.60
         recommended = "low"
     elif complexity <= 5:
         low, medium, high = base_cost + 1.00, base_cost + 3.00, base_cost + 7.00
