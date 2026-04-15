@@ -114,9 +114,10 @@
 
     <!-- LAUNCH PANEL -->
     <div id="launch-panel" class="glass-panel p-8 md:p-10 rounded-3xl relative overflow-hidden text-center max-w-3xl mx-auto shadow-2xl">
-      <h2 class="text-2xl font-bold mb-8 text-on-surface tracking-tight">What do you need researched?</h2>
+      <h2 class="text-2xl font-bold mb-2 text-on-surface tracking-tight">What service do you need?</h2>
+      <p class="text-on-surface-variant mb-6 uppercase tracking-wide text-sm font-label hidden md:block">Describe your task — our agents will figure out the rest</p>
       <div class="text-left mb-6">
-        <input type="text" id="task-input" class="w-full bg-surface-container-highest/50 border border-outline-variant/30 text-on-surface rounded-xl p-5 text-lg font-body focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline-variant" placeholder="e.g. Electric vehicles market in India in 2024">
+        <textarea id="task-input" rows="3" class="w-full bg-surface-container-highest/50 border border-outline-variant/30 text-on-surface rounded-xl p-5 text-lg font-body focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline-variant resize-none" placeholder="e.g. Write me a Python web scraper, review this contract, create an image prompt for a sci-fi city, analyze my sales data..."></textarea>
       </div>
       
       <button id="btn-analyze" class="w-full max-w-md bg-surface-container-highest border border-outline-variant/30 hover:bg-surface-container-high text-white py-4 px-8 rounded-full font-bold transition-all text-xl mt-4 focus:ring-4 focus:ring-primary/20">🔍 Analyze My Query</button>
@@ -164,59 +165,8 @@
     <!-- PROGRESS CARDS -->
     <div id="progress-section" class="hidden mt-20 animate-[fadeInUp_0.8s_forwards]">
       <h2 class="text-2xl md:text-3xl font-extrabold text-center mb-10 flex items-center justify-center gap-3 text-on-surface tracking-tight">Live Agent Progress <span id="main-loader" class="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin"></span></h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div class="agent-card glass-panel p-6 rounded-2xl border border-outline-variant/30 relative overflow-hidden shadow-xl" id="card-manager">
-          <div class="agent-card-indicator absolute top-0 left-0 w-full h-1 bg-transparent transition-all"></div>
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-white tracking-tight">🧠 Manager Agent</h3>
-          </div>
-          <div class="agent-status text-sm text-primary mb-2 font-bold font-label" id="status-manager">Status: Coordinating... ⏳</div>
-          <p class="text-xs font-label uppercase tracking-widest text-on-surface-variant pt-4 border-t border-outline-variant/20 mt-4">Role: Orchestrator</p>
-        </div>
-        
-        <div class="agent-card glass-panel p-6 rounded-2xl border border-outline-variant/30 relative overflow-hidden shadow-xl" id="card-search">
-          <div class="agent-card-indicator absolute top-0 left-0 w-full h-1 bg-transparent transition-all"></div>
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-white tracking-tight">🔍 Search Agent</h3>
-            <span class="agent-cost font-bold text-success font-mono text-sm border border-success/30 px-2 py-1 rounded bg-success/10" id="cost-search">$--</span>
-          </div>
-          <div class="agent-status text-sm text-on-surface mb-2 font-bold font-label min-h-[20px]" id="status-search">Status: Waiting... ⏳</div>
-          <div class="payment-msg hidden text-[11px] font-bold text-tertiary mb-3 bg-tertiary/10 border border-tertiary/20 px-2 py-1 rounded w-max" id="payment-search"></div>
-          <p class="text-xs font-label uppercase tracking-widest text-on-surface-variant pt-4 border-t border-outline-variant/20 mt-auto">Task: Web Research</p>
-        </div>
-
-        <div class="agent-card glass-panel p-6 rounded-2xl border border-outline-variant/30 relative overflow-hidden shadow-xl" id="card-analysis">
-          <div class="agent-card-indicator absolute top-0 left-0 w-full h-1 bg-transparent transition-all"></div>
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-white tracking-tight">📊 Analysis</h3>
-            <span class="agent-cost font-bold text-success font-mono text-sm border border-success/30 px-2 py-1 rounded bg-success/10" id="cost-analysis">$--</span>
-          </div>
-          <div class="agent-status text-sm text-on-surface mb-2 font-bold font-label min-h-[20px]" id="status-analysis">Status: Waiting... ⏳</div>
-          <div class="payment-msg hidden text-[11px] font-bold text-tertiary mb-3 bg-tertiary/10 border border-tertiary/20 px-2 py-1 rounded w-max" id="payment-analysis"></div>
-          <p class="text-xs font-label uppercase tracking-widest text-on-surface-variant pt-4 border-t border-outline-variant/20 mt-auto">Task: Data Analysis</p>
-        </div>
-
-        <div class="agent-card glass-panel p-6 rounded-2xl border border-outline-variant/30 relative overflow-hidden shadow-xl" id="card-writing">
-          <div class="agent-card-indicator absolute top-0 left-0 w-full h-1 bg-transparent transition-all"></div>
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-white tracking-tight">✍️ Writing</h3>
-            <span class="agent-cost font-bold text-success font-mono text-sm border border-success/30 px-2 py-1 rounded bg-success/10" id="cost-writing">$--</span>
-          </div>
-          <div class="agent-status text-sm text-on-surface mb-2 font-bold font-label min-h-[20px]" id="status-writing">Status: Waiting... ⏳</div>
-          <div class="payment-msg hidden text-[11px] font-bold text-tertiary mb-3 bg-tertiary/10 border border-tertiary/20 px-2 py-1 rounded w-max" id="payment-writing"></div>
-          <p class="text-xs font-label uppercase tracking-widest text-on-surface-variant pt-4 border-t border-outline-variant/20 mt-auto">Task: Draft Report</p>
-        </div>
-
-        <div class="agent-card glass-panel p-6 rounded-2xl border border-outline-variant/30 relative overflow-hidden shadow-xl" id="card-quality">
-          <div class="agent-card-indicator absolute top-0 left-0 w-full h-1 bg-transparent transition-all"></div>
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-white tracking-tight">⚖️ Quality QA</h3>
-            <span class="agent-cost font-bold text-success font-mono text-sm border border-success/30 px-2 py-1 rounded bg-success/10" id="cost-quality">$--</span>
-          </div>
-          <div class="agent-status text-sm text-on-surface mb-2 font-bold font-label min-h-[20px]" id="status-quality">Status: Waiting... ⏳</div>
-          <div class="payment-msg hidden text-[11px] font-bold text-tertiary mb-3 bg-tertiary/10 border border-tertiary/20 px-2 py-1 rounded w-max" id="payment-quality"></div>
-          <p class="text-xs font-label uppercase tracking-widest text-on-surface-variant pt-4 border-t border-outline-variant/20 mt-auto">Task: Final Audit</p>
-        </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4" id="dynamic-pipeline-container">
+        <!-- dynamically injected here -->
       </div>
     </div>
 
@@ -778,13 +728,15 @@
       }
     };
 
-    // Live Tracking Cards
-    const cards = {
-      manager: document.getElementById('card-manager'),
-      search: document.getElementById('card-search'),
-      analysis: document.getElementById('card-analysis'),
-      writing: document.getElementById('card-writing'),
-      quality: document.getElementById('card-quality')
+    const AGENT_META = {
+      search_agent:       { name: "Search Agent",       icon: "🔍", rate: 2.00, color: "#4af8e3" },
+      analysis_agent:     { name: "Analysis Agent",      icon: "📊", rate: 2.00, color: "#c799ff" },
+      writing_agent:      { name: "Writing Agent",       icon: "✍️",  rate: 2.00, color: "#c799ff" },
+      quality_agent:      { name: "Quality Agent",       icon: "🏆", rate: 1.00, color: "#ffd700" },
+      code_agent:         { name: "Code Agent",          icon: "💻", rate: 2.00, color: "#4af8e3" },
+      legal_agent:        { name: "Legal Agent",         icon: "⚖️",  rate: 3.00, color: "#ff9f7f" },
+      image_prompt_agent: { name: "Image Prompt Agent",  icon: "🎨", rate: 1.50, color: "#ff7fc8" },
+      data_agent:         { name: "Data Agent",          icon: "📈", rate: 2.50, color: "#7fff9f" }
     };
 
     // Boot
@@ -815,25 +767,26 @@
               const basicCard = document.getElementById('card-basic');
               basicCard.setAttribute('data-val', tiers.low.amount);
               basicCard.querySelector('.font-headline').innerText = `$${tiers.low.amount.toFixed(2)}`;
+              if (tiers.low.amount > currentWalletBalance) { basicCard.classList.add('disabled'); } else { basicCard.classList.remove('disabled'); }
               
               // Update Standard Card
               const standardCard = document.getElementById('card-standard');
               standardCard.setAttribute('data-val', tiers.medium.amount);
               standardCard.querySelector('.font-headline').innerText = `$${tiers.medium.amount.toFixed(2)}`;
+              if (tiers.medium.amount > currentWalletBalance) { standardCard.classList.add('disabled'); } else { standardCard.classList.remove('disabled'); }
               
               // Update Premium Card
               const premiumCard = document.getElementById('card-premium');
               premiumCard.setAttribute('data-val', tiers.high.amount);
               premiumCard.querySelector('.font-headline').innerText = `$${tiers.high.amount.toFixed(2)}`;
+              if (tiers.high.amount > currentWalletBalance) { premiumCard.classList.add('disabled'); } else { premiumCard.classList.remove('disabled'); }
               
-              // Set recommended choice
-              if (data.recommended === "high") {
-                 updateSelectedCard('card-premium');
-              } else if (data.recommended === "low") {
-                 updateSelectedCard('card-basic');
-              } else {
-                 updateSelectedCard('card-standard');
+              // Set recommended choice considering available balance
+              let bestCard = data.recommended === "high" ? 'card-premium' : (data.recommended === "low" ? 'card-basic' : 'card-standard');
+              if (document.getElementById(bestCard).classList.contains('disabled')) {
+                 if (!basicCard.classList.contains('disabled')) bestCard = 'card-basic';
               }
+              updateSelectedCard(bestCard);
             }
           } catch (e) {
             console.error("Analysis failed, using defaults", e);
@@ -905,11 +858,6 @@
       resetCards();
       
       const platformFee = selectedBudget * 0.2;
-      const agentFee = (selectedBudget * 0.2).toFixed(2);
-      document.getElementById('cost-search').innerText = `$${agentFee}`;
-      document.getElementById('cost-analysis').innerText = `$${agentFee}`;
-      document.getElementById('cost-writing').innerText = `$${agentFee}`;
-      document.getElementById('cost-quality').innerText = `$${agentFee}`;
 
       // Open SSE Pipeline
       const url = `${API_BASE}/stream?query=${encodeURIComponent(query)}&budget=${selectedBudget}`;
@@ -920,9 +868,9 @@
         try {
           const data = JSON.parse(event.data);
           
-          const step = data.step;
+          const type = data.type || data.step;
           
-          if (step === "error") {
+          if (type === "error") {
             const errorMsg = data.message || data.error || "Unknown pipeline error";
             alert(`⚠️ Workflow Error:\n${errorMsg}`);
             evtSource.close();
@@ -951,29 +899,66 @@
           }
           const getTxId = (d) => d.tx_hash ? d.tx_hash.substring(0,8) + '...' : 'N/A';
 
-          if (step === "manager_started") {
-            setCardSuccess(cards.manager, "Status: Deployed & Coordinated ✅");
-          } else if (step === "search_started") {
-            setCardPulse(cards.search, "Status: Scanning global sources... ⏳");
-          } else if (step === "search_complete") {
-            setCardSuccess(cards.search, "Status: Intelligence Gathered ✅", data.paid);
-            auditRows.push(`<tr><td class="py-4 px-3 font-semibold text-white">Web Research</td><td class="py-4 px-3 font-mono text-success">$${data.paid.toFixed(2)}</td><td class="py-4 px-3 font-mono opacity-80">${getTxId(data)}</td></tr>`);
-          } else if (step === "analysis_started") {
-            setCardPulse(cards.analysis, "Status: Processing vectors... ⏳");
-          } else if (step === "analysis_complete") {
-            setCardSuccess(cards.analysis, "Status: Matrices Analyzed ✅", data.paid);
-            auditRows.push(`<tr><td class="py-4 px-3 font-semibold text-white">Data Analysis</td><td class="py-4 px-3 font-mono text-success">$${data.paid.toFixed(2)}</td><td class="py-4 px-3 font-mono opacity-80">${getTxId(data)}</td></tr>`);
-          } else if (step === "writing_started") {
-            setCardPulse(cards.writing, "Status: Synthesizing brief... ⏳");
-          } else if (step === "writing_complete") {
-            setCardSuccess(cards.writing, "Draft Complete ✅", data.paid);
-            auditRows.push(`<tr><td class="py-4 px-3 font-semibold text-white">Report Drafting</td><td class="py-4 px-3 font-mono text-success">$${data.paid.toFixed(2)}</td><td class="py-4 px-3 font-mono opacity-80">${getTxId(data)}</td></tr>`);
-          } else if (step === "quality_started") {
-            setCardPulse(cards.quality, "Verifying Report... ⚖️");
-          } else if (step === "quality_complete") {
-            setCardSuccess(cards.quality, "Report Verified ✅", data.paid);
-            auditRows.push(`<tr><td class="py-4 px-3 font-semibold text-white">Quality Assurance</td><td class="py-4 px-3 font-mono text-success">$${data.paid.toFixed(2)}</td><td class="py-4 px-3 font-mono opacity-80">${getTxId(data)}</td></tr>`);
-          } else if (step === "done") {
+          if (type === "agents_selected") {
+            const container = document.getElementById('dynamic-pipeline-container');
+            container.innerHTML = "";
+            (data.agents || []).forEach((agentId, idx) => {
+              const meta = AGENT_META[agentId] || { name: agentId, icon: "🤖", rate: 0, color: "#fff" };
+              const cardHTML = `
+                <div class="agent-card glass-panel p-6 rounded-2xl border border-outline-variant/30 relative overflow-hidden shadow-xl transform opacity-0 translate-y-4 transition-all" id="card-${agentId}" style="transition-duration: 0.5s;">
+                  <div class="agent-card-indicator absolute top-0 left-0 w-full h-1 bg-transparent transition-all"></div>
+                  <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-white tracking-tight">${meta.icon} ${meta.name}</h3>
+                    <span class="agent-cost font-bold text-success font-mono text-sm border border-success/30 px-2 py-1 rounded bg-success/10" id="cost-${agentId}">$${(data.amounts && data.amounts[agentId]) != null ? parseFloat(data.amounts[agentId]).toFixed(2) : meta.rate.toFixed(2)}</span>
+                  </div>
+                  <div class="agent-status text-sm text-on-surface mb-2 font-bold font-label min-h-[20px]" id="status-${agentId}">Status: pending... ⏳</div>
+                  <div class="payment-msg hidden text-[11px] font-bold text-tertiary mb-3 bg-tertiary/10 border border-tertiary/20 px-2 py-1 rounded w-max" id="payment-${agentId}"></div>
+                  <p class="text-xs font-label uppercase tracking-widest text-on-surface-variant pt-4 border-t border-outline-variant/20 mt-auto">Task: ${meta.name}</p>
+                </div>
+              `;
+              container.insertAdjacentHTML('beforeend', cardHTML);
+              // Trigger animation staggered
+              setTimeout(() => {
+                const c = document.getElementById(`card-${agentId}`);
+                if(c) {
+                  c.classList.remove('opacity-0', 'translate-y-4');
+                }
+              }, 50 + (idx * 100));
+            });
+          } else if (type === "agent_paying") {
+            const card = document.getElementById(`card-${data.agent_id}`);
+            if(card) {
+                card.querySelector('.agent-card-indicator').className = "agent-card-indicator absolute top-0 left-0 w-full h-1 bg-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.8)] animate-pulse";
+                card.classList.remove('border-primary/50', 'border-success/50', 'border-outline-variant/30');
+                card.classList.add('border-yellow-400/50');
+                const statusEl = card.querySelector('.agent-status');
+                statusEl.innerText = "Status: paying... ⏳";
+                statusEl.className = "agent-status text-sm text-yellow-400 mb-2 font-bold font-label min-h-[20px]";
+            }
+          } else if (type === "agent_paid") {
+            const card = document.getElementById(`card-${data.agent_id}`);
+            if(card) {
+                card.classList.remove('border-yellow-400/50');
+                setCardSuccess(card, "Status: paid ✅", data.amount);
+                const meta = AGENT_META[data.agent_id] || { name: data.agent_id };
+                auditRows.push(`<tr><td class="py-4 px-3 font-semibold text-white">${meta.name}</td><td class="py-4 px-3 font-mono text-success">$${data.amount.toFixed(2)}</td><td class="py-4 px-3 font-mono opacity-80">${getTxId(data)}</td></tr>`);
+            }
+          } else if (type === "agent_working") {
+            const card = document.getElementById(`card-${data.agent_id}`);
+            if(card) {
+                setCardPulse(card, "Status: working... ⏳");
+            }
+          } else if (type === "agent_done") {
+            const card = document.getElementById(`card-${data.agent_id}`);
+            if(card) {
+                card.classList.remove('border-primary/50', 'border-yellow-400/50');
+                card.classList.add('border-success/50');
+                card.querySelector('.agent-card-indicator').className = "agent-card-indicator absolute top-0 left-0 w-full h-2 bg-success shadow-[0_0_15px_rgba(16,185,129,0.9)]";
+                const statusEl = card.querySelector('.agent-status');
+                statusEl.innerText = "Status: done ✅";
+                statusEl.className = "agent-status text-sm text-success mb-2 font-bold font-label min-h-[20px]";
+            }
+          } else if (type === "complete" || type === "done") {
             evtSource.close();
             mainLoader.classList.add('hidden');
             btnLaunch.innerHTML = '🚀 Launch Agents';
@@ -983,14 +968,36 @@
             taskInput.disabled = false;
             launchPanel.classList.add('hidden');
             
-            const platformProfit = data.result.platform_profit || 0;
+            const platformProfit = (data.result && data.result.platform_profit) || 0;
             const agentsPaid = selectedBudget - platformProfit;
-            showResults(data.result.report, auditRows, agentsPaid, platformProfit, selectedBudget);
+            showResults((data.result ? data.result.report : data.report) || "Report completed.", auditRows, agentsPaid, platformProfit, selectedBudget);
             fetchDashboard();
             fetchBalance();
             fetchTransactions();
           }
-        } catch(e) {}
+
+          // Fallback legacy support
+          else if (type === "manager_started") {}
+          else if (type === "search_started") {
+            const c = document.getElementById('card-search_agent'); if(c) setCardPulse(c, "Status: Scanning... ⏳");
+          } else if (type === "search_complete") {
+            const c = document.getElementById('card-search_agent'); if(c) { setCardSuccess(c, "Done ✅", data.paid); auditRows.push(`<tr><td class="py-4 px-3 font-semibold text-white">Web Research</td><td class="py-4 px-3 font-mono text-success">$${data.paid.toFixed(2)}</td><td class="py-4 px-3 font-mono opacity-80">${getTxId(data)}</td></tr>`); }
+          } else if (type === "analysis_started") {
+            const c = document.getElementById('card-analysis_agent'); if(c) setCardPulse(c, "Status: Analyzing... ⏳");
+          } else if (type === "analysis_complete") {
+            const c = document.getElementById('card-analysis_agent'); if(c) { setCardSuccess(c, "Done ✅", data.paid); auditRows.push(`<tr><td class="py-4 px-3 font-semibold text-white">Data Analysis</td><td class="py-4 px-3 font-mono text-success">$${data.paid.toFixed(2)}</td><td class="py-4 px-3 font-mono opacity-80">${getTxId(data)}</td></tr>`); }
+          } else if (type === "writing_started") {
+            const c = document.getElementById('card-writing_agent'); if(c) setCardPulse(c, "Status: Writing... ⏳");
+          } else if (type === "writing_complete") {
+            const c = document.getElementById('card-writing_agent'); if(c) { setCardSuccess(c, "Done ✅", data.paid); auditRows.push(`<tr><td class="py-4 px-3 font-semibold text-white">Drafting</td><td class="py-4 px-3 font-mono text-success">$${data.paid.toFixed(2)}</td><td class="py-4 px-3 font-mono opacity-80">${getTxId(data)}</td></tr>`); }
+          } else if (type === "quality_started") {
+            const c = document.getElementById('card-quality_agent'); if(c) setCardPulse(c, "Status: Verifying... ⚖️");
+          } else if (type === "quality_complete") {
+            const c = document.getElementById('card-quality_agent'); if(c) { setCardSuccess(c, "Verified ✅", data.paid); auditRows.push(`<tr><td class="py-4 px-3 font-semibold text-white">QA</td><td class="py-4 px-3 font-mono text-success">$${data.paid.toFixed(2)}</td><td class="py-4 px-3 font-mono opacity-80">${getTxId(data)}</td></tr>`); }
+          }
+        } catch(e) {
+             console.error(e);
+        }
       };
 
       evtSource.onerror = function(err) {
@@ -1067,17 +1074,10 @@
 
     function resetCards() {
       mainLoader.classList.remove('hidden');
-      Object.keys(cards).forEach(k => {
-        const c = cards[k];
-        c.className = "agent-card glass-panel p-6 rounded-2xl border border-outline-variant/30 relative overflow-hidden shadow-xl";
-        c.querySelector('.agent-card-indicator').className = "agent-card-indicator absolute top-0 left-0 w-full h-1 bg-transparent transition-all";
-      });
-      document.getElementById('status-manager').innerText = "Status: Coordinating... ⏳";
-      document.getElementById('status-search').innerText = "Status: Waiting... ⏳";
-      document.getElementById('status-analysis').innerText = "Status: Waiting... ⏳";
-      document.getElementById('status-writing').innerText = "Status: Waiting... ⏳";
-      document.querySelectorAll('.agent-status').forEach(el => el.className = "agent-status text-sm text-on-surface mb-2 font-bold font-label min-h-[20px]");
-      document.querySelectorAll('.payment-msg').forEach(el => { el.innerText = ""; el.classList.add('hidden'); });
+      const container = document.getElementById('dynamic-pipeline-container');
+      if (container) {
+          container.innerHTML = "";
+      }
     }
 
     function showResults(markdown, auditRows, agentsPaid, platformProfit, total) {
