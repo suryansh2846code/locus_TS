@@ -80,6 +80,24 @@
     .prose ol { list-style-type: decimal; margin-bottom: 1em; padding-left: 1.5em; }
     .prose h2 { font-size: 1.5em; font-weight: bold; margin-top: 1.5em; margin-bottom: 0.5em; border-bottom: 1px solid var(--outline-variant); padding-bottom: 0.5em; color: white; }
     .prose h3 { font-size: 1.25em; font-weight: bold; margin-top: 1.2em; margin-bottom: 0.5em; color: white; }
+
+    /* New styles for Bug 4 & 1 */
+    #btn-analyze, #btn-launch-summary { transition: all 0.2s ease; cursor: pointer; }
+    #btn-analyze:hover, #btn-launch-summary:hover { background: #d4b0ff; box-shadow: 0 0 20px rgba(199,153,255,0.5); transform: translateY(-1px); }
+    #btn-launch-summary:hover { box-shadow: 0 0 24px rgba(199,153,255,0.6); }
+    #btn-analyze:active, #btn-launch-summary:active { background: #b085e8; transform: translateY(0px); }
+    #btn-analyze:disabled, #btn-launch-summary:disabled { background: #444466; color: #888899; cursor: not-allowed; box-shadow: none; transform: none; }
+
+    .card-complete { border: 1px solid #00ff88 !important; box-shadow: 0 0 12px rgba(0,255,136,0.25) !important; }
+
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+    .dot-pending { background: #666; }
+    .dot-paying { background: #fbbf24; animation: pulse 1.5s infinite; }
+    .dot-paid { background: #4af8e3; }
+    .dot-working { background: #c799ff; animation: spin 2s linear infinite; }
+    .dot-done { background: #00ff88; box-shadow: 0 0 10px #00ff88; }
+    
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="min-h-screen selection:bg-primary/30">
@@ -120,7 +138,7 @@
         <textarea id="task-input" rows="3" class="w-full bg-surface-container-highest/50 border border-outline-variant/30 text-on-surface rounded-xl p-5 text-lg font-body focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline-variant resize-none" placeholder="e.g. Write me a Python web scraper, review this contract, create an image prompt for a sci-fi city, analyze my sales data..."></textarea>
       </div>
       
-      <button id="btn-analyze" class="w-full max-w-md bg-surface-container-highest border border-outline-variant/30 hover:bg-surface-container-high text-white py-4 px-8 rounded-full font-bold transition-all text-xl mt-4 focus:ring-4 focus:ring-primary/20">🔍 Analyze My Query</button>
+      <button id="btn-analyze" class="w-full max-w-md bg-primary text-[#0c0c21] py-4 px-8 rounded-full font-bold transition-all text-xl mt-4">🔍 Analyze My Query</button>
 
       <div id="budget-recommendation-area" class="hidden mt-10 text-center animate-[fadeInUp_0.8s_forwards]">
         <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-8">
@@ -182,18 +200,26 @@
             </div>
 
             <div class="space-y-3 pt-4 border-t border-outline-variant/20">
-              <div class="flex justify-between items-center text-lg">
-                <span class="text-on-surface-variant font-label text-sm uppercase tracking-widest">Estimated cost</span>
-                <span id="summary-cost" class="font-bold text-secondary font-mono">$0.00</span>
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-on-surface-variant font-label uppercase tracking-widest">Agent fees</span>
+                <span id="summary-agent-fees" class="font-bold text-on-surface font-mono">$0.00</span>
               </div>
-              <div class="flex justify-between items-center text-lg">
-                <span class="text-on-surface-variant font-label text-sm uppercase tracking-widest">Your balance</span>
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-on-surface-variant font-label uppercase tracking-widest">Platform fee</span>
+                <span id="summary-platform-fee" class="font-bold text-on-surface font-mono">$0.00</span>
+              </div>
+              <div class="flex justify-between items-center text-lg mt-2 pt-2 border-t border-outline-variant/10">
+                <span class="text-on-surface font-label uppercase tracking-widest font-bold">Total</span>
+                <span id="summary-total" class="font-bold text-secondary font-mono">$0.00</span>
+              </div>
+              <div class="flex justify-between items-center text-sm pt-2">
+                <span class="text-on-surface-variant font-label uppercase tracking-widest">Your balance</span>
                 <span id="summary-balance" class="font-bold text-on-surface font-mono">$0.00</span>
               </div>
             </div>
 
-            <div id="balance-warning" class="hidden mt-4 p-3 rounded-xl bg-error/10 border border-error/20 text-error text-xs font-bold text-center">
-              ⚠️ Insufficient balance
+            <div id="balance-status" class="mt-4 flex items-center justify-center gap-2 font-bold py-2 rounded-xl text-xs uppercase tracking-widest">
+              <!-- dynamic status -->
             </div>
 
             <div class="pt-6">
@@ -857,39 +883,47 @@
             }
             */
 
-            // New logic for Summary Card
-            const agents = data.agents || ["search_agent", "analysis_agent", "writing_agent", "quality_agent"];
-            const cost = data.estimated_cost || (agents.length * 1.5); // Fallback estimate
+            // New logic for Summary Card (Bug 2 Fix)
+            const agents = data.agents || [];
+            const agentFees = data.estimated_cost || 0;
+            const platformFee = data.platform_fee || 0;
+            const totalWithFee = data.total_with_fee || 0;
             const balance = data.balance || currentWalletBalance;
-            const affordable = data.affordable !== undefined ? data.affordable : (balance >= cost);
+            const affordable = data.affordable !== undefined ? data.affordable : (balance >= totalWithFee);
             
-            selectedBudget = cost; // Set global budget for launcher
+            selectedBudget = totalWithFee; // Set global budget for launcher
 
             // Render pills
             agents.forEach(agentId => {
               const meta = AGENT_META[agentId] || { name: agentId, icon: "🤖", color: "#e5e3ff" };
               const pill = document.createElement('div');
               pill.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-body border transition-all";
-              pill.style.backgroundColor = `${meta.color}26`; // 15% opacity hex (26)
-              pill.style.borderColor = `${meta.color}66`; // 40% opacity hex (66)
+              pill.style.backgroundColor = `${meta.color}26`;
+              pill.style.borderColor = `${meta.color}66`;
               pill.style.color = meta.color;
               pill.innerHTML = `<span class="text-sm">${meta.icon}</span> ${meta.name}`;
               agentPillsContainer.appendChild(pill);
             });
 
             // Update costs/balance
-            document.getElementById('summary-cost').innerText = `$${cost.toFixed(2)}`;
-            const balEl = document.getElementById('summary-balance');
-            balEl.innerText = `$${balance.toFixed(2)} USDC`;
+            document.getElementById('summary-agent-fees').innerText = `$${agentFees.toFixed(2)}`;
+            document.getElementById('summary-platform-fee').innerText = `$${platformFee.toFixed(2)}`;
+            document.getElementById('summary-total').innerText = `$${totalWithFee.toFixed(2)}`;
             
+            const balEl = document.getElementById('summary-balance');
+            balEl.innerText = `$${balance.toFixed(2)}`;
+            
+            const statusEl = document.getElementById('balance-status');
             if (!affordable) {
               balEl.classList.add('text-error');
-              document.getElementById('balance-warning').classList.remove('hidden');
+              statusEl.className = "mt-4 flex items-center justify-center gap-2 font-bold py-2 rounded-xl text-xs uppercase tracking-widest bg-error/10 text-error border border-error/20";
+              statusEl.innerHTML = `<span class="material-symbols-outlined text-sm">warning</span> Insufficient balance`;
               document.getElementById('btn-launch-summary').disabled = true;
               document.getElementById('dashboard-link').classList.remove('hidden');
             } else {
               balEl.classList.remove('text-error');
-              document.getElementById('balance-warning').classList.add('hidden');
+              statusEl.className = "mt-4 flex items-center justify-center gap-2 font-bold py-2 rounded-xl text-xs uppercase tracking-widest bg-success/10 text-success border border-success/20";
+              statusEl.innerHTML = `<span class="material-symbols-outlined text-sm">check_circle</span> Ready to launch`;
               document.getElementById('btn-launch-summary').disabled = false;
               document.getElementById('dashboard-link').classList.add('hidden');
             }
@@ -992,53 +1026,47 @@
                     <h3 class="text-lg font-bold text-white tracking-tight">${meta.icon} ${meta.name}</h3>
                     <span class="agent-cost font-bold text-success font-mono text-sm border border-success/30 px-2 py-1 rounded bg-success/10" id="cost-${agentId}">$${(data.amounts && data.amounts[agentId]) != null ? parseFloat(data.amounts[agentId]).toFixed(2) : meta.rate.toFixed(2)}</span>
                   </div>
-                  <div class="agent-status text-sm text-on-surface mb-2 font-bold font-label min-h-[20px]" id="status-${agentId}">Status: pending... ⏳</div>
+                  <div class="agent-status text-sm text-on-surface mb-2 font-bold font-label min-h-[22px] flex items-center" id="status-${agentId}">
+                    <span class="dot dot-pending"></span>
+                    <span class="status-text text-on-surface-variant font-medium">Pending... ⏳</span>
+                  </div>
                   <div class="payment-msg hidden text-[11px] font-bold text-tertiary mb-3 bg-tertiary/10 border border-tertiary/20 px-2 py-1 rounded w-max" id="payment-${agentId}"></div>
                   <p class="text-xs font-label uppercase tracking-widest text-on-surface-variant pt-4 border-t border-outline-variant/20 mt-auto">Task: ${meta.name}</p>
                 </div>
               `;
               container.insertAdjacentHTML('beforeend', cardHTML);
-              // Trigger animation staggered
               setTimeout(() => {
                 const c = document.getElementById(`card-${agentId}`);
-                if(c) {
-                  c.classList.remove('opacity-0', 'translate-y-4');
-                }
+                if(c) c.classList.remove('opacity-0', 'translate-y-4');
               }, 50 + (idx * 100));
             });
           } else if (type === "agent_paying") {
             const card = document.getElementById(`card-${data.agent_id}`);
             if(card) {
-                card.querySelector('.agent-card-indicator').className = "agent-card-indicator absolute top-0 left-0 w-full h-1 bg-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.8)] animate-pulse";
-                card.classList.remove('border-primary/50', 'border-success/50', 'border-outline-variant/30');
-                card.classList.add('border-yellow-400/50');
                 const statusEl = card.querySelector('.agent-status');
-                statusEl.innerText = "Status: paying... ⏳";
-                statusEl.className = "agent-status text-sm text-yellow-400 mb-2 font-bold font-label min-h-[20px]";
-            }
+                statusEl.innerHTML = `<span class="dot dot-paying"></span> <span class="status-text text-yellow-400">Paying $${parseFloat(data.amount || 0).toFixed(2)}...</span>`;
+            } else { console.warn("Card not found for agent:", data.agent_id); }
           } else if (type === "agent_paid") {
             const card = document.getElementById(`card-${data.agent_id}`);
             if(card) {
-                card.classList.remove('border-yellow-400/50');
-                setCardSuccess(card, "Status: paid ✅", data.amount);
+                const statusEl = card.querySelector('.agent-status');
+                statusEl.innerHTML = `<span class="dot dot-paid"></span> <span class="status-text text-secondary">$${parseFloat(data.amount || 0).toFixed(2)} paid ✓</span>`;
                 const meta = AGENT_META[data.agent_id] || { name: data.agent_id };
                 auditRows.push(`<tr><td class="py-4 px-3 font-semibold text-white">${meta.name}</td><td class="py-4 px-3 font-mono text-success">$${data.amount.toFixed(2)}</td><td class="py-4 px-3 font-mono opacity-80">${getTxId(data)}</td></tr>`);
-            }
+            } else { console.warn("Card not found for agent:", data.agent_id); }
           } else if (type === "agent_working") {
             const card = document.getElementById(`card-${data.agent_id}`);
             if(card) {
-                setCardPulse(card, "Status: working... ⏳");
-            }
+                const statusEl = card.querySelector('.agent-status');
+                statusEl.innerHTML = `<span class="dot dot-working"></span> <span class="status-text text-primary">Working...</span>`;
+            } else { console.warn("Card not found for agent:", data.agent_id); }
           } else if (type === "agent_done") {
             const card = document.getElementById(`card-${data.agent_id}`);
             if(card) {
-                card.classList.remove('border-primary/50', 'border-yellow-400/50');
-                card.classList.add('border-success/50');
-                card.querySelector('.agent-card-indicator').className = "agent-card-indicator absolute top-0 left-0 w-full h-2 bg-success shadow-[0_0_15px_rgba(16,185,129,0.9)]";
+                card.classList.add('card-complete');
                 const statusEl = card.querySelector('.agent-status');
-                statusEl.innerText = "Status: done ✅";
-                statusEl.className = "agent-status text-sm text-success mb-2 font-bold font-label min-h-[20px]";
-            }
+                statusEl.innerHTML = `<span class="dot dot-done"></span> <span class="status-text text-[#00ff88]">Done ✓</span>`;
+            } else { console.warn("Card not found for agent:", data.agent_id); }
           } else if (type === "complete" || type === "done") {
             evtSource.close();
             mainLoader.classList.add('hidden');
@@ -1049,12 +1077,20 @@
             taskInput.disabled = false;
             launchPanel.classList.add('hidden');
             
+            // Mark all agent cards as complete (Bug 1 Fix)
+            document.querySelectorAll('.agent-card').forEach(card => {
+                card.classList.add('card-complete');
+                const statusEl = card.querySelector('.agent-status');
+                if (statusEl) statusEl.innerHTML = `<span class="dot dot-done"></span> <span class="status-text text-[#00ff88]">Done ✓</span>`;
+            });
+
             const platformProfit = (data.result && data.result.platform_profit) || 0;
             const agentsPaid = selectedBudget - platformProfit;
             showResults((data.result ? data.result.report : data.report) || "Report completed.", auditRows, agentsPaid, platformProfit, selectedBudget);
             fetchDashboard();
             fetchBalance();
             fetchTransactions();
+            fetchAgents(); // Re-fetch agents to update live stats (Bug 3 Fix)
           }
 
           // Fallback legacy support
@@ -1210,10 +1246,9 @@
           const card = document.createElement('div');
           card.className = `glass-panel border border-outline-variant/20 rounded-3xl p-8 transition-all hover:border-${cat}/30 hover:-translate-y-2 relative group cursor-pointer shadow-xl`;
           
-          // Generate stars based on rating
-          const fullStars = Math.round(agent.rating) || 5;
-          const stars = '⭐'.repeat(fullStars);
-          
+          const formatVal = (v) => (v === 0 ? "—" : v);
+          const formatEarned = (v) => (v === 0 ? "—" : `$${parseFloat(v).toFixed(2)}`);
+
           card.innerHTML = `
             <div class="absolute -bottom-8 -right-8 w-32 h-32 bg-${cat}/10 rounded-full blur-3xl group-hover:bg-${cat}/20 transition-colors pointer-events-none"></div>
             
@@ -1228,9 +1263,9 @@
             
             <div class="space-y-4 mb-8 relative z-10">
               <div class="flex justify-between items-center"><span class="text-[11px] font-label uppercase tracking-widest text-on-surface-variant">Rate</span><span class="font-mono text-sm text-white font-bold bg-surface-container px-2 py-1 rounded">$${agent.rate_per_task.toFixed(2)} per task</span></div>
-              <div class="flex justify-between items-center"><span class="text-[11px] font-label uppercase tracking-widest text-on-surface-variant">Rating</span><span class="font-mono text-sm text-yellow-400 font-bold">${stars} ${agent.rating.toFixed(1)}</span></div>
-              <div class="flex justify-between items-center"><span class="text-[11px] font-label uppercase tracking-widest text-on-surface-variant">Jobs</span><span class="font-mono text-sm text-white font-bold">✅ ${agent.total_jobs || 0} done</span></div>
-              <div class="flex justify-between items-center"><span class="text-[11px] font-label uppercase tracking-widest text-on-surface-variant">Earned</span><span class="font-mono text-sm text-primary font-bold overflow-hidden text-ellipsis whitespace-nowrap max-w-[120px]">💰 $${(agent.total_earned || 0).toFixed(2)} total</span></div>
+              <div class="flex justify-between items-center"><span class="text-[11px] font-label uppercase tracking-widest text-on-surface-variant">Rating</span><span class="font-mono text-sm text-yellow-400 font-bold">${agent.rating > 0 ? '⭐'.repeat(Math.round(agent.rating)) : ''} ${formatVal(agent.rating)}</span></div>
+              <div class="flex justify-between items-center"><span class="text-[11px] font-label uppercase tracking-widest text-on-surface-variant">Jobs</span><span class="font-mono text-sm text-white font-bold">✅ ${formatVal(agent.total_jobs || 0)} done</span></div>
+              <div class="flex justify-between items-center"><span class="text-[11px] font-label uppercase tracking-widest text-on-surface-variant">Earned</span><span class="font-mono text-sm text-primary font-bold overflow-hidden text-ellipsis whitespace-nowrap max-w-[120px]">💰 ${formatEarned(agent.total_earned || 0)} total</span></div>
               <div class="flex justify-between items-center"><span class="text-[11px] font-label uppercase tracking-widest text-on-surface-variant">Status</span><span class="font-label text-[10px] text-success uppercase font-bold tracking-widest bg-success/10 px-2 py-1 rounded flex items-center gap-1"><span class="w-1.5 h-1.5 bg-success rounded-full animate-pulse"></span> Available</span></div>
             </div>
             
