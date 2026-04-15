@@ -61,3 +61,18 @@
 
 [Analysis Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
    FAILURE: RawRes={'success': False, 'error': 'Policy check failed', 'message': 'Transaction amount exceeds remaining allowance of 0.049648 USDC', 'details': {'allowance': '0.049648', 'proposedAmount': '0.1'}}
+
+[Search Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   SUCCESS: TxID=b0236b3b-8d26-4cdf-8ca6-4061d8a5922c, RawRes={'success': True, 'data': {'transaction_id': 'b0236b3b-8d26-4cdf-8ca6-4061d8a5922c', 'queue_job_id': 'f3c50726-dcbe-4f46-b0e1-8612ada4c21d', 'status': 'QUEUED', 'from_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'to_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'amount': 0.1, 'token': 'USDC'}}
+
+[Analysis Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   SUCCESS: TxID=3b383c66-09c7-4d33-9f9c-a7efccf2b063, RawRes={'success': True, 'data': {'transaction_id': '3b383c66-09c7-4d33-9f9c-a7efccf2b063', 'queue_job_id': 'cb1afddc-736a-41e8-8f90-2552a1e82e27', 'status': 'QUEUED', 'from_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'to_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'amount': 0.1, 'token': 'USDC'}}
+
+[Writing Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   SUCCESS: TxID=f7b4c735-d9cd-41d2-a905-0bb52414b88e, RawRes={'success': True, 'data': {'transaction_id': 'f7b4c735-d9cd-41d2-a905-0bb52414b88e', 'queue_job_id': '303e635a-e071-4f79-9d2b-0c99b858d750', 'status': 'QUEUED', 'from_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'to_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'amount': 0.1, 'token': 'USDC'}}
+
+[Quality Check Agent] Attempting payment to 0x7a67133e923c88748607d39a98ede9b2d660dac7 of $0.1
+   SUCCESS: TxID=c6510009-5cb0-4638-8f70-eae94baaed6f, RawRes={'success': True, 'data': {'transaction_id': 'c6510009-5cb0-4638-8f70-eae94baaed6f', 'queue_job_id': '21f57de8-5d87-487c-9172-1a57883dfec3', 'status': 'QUEUED', 'from_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'to_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'amount': 0.1, 'token': 'USDC'}}
+
+[Platform] Attempting payment to 0x0b3743ca11a26c28c074dbdef4606c5991a29fc2 of $0.1
+   SUCCESS: TxID=ef05a42a-77d9-47c6-b54f-64bca8c69d0e, RawRes={'success': True, 'data': {'transaction_id': 'ef05a42a-77d9-47c6-b54f-64bca8c69d0e', 'queue_job_id': '58d353a3-68eb-47f1-a625-69d9695c9c7d', 'status': 'QUEUED', 'from_address': '0x7a67133e923c88748607d39a98ede9b2d660dac7', 'to_address': '0x0b3743ca11a26c28c074dbdef4606c5991a29fc2', 'amount': 0.1, 'token': 'USDC'}}
