@@ -6,9 +6,9 @@ SEARCH_AGENT_WALLET = os.getenv("SEARCH_AGENT_WALLET")
 ANALYSIS_AGENT_WALLET = os.getenv("ANALYSIS_AGENT_WALLET")
 WRITING_AGENT_WALLET = os.getenv("WRITING_AGENT_WALLET")
 
-print(f"📡 Wallet Loaded - Search Agent: {SEARCH_AGENT_WALLET}")
-print(f"📡 Wallet Loaded - Analysis Agent: {ANALYSIS_AGENT_WALLET}")
-print(f"📡 Wallet Loaded - Writing Agent: {WRITING_AGENT_WALLET}")
+print(f"? Wallet Loaded - Search Agent: {SEARCH_AGENT_WALLET}")
+print(f"? Wallet Loaded - Analysis Agent: {ANALYSIS_AGENT_WALLET}")
+print(f"? Wallet Loaded - Writing Agent: {WRITING_AGENT_WALLET}")
 
 # Base headers for all Locus API requests
 HEADERS = {
@@ -28,10 +28,10 @@ def get_balance():
         data = response.json()
         if data.get("success"):
             balance = float(data["data"]["usdc_balance"])
-            print(f"💰 Current Locus Balance: {balance} USDC")
+            print(f"? Current Locus Balance: {balance} USDC")
             return balance
         else:
-            print(f"❌ Failed to get balance: {data.get('message')}")
+            print(f"? Failed to get balance: {data.get('message')}")
             return 0.0
     except Exception as e:
         print(f"Error in get_balance: {e}")
@@ -77,14 +77,14 @@ def pay_agent(to_address, amount, agent_name, task):
         if data.get("success"):
             tx_id = data["data"].get("transaction_id")
             status = data["data"].get("status")
-            print(f"✅ Paid {agent_name} ${amount} for {task}")
+            print(f"? Paid {agent_name} ${amount} for {task}")
             print(f"   Status: {status} | Tx ID: {tx_id}")
             with open("payment_debug.txt", "a") as f:
                 f.write(f"   SUCCESS: TxID={tx_id}, RawRes={data}\n")
             return {"success": True, "tx_id": tx_id, "status": status}
         else:
             message = data.get("message", "Insufficient balance or internal error")
-            print(f"❌ Payment failed: {message}")
+            print(f"? Payment failed: {message}")
             print(f"DEBUG - Full Locus Error Response: {data}")
             with open("payment_debug.txt", "a") as f:
                 f.write(f"   FAILURE: RawRes={data}\n")
@@ -130,7 +130,7 @@ def get_transaction_history():
                 })
             return formatted_txs
         else:
-            print(f"❌ Failed to fetch history: {data.get('message')}")
+            print(f"? Failed to fetch history: {data.get('message')}")
             return []
     except Exception as e:
         print(f"Error in get_transaction_history: {e}")
@@ -152,15 +152,15 @@ def request_credits(reason, amount):
         response = requests.post(url, headers=HEADERS, json=payload)
         # 429 is common for this endpoint if requested recently
         if response.status_code == 429:
-            print("🕒 Credit request rate limited (1 per 24h).")
+            print("? Credit request rate limited (1 per 24h).")
             return False
             
         data = response.json()
         if data.get("success"):
-            print(f"🤝 Credit request for ${amount} submitted successfully!")
+            print(f"? Credit request for ${amount} submitted successfully!")
             return True
         else:
-            print(f"❌ Credit request failed: {data.get('message')}")
+            print(f"? Credit request failed: {data.get('message')}")
             return False
     except Exception as e:
         print(f"Error in request_credits: {e}")

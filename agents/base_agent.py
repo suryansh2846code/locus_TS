@@ -1,14 +1,14 @@
 """
 agents/base_agent.py
-────────────────────
+????????????????????
 Abstract base class for every specialist agent in the AgentMarket marketplace.
 
-All specialist agents (SearchAgent, WritingAgent, AnalysisAgent, …) must
+All specialist agents (SearchAgent, WritingAgent, AnalysisAgent, ?) must
 inherit from BaseAgent and override the `execute()` method.
 
 Lifecycle of a task
-───────────────────
-  1. Caller invokes agent.execute(task)        ← overridden by subclass
+???????????????????
+  1. Caller invokes agent.execute(task)        ? overridden by subclass
   2. Subclass performs work, returns result
   3. Caller invokes agent.update_stats(success, amount_earned)
   4. agent.get_stats() / get_card_data() reflect updated state
@@ -65,7 +65,7 @@ class BaseAgent(ABC):
         self.min_budget: float = min_budget
         self.max_budget: float = max_budget
         self.version: str = version
-        self.status: str = "active"
+        self.status: str = "available"
         self.registered_at: str = registered_at
 
         # Set later (after wallet provisioning via Locus)
@@ -81,7 +81,7 @@ class BaseAgent(ABC):
         self.rating: float = 5.0
 
     # ------------------------------------------------------------------ #
-    #  Abstract interface — MUST be overridden by subclasses               #
+    #  Abstract interface ? MUST be overridden by subclasses               #
     # ------------------------------------------------------------------ #
 
     @abstractmethod
@@ -134,7 +134,7 @@ class BaseAgent(ABC):
 
         self.total_earned += amount_earned
 
-        # Rating = (successful / total) * 5  — floored at 0.0, capped at 5.0
+        # Rating = (successful / total) * 5  ? floored at 0.0, capped at 5.0
         if self.tasks_completed > 0:
             raw = (self.successful_tasks / self.tasks_completed) * 5.0
             self.rating = round(max(0.0, min(5.0, raw)), 2)
@@ -206,9 +206,9 @@ class BaseAgent(ABC):
     # ------------------------------------------------------------------ #
 
     def _success_rate(self) -> float:
-        """Percentage of tasks that completed successfully (0–100)."""
+        """Percentage of tasks that completed successfully (0?100)."""
         if self.tasks_completed == 0:
-            return 100.0  # No tasks yet → optimistic default
+            return 100.0  # No tasks yet ? optimistic default
         return round((self.successful_tasks / self.tasks_completed) * 100, 2)
 
     def _status(self) -> str:
@@ -234,6 +234,6 @@ class BaseAgent(ABC):
     def __str__(self) -> str:
         return (
             f"{self.name} [{self.speciality}] "
-            f"— {self.rate_per_task} USDC/task "
-            f"— rating {self.rating}/5.0"
+            f"? {self.rate_per_task} USDC/task "
+            f"? rating {self.rating}/5.0"
         )

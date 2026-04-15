@@ -50,7 +50,7 @@ PLATFORM_ADDR = "0x0b3743ca11a26c28c074dbdef4606c5991a29fc2"
 
 _ANTHROPIC_ENDPOINT  = "https://beta-api.paywithlocus.com/api/wrapped/anthropic/chat"
 _ROUTER_MODEL        = "claude-haiku-4-5"
-_ROUTER_PROMPT       = """You are an agent router for AgentMarket. Given a user's service request, return a JSON array of agent IDs that should handle this task. Available agents: search_agent, analysis_agent, writing_agent, quality_agent, code_agent, legal_agent, image_prompt_agent, data_agent. Rules: always include quality_agent last. Only include agents relevant to the task. Return ONLY valid JSON array, no explanation."""
+_ROUTER_PROMPT       = """You are an agent router for Syndicate. Given a user's service request, return a JSON array of agent IDs that should handle this task. Available agents: search_agent, analysis_agent, writing_agent, quality_agent, code_agent, legal_agent, image_prompt_agent, data_agent. Rules: always include quality_agent last. Only include agents relevant to the task. Return ONLY valid JSON array, no explanation."""
 
 class ManagerAgent:
     def __init__(self):
@@ -102,7 +102,7 @@ class ManagerAgent:
         for agent in self.agent_map.values():
             self.registry.register_agent(agent)
             
-        print("AgentMarket Manager Ready ✅")
+        print("Syndicate Manager Ready [OK]")
 
     def _save_job_history(self, job_data: dict) -> None:
         """Appends a completed job to the history file."""
@@ -214,7 +214,7 @@ class ManagerAgent:
                 step_failed=step_name
             )
         
-        print(f"💰 Payment for {agent.name} confirmed. Proceeding with execution...")
+        print(f"? Payment for {agent.name} confirmed. Proceeding with execution...")
         result = agent.execute(task)
         return result, payment
 
@@ -224,7 +224,7 @@ class ManagerAgent:
         
         # Phase 1: Dynamic Agent Routing
         yield {"step": "manager_started", "query": query}
-        print("🧠 Selecting agents dynamically...")
+        print("? Selecting agents dynamically...")
         selected_agent_ids = self.select_agents(query)
         
         # Ensure quality agent is at the end
@@ -262,45 +262,52 @@ class ManagerAgent:
                 time.sleep(2) # Min Pacing
                 yield {"step": f"{agent_id}_started"}
                 sys.stdout.flush()
-                print(f"🚀 Paying then Executing {agent.name} for context...")
+                print(f"? Paying then Executing {agent.name} for context...")
                 
                 # Execution
-                result_data, pay_result = self.pay_and_execute(
-                    agent, 
-                    context, 
-                    cost,
-                    f"{agent_id}_payment"
-                )
-                
-                # Append to context for next agent
-                result_str = json.dumps(result_data) if isinstance(result_data, dict) else str(result_data)
-                context += f"\n--- {agent.name} Output ---\n{result_str}\n"
-                
-                # Save special states depending on the agent
-                if agent_id == "quality_agent":
-                    quality_results = result_data
-                    if isinstance(quality_results, dict):
-                        quality_score = quality_results.get("quality_score", 0)
-                    final_report += f"\n\n---\n✅ Quality Score: {quality_score}/10"
-                else:
-                    final_report += f"\n\n### {agent.name} Results\n```json\n{result_str}\n```"
+                try:
+                    result_data, pay_result = self.pay_and_execute(
+                        agent, 
+                        context, 
+                        cost,
+                        f"{agent_id}_payment"
+                    )
+                    
+                    # Update stats IMMEDIATELY after success (Fix 2)
+                    self.registry.update_agent_stats(agent_id, cost, success=True)
+                    
+                    # Append to context for next agent
+                    result_str = json.dumps(result_data) if isinstance(result_data, dict) else str(result_data)
+                    context += f"\n--- {agent.name} Output ---\n{result_str}\n"
+                    
+                    # Save special states depending on the agent
+                    if agent_id == "quality_agent":
+                        quality_results = result_data
+                        if isinstance(quality_results, dict):
+                            quality_score = quality_results.get("quality_score", 0)
+                        final_report += f"\n\n---\n[OK] Quality Score: {quality_score}/10"
+                    else:
+                        final_report += f"\n\n### {agent.name} Results\n```json\n{result_str}\n```"
 
-                # Record stats
-                payment_records.append({
-                    "agent": agent.name, 
-                    "tx_id": pay_result.get("tx_id"), 
-                    "amount": cost,
-                    "success": True
-                })
-                agent_performance.append({"name": agent.name, "success": True, "amount": cost})
-                yield {"step": f"{agent_id}_complete", "paid": cost, "tx_id": pay_result.get("tx_id"), "score": quality_score if agent_id == "quality_agent" else None}
+                    # Record stats for reporting at the end
+                    payment_records.append({
+                        "agent": agent.name, 
+                        "tx_id": pay_result.get("tx_id"), 
+                        "amount": cost,
+                        "success": True
+                    })
+                    yield {"step": f"{agent_id}_complete", "paid": cost, "tx_id": pay_result.get("tx_id"), "score": quality_score if agent_id == "quality_agent" else None}
+                except Exception as e:
+                    # Update stats on FAILURE (Fix 2)
+                    self.registry.update_agent_stats(agent_id, cost, success=False)
+                    raise e
             
             # Platform Fee Collection
             time.sleep(2)
             platform_fee = splits.get("platform", 0)
             sys.stdout.flush()
             if platform_fee > 0:
-                print(f"🎖️ Collecting platform fee: ${platform_fee}")
+                print(f"?? Collecting platform fee: ${platform_fee}")
                 platform_pay = pay_agent(PLATFORM_ADDR, platform_fee, "Platform", f"Fee for request")
                 if platform_pay["success"]:
                     payment_records.append({
@@ -313,8 +320,7 @@ class ManagerAgent:
             elapsed = round(time.time() - start_time, 2)
             self.jobs_completed += 1
             
-            # Persist stats and history
-            self.update_agent_stats(agent_performance)
+            # Persist history
             
             job_history_entry = {
                 "id": f"job_{int(time.time())}",
@@ -356,7 +362,7 @@ class ManagerAgent:
             }
             return
         except Exception as e:
-            print(f"❌ Pipeline CRITICAL ERROR: {e}")
+            print(f"[FAIL] Pipeline CRITICAL ERROR: {e}")
             import traceback
             traceback.print_exc()
             yield {

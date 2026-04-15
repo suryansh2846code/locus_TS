@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>AgentMarket - Professional Dashboard</title>
+  <title>Syndicate - Professional Dashboard</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Inter:wght@300..700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -106,7 +106,7 @@
 
   <!-- TopNavBar -->
   <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-8 py-4 bg-[#0c0c21]/80 backdrop-blur-xl shadow-2xl border-b border-outline-variant/10">
-    <div class="text-xl font-black text-[#e5e3ff] tracking-tight">AgentMarket</div>
+    <div class="text-xl font-black text-[#e5e3ff] tracking-tight">Syndicate</div>
     <div class="hidden md:flex items-center gap-8 nav-links">
       <a onclick="showSection('home')" id="nav-home" class="cursor-pointer text-primary font-bold border-b-2 border-primary pb-1 transition-colors duration-300">Home</a>
       <a onclick="showSection('agents')" id="nav-agents" class="cursor-pointer text-[#aaa8c5] font-medium hover:text-[#4af8e3] transition-colors duration-300">Agents</a>
@@ -393,7 +393,7 @@
 
   <!-- Footer -->
   <footer class="w-full flex flex-col md:flex-row justify-between items-center py-12 px-8 border-t border-[#46465e]/15 bg-[#0a0a1a]">
-    <div class="text-lg font-bold text-[#e5e3ff] mb-6 md:mb-0 flex items-center gap-2"><span class="text-primary material-symbols-outlined">network_node</span> AgentMarket</div>
+    <div class="text-lg font-bold text-[#e5e3ff] mb-6 md:mb-0 flex items-center gap-2"><span class="text-primary material-symbols-outlined">network_node</span> Syndicate</div>
     <div class="flex gap-8 mb-6 md:mb-0">
       <a class="text-[#aaa8c5] hover:text-[#4af8e3] text-xs font-label uppercase tracking-widest transition-opacity opacity-80 hover:opacity-100 cursor-pointer">Terms</a>
       <a class="text-[#aaa8c5] hover:text-[#4af8e3] text-xs font-label uppercase tracking-widest transition-opacity opacity-80 hover:opacity-100 cursor-pointer">Privacy</a>
@@ -480,7 +480,7 @@
     <div class="text-center mb-12">
       <div class="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-6">Developer Portal</div>
       <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-on-background mb-4">🛠️ List Your Agent</h1>
-      <p class="text-on-surface-variant text-lg">Earn <span class="text-secondary font-bold">USDC automatically</span> every time your agent is hired on AgentMarket.</p>
+      <p class="text-on-surface-variant text-lg">Earn <span class="text-secondary font-bold">USDC automatically</span> every time your agent is hired on Syndicate.</p>
     </div>
 
     <!-- Earn callout banner -->
@@ -511,7 +511,7 @@
           <span class="material-symbols-outlined text-success text-5xl">check_circle</span>
         </div>
         <h2 class="text-3xl font-extrabold text-on-surface mb-3">Agent Listed! 🎉</h2>
-        <p class="text-on-surface-variant mb-6" id="register-success-msg">Your agent is now live on AgentMarket.</p>
+        <p class="text-on-surface-variant mb-6" id="register-success-msg">Your agent is now live on Syndicate.</p>
         <div class="bg-success/5 border border-success/20 rounded-2xl p-6 mb-8 text-left">
           <div class="text-xs text-on-surface-variant uppercase tracking-widest font-label mb-1">Agent ID</div>
           <div id="register-agent-id" class="font-mono text-primary text-sm bg-primary/5 px-4 py-2 rounded-lg mt-1 border border-primary/20"></div>
@@ -714,7 +714,7 @@
           document.getElementById('register-success').classList.remove('hidden');
           document.getElementById('register-agent-id').textContent = data.agent_id;
           document.getElementById('register-earnings').textContent = `$${rate.toFixed(2)} USDC per hire`;
-          document.getElementById('register-success-msg').textContent = `"${fields.name.value.trim()}" is now live on AgentMarket. You'll earn $${rate.toFixed(2)} every time it's hired!`;
+          document.getElementById('register-success-msg').textContent = `"${fields.name.value.trim()}" is now live on Syndicate. You'll earn $${rate.toFixed(2)} every time it's hired!`;
           // Refresh the marketplace agents list
           if (typeof fetchAgents === 'function') fetchAgents();
         } else {
@@ -813,6 +813,38 @@
       data_agent:         { name: "Data Agent",          icon: "📈", rate: 2.50, color: "#7fff9f" }
     };
 
+    function renderAgentResult(agentId, resultText) {
+      if (agentId === "analysis_agent") {
+        try {
+          const parsed = JSON.parse(resultText);
+          return `
+            <div class="analysis-results p-4 bg-surface-container-lowest/30 rounded-xl border border-outline-variant/20 italic">
+              <p class="mb-3"><strong class="text-primary">Summary:</strong> ${parsed.summary || "N/A"}</p>
+              <p class="mb-3"><strong class="text-secondary">Key Findings:</strong> ${(parsed.key_findings || []).join(", ") || "None"}</p>
+              <p class="mb-3"><strong class="text-tertiary">Trends:</strong> ${(parsed.trends || []).join(", ") || "None"}</p>
+              <p class="mb-1"><strong class="text-primary-container">Important Numbers:</strong> ${(parsed.important_numbers || []).join(", ") || "None"}</p>
+            </div>
+          `;
+        } catch(e) {
+          return `<pre class="bg-surface p-4 rounded-xl border border-outline-variant/30 text-xs overflow-x-auto"><code>${resultText}</code></pre>`;
+        }
+      }
+      return typeof marked !== 'undefined' ? marked.parse(resultText) : resultText;
+    }
+
+    // Configure marked to use our renderer for json code blocks if they look like analysis results
+    if (typeof marked !== 'undefined' && marked.Renderer) {
+      const renderer = new marked.Renderer();
+      const originalCode = renderer.code.bind(renderer);
+      renderer.code = function(code, language) {
+        if (language === 'json' && (code.includes('key_findings') || code.includes('summary'))) {
+          return renderAgentResult('analysis_agent', code);
+        }
+        return originalCode(code, language);
+      };
+      marked.setOptions({ renderer });
+    }
+
     // Boot
     document.addEventListener('DOMContentLoaded', () => {
       fetchBalance();
@@ -885,9 +917,9 @@
 
             // New logic for Summary Card (Bug 2 Fix)
             const agents = data.agents || [];
-            const agentFees = data.estimated_cost || 0;
-            const platformFee = data.platform_fee || 0;
-            const totalWithFee = data.total_with_fee || 0;
+            const agentFees = parseFloat(data.estimated_cost) || 0;
+            const platformFee = parseFloat(data.platform_fee) || 0;
+            const totalWithFee = (agentFees + platformFee);
             const balance = data.balance || currentWalletBalance;
             const affordable = data.affordable !== undefined ? data.affordable : (balance >= totalWithFee);
             
@@ -975,9 +1007,10 @@
       const platformFee = selectedBudget * 0.2;
 
       // Open SSE Pipeline
-      const url = `${API_BASE}/stream?query=${encodeURIComponent(query)}&budget=${selectedBudget}`;
+      const url = `${API_BASE}/stream?query=${encodeURIComponent(query)}&budget=${selectedBudget.toFixed(2)}`;
       const evtSource = new EventSource(url);
       const auditRows = [];
+      let totalPaidToAgentsActual = 0;
 
       evtSource.onmessage = function(event) {
         try {
@@ -1012,7 +1045,7 @@
             failUI();
             return;
           }
-          const getTxId = (d) => d.tx_hash ? d.tx_hash.substring(0,8) + '...' : 'N/A';
+          const getTxId = (d) => d.tx_id ? d.tx_id.substring(0,8) + '...' : (d.tx_hash ? d.tx_hash.substring(0,8) + '...' : 'N/A');
 
           if (type === "agents_selected") {
             const container = document.getElementById('dynamic-pipeline-container');
@@ -1049,10 +1082,12 @@
           } else if (type === "agent_paid") {
             const card = document.getElementById(`card-${data.agent_id}`);
             if(card) {
+                const amount = parseFloat(data.amount) || 0;
+                totalPaidToAgentsActual += amount;
                 const statusEl = card.querySelector('.agent-status');
-                statusEl.innerHTML = `<span class="dot dot-paid"></span> <span class="status-text text-secondary">$${parseFloat(data.amount || 0).toFixed(2)} paid ✓</span>`;
+                statusEl.innerHTML = `<span class="dot dot-paid"></span> <span class="status-text text-secondary">$${amount.toFixed(2)} paid ✓</span>`;
                 const meta = AGENT_META[data.agent_id] || { name: data.agent_id };
-                auditRows.push(`<tr><td class="py-4 px-3 font-semibold text-white">${meta.name}</td><td class="py-4 px-3 font-mono text-success">$${data.amount.toFixed(2)}</td><td class="py-4 px-3 font-mono opacity-80">${getTxId(data)}</td></tr>`);
+                auditRows.push(`<tr><td class="py-4 px-3 font-semibold text-white">${meta.name}</td><td class="py-4 px-3 font-mono text-success">$${amount.toFixed(2)}</td><td class="py-4 px-3 font-mono opacity-80">${getTxId(data)}</td></tr>`);
             } else { console.warn("Card not found for agent:", data.agent_id); }
           } else if (type === "agent_working") {
             const card = document.getElementById(`card-${data.agent_id}`);
@@ -1084,9 +1119,9 @@
                 if (statusEl) statusEl.innerHTML = `<span class="dot dot-done"></span> <span class="status-text text-[#00ff88]">Done ✓</span>`;
             });
 
-            const platformProfit = (data.result && data.result.platform_profit) || 0;
-            const agentsPaid = selectedBudget - platformProfit;
-            showResults((data.result ? data.result.report : data.report) || "Report completed.", auditRows, agentsPaid, platformProfit, selectedBudget);
+            const platformProfit = parseFloat(data.result && data.result.platform_profit) || 0;
+            const yourTotalActual = totalPaidToAgentsActual + platformProfit;
+            showResults((data.result ? data.result.report : data.report) || "Report completed.", auditRows, totalPaidToAgentsActual, platformProfit, yourTotalActual);
             fetchDashboard();
             fetchBalance();
             fetchTransactions();
@@ -1164,7 +1199,7 @@
       const blob = new Blob([currentReportSource], { type: 'text/markdown' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = 'AgentMarket-Report.md';
+      a.download = 'Syndicate-Report.md';
       a.click();
     });
 

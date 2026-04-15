@@ -1,6 +1,6 @@
 """
 agents/search_agent.py
-───────────────────────
+???????????????????????
 Specialist agent that searches the web for real-time information using the
 Brave Search Wrapped API via Locus.
 
@@ -26,7 +26,7 @@ from agents.base_agent import BaseAgent
 
 load_dotenv()
 
-# ── Locus API config ────────────────────────────────────────────────────────
+# ?? Locus API config ????????????????????????????????????????????????????????
 _LOCUS_API_KEY  = os.getenv("LOCUS_API_KEY", "")
 _BRAVE_ENDPOINT = "https://beta-api.paywithlocus.com/api/wrapped/brave/web-search"
 _DEFAULT_COUNT  = 5     # results per search (1-20)
@@ -36,7 +36,7 @@ class SearchAgent(BaseAgent):
     """
     Web research specialist that retrieves real-time search results.
 
-    Uses Brave Search via Locus Wrapped API — no upstream Brave account needed.
+    Uses Brave Search via Locus Wrapped API ? no upstream Brave account needed.
     Payment is deducted automatically from the Locus wallet (~$0.035/call).
 
     Parameters
@@ -114,7 +114,7 @@ class SearchAgent(BaseAgent):
 
         if response.status_code != 200:
             if "Insufficient USDC balance" in response.text or response.status_code in (402, 403):
-                print(f"⚠️ [SearchAgent] API blocked (Insufficient Balance). Falling back to MOCK data.")
+                print(f"?? [SearchAgent] API blocked (Insufficient Balance). Falling back to MOCK data.")
                 return self._mock_results(task)
             raise RuntimeError(
                 f"Brave Search API error {response.status_code}: {response.text}"
@@ -151,19 +151,19 @@ class SearchAgent(BaseAgent):
         """Return deterministic mock results when no real API key is set."""
         results = [
             {
-                "title":     f"[MOCK] {query} — Market Overview 2024",
+                "title":     f"[MOCK] {query} ? Market Overview 2024",
                 "url":       "https://example.com/ev-india-overview",
                 "summary":   f"Comprehensive overview of {query} including market size, key players, and growth projections.",
                 "relevance": 1.0,
             },
             {
-                "title":     f"[MOCK] {query} — Government Policy Update",
+                "title":     f"[MOCK] {query} ? Government Policy Update",
                 "url":       "https://example.com/ev-india-policy",
                 "summary":   f"Latest government initiatives and subsidies driving {query} adoption.",
                 "relevance": 0.85,
             },
             {
-                "title":     f"[MOCK] {query} — Consumer Trends",
+                "title":     f"[MOCK] {query} ? Consumer Trends",
                 "url":       "https://example.com/ev-india-consumers",
                 "summary":   f"Consumer sentiment and purchasing trends for {query} in 2024.",
                 "relevance": 0.70,

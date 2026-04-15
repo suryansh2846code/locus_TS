@@ -1,11 +1,11 @@
 """
 tests/test_agents.py
-─────────────────────
+---------------------
 Test suite for BaseAgent, AgentRegistry, and all 3 specialist agents.
 
 Run with:
     python tests/test_agents.py
-    # — or —
+    # -- or --
     python -m pytest tests/test_agents.py -v
 """
 
@@ -21,12 +21,12 @@ from agents.analysis_agent  import AnalysisAgent
 from agents.writing_agent   import WritingAgent
 from core.agent_registry    import AgentRegistry
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 #  Test harness
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 
-PASS = "✅ PASS"
-FAIL = "❌ FAIL"
+PASS = " [OK] "
+FAIL = " [FAIL] "
 _results: list[tuple[str, bool]] = []
 
 TEST_QUERY = "electric vehicles in India"
@@ -39,26 +39,26 @@ def test(label: str, condition: bool) -> None:
 
 
 def section(title: str) -> None:
-    print(f"\n{'─' * 60}")
+    print(f"\n{'-' * 60}")
     print(f"  {title}")
-    print(f"{'─' * 60}")
+    print(f"{'-' * 60}")
 
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 #  Dummy agent for BaseAgent tests
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 
 class EchoAgent(BaseAgent):
     def execute(self, task: str) -> str:
         return f"[ECHO] {task}"
 
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 #  BaseAgent suite  (identical to previous)
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 
 def test_base_agent_creation() -> None:
-    section("1 · BaseAgent — construction & defaults")
+    section("1 ? BaseAgent -- construction & defaults")
     agent = EchoAgent("EchoAgent", "Echoes tasks.", "testing", 0.5)
     test("name is set",                    agent.name == "EchoAgent")
     test("description is set",             agent.description == "Echoes tasks.")
@@ -72,7 +72,7 @@ def test_base_agent_creation() -> None:
 
 
 def test_execute_abstract() -> None:
-    section("2 · BaseAgent — execute() abstraction")
+    section("2 ? BaseAgent -- execute() abstraction")
     agent  = EchoAgent("E2", "Echo", "testing", 0.5)
     result = agent.execute("hello")
     test("execute() returns string",       isinstance(result, str))
@@ -86,21 +86,21 @@ def test_execute_abstract() -> None:
 
 
 def test_update_stats() -> None:
-    section("3 · BaseAgent — update_stats() & rating")
+    section("3 ? BaseAgent -- update_stats() & rating")
     a = EchoAgent("S", "S", "testing", 1.0)
     a.update_stats(True,  1.0)
-    test("tasks_completed → 1",            a.tasks_completed == 1)
+    test("tasks_completed -> 1",            a.tasks_completed == 1)
     test("rating stays 5.0 (1/1)",         a.rating == 5.0)
     a.update_stats(False, 0.0)
-    test("tasks_completed → 2",            a.tasks_completed == 2)
+    test("tasks_completed -> 2",            a.tasks_completed == 2)
     test("rating drops to 2.5 (1/2)",      a.rating == 2.5)
     a.update_stats(True,  1.5)
     test("total_earned = 2.5",             round(a.total_earned, 4) == 2.5)
-    test("rating ≈ 3.33 (2/3)",            a.rating == round((2/3)*5, 2))
+    test("rating ? 3.33 (2/3)",            a.rating == round((2/3)*5, 2))
 
 
 def test_get_stats_shape() -> None:
-    section("4 · BaseAgent — get_stats() schema")
+    section("4 ? BaseAgent -- get_stats() schema")
     a = EchoAgent("G", "G", "testing", 2.0)
     a.update_stats(True, 2.0)
     s = a.get_stats()
@@ -108,11 +108,11 @@ def test_get_stats_shape() -> None:
         test(f"stats has '{key}'",         key in s)
     test("success_rate = 100.0",           s["success_rate"] == 100.0)
     test("status = 'available'",           s["status"] == "available")
-    print(f"\n  get_stats() → {s}")
+    print(f"\n  get_stats() -> {s}")
 
 
 def test_get_card_data() -> None:
-    section("5 · BaseAgent — get_card_data() schema")
+    section("5 ? BaseAgent -- get_card_data() schema")
     a = EchoAgent("C", "Card agent", "testing", 3.0)
     c = a.get_card_data()
     for key in ["name", "description", "speciality", "rate_per_task",
@@ -122,7 +122,7 @@ def test_get_card_data() -> None:
 
 
 def test_agent_registry() -> None:
-    section("6 · AgentRegistry — register, lookup, filter")
+    section("6 ? AgentRegistry -- register, lookup, filter")
     reg = AgentRegistry()
     a1  = EchoAgent("Alpha", "A1", "search",  1.0)
     a2  = EchoAgent("Beta",  "A2", "writing", 2.0)
@@ -147,7 +147,7 @@ def test_agent_registry() -> None:
 
 
 def test_marketplace_stats() -> None:
-    section("7 · AgentRegistry — get_marketplace_stats()")
+    section("7 ? AgentRegistry -- get_marketplace_stats()")
     reg = AgentRegistry()
     a1  = EchoAgent("W1", "w1", "analysis", 2.0)
     a2  = EchoAgent("W2", "w2", "writing",  3.0)
@@ -161,22 +161,22 @@ def test_marketplace_stats() -> None:
     test("total_tasks_completed == 3",    s["total_tasks_completed"] == 3)
     test("total_usdc_paid_out == 4.0",    s["total_usdc_paid_out"] == 4.0)
     test("most_active_agent == 'W1'",     s["most_active_agent"] == "W1")
-    print(f"\n  get_marketplace_stats() → {s}")
+    print(f"\n  get_marketplace_stats() -> {s}")
 
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 #  Specialist agent suites
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 
 def test_search_agent() -> None:
-    section("8 · SearchAgent — identity & execute()")
+    section("8 ? SearchAgent -- identity & execute()")
 
     agent = SearchAgent()
 
     # Identity checks
     test("name == 'Search Agent'",         agent.name == "Search Agent")
     test("speciality == 'Web Research'",   agent.speciality == "Web Research")
-    test("rate_per_task == 2.0",           agent.rate_per_task == 2.00)
+    test("rate_per_task == 0.1",           agent.rate_per_task == 0.10)
     test("is BaseAgent subclass",          isinstance(agent, BaseAgent))
 
     # Execute with mock (no real API key)
@@ -197,24 +197,24 @@ def test_search_agent() -> None:
     test("first result has 'url'",                "url" in first)
     test("first result has 'summary'",            "summary" in first)
     test("first result has 'relevance'",          "relevance" in first)
-    test("relevance is float 0.0–1.0",            0.0 <= first.get("relevance", -1) <= 1.0)
+    test("relevance is float 0.0?1.0",            0.0 <= first.get("relevance", -1) <= 1.0)
     test("total_results matches list length",     result["total_results"] == len(result["results"]))
 
     print(f"\n  SearchAgent result preview:")
     for r in result["results"][:2]:
-        print(f"    • [{r['relevance']}] {r['title']}")
+        print(f"    ? [{r['relevance']}] {r['title']}")
         print(f"      {r['url']}")
 
 
 def test_analysis_agent() -> None:
-    section("9 · AnalysisAgent — identity & execute()")
+    section("9 ? AnalysisAgent -- identity & execute()")
 
     agent = AnalysisAgent()
 
     # Identity checks
     test("name == 'Analysis Agent'",       agent.name == "Analysis Agent")
     test("speciality == 'Data Analysis'",  agent.speciality == "Data Analysis")
-    test("rate_per_task == 2.0",           agent.rate_per_task == 2.00)
+    test("rate_per_task == 0.1",           agent.rate_per_task == 0.10)
     test("is BaseAgent subclass",          isinstance(agent, BaseAgent))
 
     # Build a realistic task string from mock search results
@@ -222,7 +222,7 @@ def test_analysis_agent() -> None:
         "Search results for 'electric vehicles in India':\n"
         "1. India EV market grew 49% to 1.67M units in FY2024. "
         "Two-wheelers lead with 59% share. Tata Motors dominates passenger EVs.\n"
-        "2. FAME-II disbursed ₹10,000 crore. Battery costs on track for $100/kWh by 2026.\n"
+        "2. FAME-II disbursed ?10,000 crore. Battery costs on track for $100/kWh by 2026.\n"
         "3. Charging infrastructure growing at 80% CAGR. Tier-2 cities emerging as growth frontier."
     )
 
@@ -250,14 +250,14 @@ def test_analysis_agent() -> None:
 
 
 def test_writing_agent() -> None:
-    section("10 · WritingAgent — identity & execute()")
+    section("10 ? WritingAgent -- identity & execute()")
 
     agent = WritingAgent()
 
     # Identity checks
     test("name == 'Writing Agent'",         agent.name == "Writing Agent")
     test("speciality == 'Report Writing'",  agent.speciality == "Report Writing")
-    test("rate_per_task == 2.0",            agent.rate_per_task == 2.00)
+    test("rate_per_task == 0.1",            agent.rate_per_task == 0.10)
     test("is BaseAgent subclass",           isinstance(agent, BaseAgent))
 
     # Build a realistic task string (mock analysis output)
@@ -265,7 +265,7 @@ def test_writing_agent() -> None:
         "key_findings": [
             "India EV market grew 49% to 1.67M units in FY2024.",
             "Tata Motors holds 70%+ passenger EV market share.",
-            "FAME-II disbursed ₹10,000 crore in subsidies.",
+            "FAME-II disbursed ?10,000 crore in subsidies.",
         ],
         "trends": [
             "Charging infrastructure growing at 80% CAGR.",
@@ -275,7 +275,7 @@ def test_writing_agent() -> None:
         "important_numbers": [
             "1.67 million EV units sold FY2024",
             "49% YoY growth",
-            "₹10,000 crore FAME-II disbursement",
+            "?10,000 crore FAME-II disbursement",
         ],
         "summary": (
             "India's EV market is booming, driven by policy support and falling battery costs. "
@@ -307,7 +307,7 @@ def test_writing_agent() -> None:
 
 
 def test_full_pipeline() -> None:
-    section("11 · Full Pipeline — Search → Analyse → Write")
+    section("11 ? Full Pipeline -- Search -> Analyse -> Write")
 
     print(f"\n  Running full pipeline for query: '{TEST_QUERY}'")
 
@@ -351,18 +351,121 @@ def test_full_pipeline() -> None:
 
     print(f"\n  Marketplace stats: {stats}")
     print(f"\n  Report snippet:\n")
-    print("  " + w_out[:500].replace("\n", "\n  "))
+    # Clean non-ASCII for Windows terminal safety
+    safe_report = "".join([c if ord(c) < 128 else '?' for c in w_out])
+    print("  " + safe_report[:500].replace("\n", "\n  "))
 
 
-# ─────────────────────────────────────────────
+def test_update_agent_stats_increments_correctly() -> None:
+    section("12 ? AgentRegistry -- update_agent_stats() logic")
+    reg = AgentRegistry()
+    temp_config = "test_agent_config.json"
+    
+    # Create initial config
+    data = {
+        "agents": [
+            {"id": "test_agent", "name": "Test Agent", "total_jobs": 0, "successful_jobs": 0, "total_earned": 0.0, "success_rate": 0.0}
+        ]
+    }
+    with open(temp_config, "w") as f:
+        json.dump(data, f)
+    
+    reg.load_from_config(temp_config)
+    
+    # 1. Successful job
+    reg.update_agent_stats("test_agent", 5.0, True)
+    
+    with open(temp_config, "r") as f:
+        updated = json.load(f)["agents"][0]
+        test("total_jobs == 1", updated["total_jobs"] == 1)
+        test("successful_jobs == 1", updated["successful_jobs"] == 1)
+        test("total_earned == 5.0", updated["total_earned"] == 5.0)
+        test("success_rate == 100.0", updated["success_rate"] == 100.0)
+    
+    # 2. Failed job
+    reg.update_agent_stats("test_agent", 0.0, False)
+    
+    with open(temp_config, "r") as f:
+        updated = json.load(f)["agents"][0]
+        test("total_jobs == 2", updated["total_jobs"] == 2)
+        test("successful_jobs == 1", updated["successful_jobs"] == 1)
+        test("success_rate == 50.0", updated["success_rate"] == 50.0)
+        test("rating == 2.5", updated["rating"] == 2.5)
+
+    if os.path.exists(temp_config): os.remove(temp_config)
+    if os.path.exists(temp_config + ".lock"): os.remove(temp_config + ".lock")
+
+
+def test_agent_stats_persist_after_write() -> None:
+    section("13 ? AgentRegistry -- stats persistence")
+    reg = AgentRegistry()
+    temp_config = "test_persist.json"
+    
+    data = {"agents": [{"id": "p_agent", "name": "Persist Agent", "total_jobs": 10, "total_earned": 100.0}]}
+    with open(temp_config, "w") as f:
+        json.dump(data, f)
+    
+    reg.load_from_config(temp_config)
+    reg.update_agent_stats("p_agent", 10.0, True)
+    
+    # Reload into new registry instance
+    reg2 = AgentRegistry()
+    reg2.load_from_config(temp_config)
+    agent = reg2.get_agent_profile("p_agent")
+    
+    test("reloaded total_jobs == 11", agent["total_jobs"] == 11)
+    test("reloaded total_earned == 110.0", agent["total_earned"] == 110.0)
+
+    if os.path.exists(temp_config): os.remove(temp_config)
+
+
+def test_concurrent_stat_updates_dont_corrupt_json() -> None:
+    section("14 ? AgentRegistry -- concurrency & locking")
+    import threading
+    
+    reg = AgentRegistry()
+    temp_config = "test_concurrent.json"
+    agent_id = "c_agent"
+    
+    data = {"agents": [{"id": agent_id, "name": "Concurrent Agent", "total_jobs": 0, "successful_jobs": 0, "total_earned": 0.0}]}
+    with open(temp_config, "w") as f:
+        json.dump(data, f)
+    
+    reg.load_from_config(temp_config)
+    
+    def worker():
+        # Each worker adds 5 jobs
+        for _ in range(5):
+            reg.update_agent_stats(agent_id, 1.0, True)
+            time.sleep(0.1) # Increased sleep for Windows
+
+    threads = [threading.Thread(target=worker) for _ in range(3)]
+    for t in threads: t.start()
+    for t in threads: t.join()
+    
+    with open(temp_config, "r") as f:
+        final_data = json.load(f)["agents"][0]
+        # Should be 3 threads * 5 jobs = 15 total_jobs
+        passed = (final_data["total_jobs"] == 15)
+        test("concurrent total_jobs == 15", passed)
+        test("concurrent total_earned == 15.0", final_data["total_earned"] == 15.0)
+        if not passed:
+            print(f"      DEBUG: Got jobs={final_data['total_jobs']}, earned={final_data['total_earned']}")
+
+    if os.path.exists(temp_config): os.remove(temp_config)
+    if os.path.exists(temp_config + ".tmp"): os.remove(temp_config + ".tmp")
+    if os.path.exists(temp_config + ".lock"): os.remove(temp_config + ".lock")
+
+
+# ---------------------------------------------
 #  Runner
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 
 def main() -> None:
-    print("\n" + "═" * 60)
-    print("  AgentMarket — Full Test Suite")
+    print("\n" + "=" * 60)
+    print("  Syndicate - Full Test Suite")
     print("  Query under test: " + TEST_QUERY)
-    print("═" * 60)
+    print("=" * 60)
 
     # BaseAgent + Registry (original suite)
     test_base_agent_creation()
@@ -381,21 +484,26 @@ def main() -> None:
     # End-to-end pipeline
     test_full_pipeline()
 
-    # ── Summary ──────────────────────────────
+    # New Persistence & Concurrency tests (Fixes)
+    test_update_agent_stats_increments_correctly()
+    test_agent_stats_persist_after_write()
+    test_concurrent_stat_updates_dont_corrupt_json()
+
+    # -- Summary ------------------------------
     passed = sum(1 for _, ok in _results if ok)
     failed = sum(1 for _, ok in _results if not ok)
     total  = len(_results)
 
-    print("\n" + "═" * 60)
-    print(f"  Results: {passed}/{total} passed")
+    print("\n" + "=" * 60)
+    print("  Results: " + str(passed) + "/" + str(total) + " passed")
     if failed:
-        print(f"\n  ❌ Failed tests:")
+        print("\n   Failed tests:")
         for label, ok in _results:
             if not ok:
                 print(f"    {FAIL}  {label}")
     else:
-        print("  🎉 All tests passed!")
-    print("═" * 60 + "\n")
+        print("   All tests passed!")
+    print("=" * 60 + "\n")
 
     sys.exit(0 if failed == 0 else 1)
 

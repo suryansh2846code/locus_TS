@@ -1,6 +1,6 @@
 """
 agents/image_prompt_agent.py
-─────────────────────────
+?????????????????????????
 Specialist agent that reverse engineers requests into detailed image generation prompts using Claude via the Locus Wrapped Anthropic API.
 """
 

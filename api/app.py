@@ -20,7 +20,7 @@ manager = ManagerAgent()
 def index():
     """Returns basic platform info."""
     return jsonify({
-        "status": "AgentMarket running!",
+        "status": "Syndicate running!",
         "version": "1.0",
         "marketplace": "Locus Paygentic Hackathon"
     })
@@ -34,7 +34,7 @@ def research():
     if not query:
         return jsonify({"success": False, "error": "Query is required"}), 400
 
-    print(f"📡 API research request started: {query}")
+    print(f"? API research request started: {query}")
     
     # Consume the generator fully
     final_result = {}
@@ -55,7 +55,7 @@ def stream():
         return jsonify({"success": False, "error": "Query is required"}), 400
 
     def event_stream():
-        print(f"📡 SSE stream started: {query}")
+        print(f"? SSE stream started: {query}")
         for update in manager.process_request(query):
             # Format as SSE data
             yield f"data: {json.dumps(update)}\n\n"
@@ -76,9 +76,29 @@ def transactions():
 
 @app.route('/api/agents', methods=['GET'])
 def agents():
-    """Returns all registered agents and their stats."""
-    all_agents = manager.registry.get_all_agents()
-    return jsonify({"agents": all_agents})
+    """Returns all registered agents and their stats (Fix 3: fresh reads)."""
+    # Force reload from disk to ensure fresh stats
+    config_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'agent_config.json')
+    agents_data = []
+    
+    if os.path.exists(config_path):
+        try:
+            with open(config_path, "r") as f:
+                data = json.load(f)
+                agents_data = data.get("agents", [])
+        except Exception as e:
+            print(f"Error reading config: {e}")
+
+    # Ensure all required fields exist with defaults
+    for agent in agents_data:
+        agent.setdefault("total_jobs", 0)
+        agent.setdefault("total_earned", 0.0)
+        agent.setdefault("success_rate", 0.0)
+        agent.setdefault("rating", 0.0)
+        agent.setdefault("last_active", None)
+        agent.setdefault("reviews", [])
+
+    return jsonify({"agents": agents_data})
 
 @app.route('/api/status', methods=['GET'])
 def status():
@@ -118,11 +138,57 @@ def register_agent():
 
 @app.route('/api/agents/profile/<agent_id>', methods=['GET'])
 def get_agent_profile(agent_id):
-    """Returns complete agent profile."""
-    profile = manager.registry.get_agent_profile(agent_id)
-    if profile:
-        return jsonify(profile)
-    return jsonify({"success": False, "message": "Agent not found"}), 404
+    """Returns complete agent profile with work history (Fix 4)."""
+    # 1. Get base profile from fresh config read
+    config_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'agent_config.json')
+    profile = None
+    
+    if os.path.exists(config_path):
+        try:
+            with open(config_path, "r") as f:
+                data = json.load(f)
+                for agent in data.get("agents", []):
+                    if agent.get("id") == agent_id:
+                        profile = agent
+                        break
+        except Exception as e:
+            print(f"Error reading profile: {e}")
+
+    if not profile:
+        return jsonify({"success": False, "message": "Agent not found"}), 404
+
+    # 2. Add defaults
+    profile.setdefault("total_jobs", 0)
+    profile.setdefault("total_earned", 0.0)
+    profile.setdefault("success_rate", 0.0)
+    profile.setdefault("rating", 0.0)
+    profile.setdefault("last_active", None)
+    profile.setdefault("reviews", [])
+
+    # 3. Inject job history from jobs.json (Fix 4)
+    jobs_path = os.path.join(os.path.dirname(__file__), '..', 'jobs.json')
+    history = []
+    if os.path.exists(jobs_path):
+        try:
+            with open(jobs_path, "r") as f:
+                jobs_data = json.load(f)
+                # Filter jobs where this agent was used
+                for job in jobs_data.get("jobs", []):
+                    # In jobs.json, agents_used is usually a list of Names or IDs
+                    if profile["id"] in job.get("agents_used", []) or profile["name"] in job.get("agents_used", []):
+                        history.append({
+                            "id": job.get("id"),
+                            "query": job.get("query"),
+                            "timestamp": job.get("timestamp"),
+                            "status": job.get("status"),
+                            "quality_score": job.get("quality_score")
+                        })
+        except Exception as e:
+            print(f"Error reading job history: {e}")
+    
+    profile["jobs_history"] = history[:5] # Last 5 jobs
+    
+    return jsonify(profile)
 
 @app.route('/api/agents/<agent_id>/rate', methods=['PUT'])
 def update_agent_rate(agent_id):
@@ -188,11 +254,11 @@ def analyze_query_endpoint():
     return jsonify(result)
 
 def print_routes():
-    print("\n🌐 AgentMarket API Routes Loaded:")
+    print("\n? AgentMarket API Routes Loaded:")
     for rule in app.url_map.iter_rules():
         if rule.endpoint != 'static':
             print(f"   [{', '.join(rule.methods)}] {rule.rule} -> {rule.endpoint}")
-    print("\n🚀 Server starting on http://127.0.0.1:5001\n")
+    print("\n? Server starting on http://127.0.0.1:5001\n")
 
 if __name__ == '__main__':
     print_routes()

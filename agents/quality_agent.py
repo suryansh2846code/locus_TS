@@ -1,6 +1,6 @@
 """
 agents/quality_agent.py
-────────────────────────
+????????????????????????
 Specialist agent that reviews research reports for quality using Claude 
 via the Locus Wrapped Anthropic API.
 """
@@ -21,7 +21,7 @@ from agents.base_agent import BaseAgent
 
 load_dotenv()
 
-# ── Locus API config ────────────────────────────────────────────────────────
+# ?? Locus API config ????????????????????????????????????????????????????????
 _LOCUS_API_KEY       = os.getenv("LOCUS_API_KEY", "")
 _ANTHROPIC_ENDPOINT  = "https://beta-api.paywithlocus.com/api/wrapped/anthropic/chat"
 _MODEL               = "claude-haiku-4-5"
@@ -38,7 +38,7 @@ Analyze the report and provide a structured assessment:
 Return ONLY valid JSON in this exact format:
 {
     "quality_score": 8.5,
-    "rating": "⭐⭐⭐⭐⭐",
+    "rating": "?????",
     "strengths": ["..", ".."],
     "improvements": ["..", ".."],
     "word_count": 450,
@@ -111,7 +111,7 @@ class QualityAgent(BaseAgent):
     def _mock_quality_check(self, task: str) -> dict:
         return {
             "quality_score": 8.5,
-            "rating": "⭐⭐⭐⭐⭐",
+            "rating": "?????",
             "strengths": [
                 "Well structured report",
                 "Good use of data",

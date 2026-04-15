@@ -1,7 +1,9 @@
-from __future__ import annotations
 import json
+import logging
 import os
-import uuid
+import sys
+import time
+import threading
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Union, Optional
 
@@ -23,7 +25,7 @@ class AgentRegistry:
         """Reads agent_config.json on startup and registers agents."""
         self.config_path = config_path
         if not os.path.exists(config_path):
-            print(f"⚠️ Config not found at {config_path}")
+            print(f"!! Config not found at {config_path}")
             return
 
         with open(config_path, "r") as f:
@@ -34,7 +36,7 @@ class AgentRegistry:
                 # so we can answer /api/agents and rate queries.
                 # Note: In a real app, we'd use a factory to instantiate from strings.
                 self.agents[agent_data["name"]] = agent_data
-                print(f"✅ Loaded from Config: {agent_data['name']}")
+                print(f"[OK] Loaded from Config: {agent_data['name']}")
 
     def _save_to_config(self) -> None:
         """Persists current agent state to JSON."""
@@ -54,8 +56,28 @@ class AgentRegistry:
 
     def register_agent(self, agent: "BaseAgent") -> None:
         """Add an agent instance to the marketplace registry."""
+        if agent.name in self.agents:
+            # If it was loaded from config as a dict, we can replace it with the real instance
+            if isinstance(self.agents[agent.name], dict):
+                self.agents[agent.name] = agent
+                print(f"[OK] Instantiated: {agent.name}")
+                return
+            else:
+                # Already have an instance or something else
+                print(f"!! Warning: Agent '{agent.name}' is already registered as an instance. Skipping.")
+                return
         self.agents[agent.name] = agent
-        print(f"✅ Registered: {agent.name}  [{agent.speciality}]")
+        print(f"[OK] Registered: {agent.name}  [{agent.speciality}]")
+
+    def get_agents_by_speciality(self, speciality: str) -> list[Any]:
+        """Returns list of agents matching the given speciality tag."""
+        results = []
+        for a in self.agents.values():
+            # Handle both instances and dicts
+            a_spec = getattr(a, "speciality", None) if not isinstance(a, dict) else a.get("speciality")
+            if a_spec == speciality:
+                results.append(a)
+        return results
 
     def register_new_agent(self, agent_data: dict) -> dict:
         """Validates and registers a new agent into the JSON persistent store."""
@@ -142,6 +164,12 @@ class AgentRegistry:
             return {"success": True, "message": f"Rate updated to ${new_rate}"}
         return {"success": False, "message": "Agent not found"}
 
+    def get_agent(self, name: str) -> "BaseAgent":
+        """Returns agent instance by name (required by tests)."""
+        if name not in self.agents:
+            raise KeyError(f"Agent '{name}' not found in registry.")
+        return self.agents[name]
+
     def get_agent_profile(self, agent_id: str) -> dict | None:
         """Returns complete agent profile."""
         for agent in self.agents.values():
@@ -188,44 +216,84 @@ class AgentRegistry:
         self._save_to_config()
         return {"success": True, "message": "Review added!"}
 
-    def update_agent_after_job(self, agent_name: str, success: bool, amount_earned: float) -> None:
-        """Updates agent performance stats after a completed pipeline step."""
-        agent = self.agents.get(agent_name)
-        if not agent:
-            print(f"⚠️ Registry: Agent '{agent_name}' not found for stats update.")
+    def update_agent_stats(self, agent_id: str, amount_earned: float, success: bool) -> None:
+        """
+        Called after each agent completes its task in the pipeline.
+        Updates jobs, earnings, and success rate in agent_config.json atomically.
+        """
+        if not self.config_path or not os.path.exists(self.config_path):
             return
 
-        # Handle both dict (from config) and instance
-        if isinstance(agent, dict):
-            agent["total_jobs"] = agent.get("total_jobs", 0) + 1
-            if success:
-                agent["successful_jobs"] = agent.get("successful_jobs", 0) + 1
+        lock_path = self.config_path + ".lock"
+        start_time = time.time()
+        acquired = False
+        
+        while time.time() - start_time < 5: # 5 second timeout
+            try:
+                # Atomic lock creation
+                fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                os.write(fd, str(os.getpid()).encode())
+                os.close(fd)
+                acquired = True
+                break
+            except (FileExistsError, PermissionError):
+                time.sleep(0.05)
+        
+        if not acquired:
+            print(f"!! Registry: Could not acquire lock for {agent_id}")
+            return
             
-            agent["total_earned"] = round(agent.get("total_earned", 0.0) + amount_earned, 2)
-            agent["last_active_at"] = datetime.now().strftime("%Y-%m-%d %H:%M")
-            
-            # Recalculate rating based on success rate if we have enough jobs
-            if agent["total_jobs"] > 0:
-                success_rate = agent["successful_jobs"] / agent["total_jobs"]
-                agent["rating"] = round(success_rate * 5.0, 1)
-        else:
-            # If it's an instance, we update its attributes
-            agent.tasks_completed = getattr(agent, "tasks_completed", 0) + 1
-            agent.total_earned = round(getattr(agent, "total_earned", 0.0) + amount_earned, 2)
-            # Find the dict version to sync back to config
-            for a_name, a_data in self.agents.items():
-                if isinstance(a_data, dict) and a_name == agent_name:
-                    a_data["total_jobs"] = agent.tasks_completed
-                    a_data["total_earned"] = agent.total_earned
-                    if success:
-                        a_data["successful_jobs"] = a_data.get("successful_jobs", 0) + 1
-                    a_data["last_active_at"] = datetime.now().strftime("%Y-%m-%d %H:%M")
-                    if a_data["total_jobs"] > 0:
-                        success_rate = a_data["successful_jobs"] / a_data["total_jobs"]
-                        a_data["rating"] = round(success_rate * 5.0, 1)
+        try:
+            # 1. Load fresh
+            with open(self.config_path, "r") as f:
+                config_data = json.load(f)
 
-        self._save_to_config()
-        print(f"📈 Updated stats for {agent_name}: Jobs={agent.get('total_jobs') if isinstance(agent, dict) else agent.tasks_completed}, Earned=${amount_earned}")
+            # 2. Update
+            for agent in config_data.get("agents", []):
+                if agent.get("id") == agent_id:
+                    agent["total_jobs"] = agent.get("total_jobs", 0) + 1
+                    agent["total_earned"] = round(agent.get("total_earned", 0.0) + amount_earned, 2)
+                    
+                    success_count = agent.get("successful_jobs", 0)
+                    if success:
+                        success_count += 1
+                        agent["successful_jobs"] = success_count
+                    
+                    agent["success_rate"] = round((success_count / agent["total_jobs"]) * 100, 1)
+                    agent["rating"] = round((agent["success_rate"] / 100) * 5.0, 1)
+                    agent["last_active"] = datetime.utcnow().isoformat()
+                    break
+
+            # 3. Write Atomic
+            temp_path = f"{self.config_path}.{time.time()}.tmp"
+            with open(temp_path, "w") as f:
+                json.dump(config_data, f, indent=2)
+            
+            os.replace(temp_path, self.config_path)
+            
+            # 4. Sync in-memory
+            self.load_from_config(self.config_path)
+
+        except Exception as e:
+            print(f"!! Registry Error: {e}")
+        finally:
+            if os.path.exists(lock_path):
+                try: os.remove(lock_path)
+                except: pass
+
+    def update_agent_after_job(self, agent_name: str, success: bool, amount_earned: float) -> None:
+        """DEPRECATED: Use update_agent_stats(agent_id, ...) instead."""
+        # Find ID from name
+        agent_id = None
+        for a in self.agents.values():
+            if isinstance(a, dict) and a.get("name") == agent_name:
+                agent_id = a.get("id")
+                break
+        
+        if agent_id:
+            self.update_agent_stats(agent_id, amount_earned, success)
+        else:
+            print(f"!! Registry: Could not find ID for name '{agent_name}' for deprecated update call.")
 
     def get_all_agents(self) -> list[dict]:
         """Return JSON-serializable data for all agents from persistent config."""
@@ -235,7 +303,7 @@ class AgentRegistry:
                     data = json.load(f)
                     return data.get("agents", [])
             except Exception as e:
-                print(f"⚠️ Error reading config for agents display: {e}")
+                print(f"!! Error reading config for agents display: {e}")
                 
         # Fallback to memory
         output = []
@@ -267,5 +335,11 @@ class AgentRegistry:
             "total_usdc_paid_out": round(total_earned, 2),
             "most_active_agent": most_active
         }
+
+    def __len__(self) -> int:
+        return len(self.agents)
+
+    def __contains__(self, agent_name: str) -> bool:
+        return agent_name in self.agents
 
 registry = AgentRegistry()

@@ -1,0 +1,44 @@
+{
+  "jobs": [
+    {
+      "id": "job_1776260720",
+      "query": "Create an image prompt for sci-fi college",
+      "budget": 2.1,
+      "agents_used": [
+        "Image Prompt Agent",
+        "Quality Check Agent"
+      ],
+      "time_taken": "22.8s",
+      "status": "completed",
+      "quality_score": 7.5,
+      "timestamp": "2026-04-15T19:15:20"
+    },
+    {
+      "id": "job_1776260146",
+      "query": "I am born on 30 march,2006 at 2:35 pm in new delhi, india,so according to astrology give me my today's horoscope",
+      "budget": 0.8,
+      "agents_used": [
+        "Analysis Agent",
+        "Writing Agent",
+        "Quality Check Agent"
+      ],
+      "time_taken": "49.57s",
+      "status": "completed",
+      "quality_score": 2.0,
+      "timestamp": "2026-04-15T19:05:46"
+    },
+    {
+      "id": "job_1776247775",
+      "query": "Create a image prompt for sci-fi city",
+      "budget": 2.1,
+      "agents_used": [
+        "Image Prompt Agent",
+        "Quality Check Agent"
+      ],
+      "time_taken": "26.64s",
+      "status": "completed",
+      "quality_score": 8.2,
+      "timestamp": "2026-04-15T15:39:35"
+    }
+  ]
+}

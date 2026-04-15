@@ -1,13 +1,13 @@
 """
 agents/analysis_agent.py
-─────────────────────────
+?????????????????????????
 Specialist agent that analyses raw text / search results and extracts
 structured insights using Claude via the Locus Wrapped Anthropic API.
 
 Locus endpoint used:
   POST https://beta-api.paywithlocus.com/api/wrapped/anthropic/chat
   Model: claude-haiku-4-5  (fast + cost-efficient)
-  Estimated cost: ~$0.001–$0.05 per call
+  Estimated cost: ~$0.001?$0.05 per call
 
 Docs: https://beta.paywithlocus.com/wapi/anthropic.md
 """
@@ -28,7 +28,7 @@ from agents.base_agent import BaseAgent
 
 load_dotenv()
 
-# ── Locus API config ────────────────────────────────────────────────────────
+# ?? Locus API config ????????????????????????????????????????????????????????
 _LOCUS_API_KEY       = os.getenv("LOCUS_API_KEY", "")
 _ANTHROPIC_ENDPOINT  = "https://beta-api.paywithlocus.com/api/wrapped/anthropic/chat"
 _MODEL               = "claude-haiku-4-5"
@@ -85,7 +85,7 @@ class AnalysisAgent(BaseAgent):
         Parameters
         ----------
         task : str
-            Raw text to analyse — typically stringified search results.
+            Raw text to analyse ? typically stringified search results.
 
         Returns
         -------
@@ -125,7 +125,7 @@ class AnalysisAgent(BaseAgent):
 
         if response.status_code != 200:
             if "Insufficient USDC balance" in response.text or response.status_code in (402, 403):
-                print(f"⚠️ [AnalysisAgent] API blocked (Insufficient Balance). Falling back to MOCK insights.")
+                print(f"?? [AnalysisAgent] API blocked (Insufficient Balance). Falling back to MOCK insights.")
                 return self._mock_analysis(task)
             raise RuntimeError(
                 f"Anthropic API error {response.status_code}: {response.text}"
@@ -175,16 +175,16 @@ class AnalysisAgent(BaseAgent):
                 "[MOCK] India's EV market grew 49% YoY in FY2024 reaching 1.67 million units.",
                 "[MOCK] Two-wheelers dominate with 59% market share; four-wheelers at 5.9%.",
                 "[MOCK] Tata Motors leads passenger EV segment with over 70% market share.",
-                "[MOCK] Government FAME-II scheme disbursed ₹10,000 crore in subsidies.",
+                "[MOCK] Government FAME-II scheme disbursed ?10,000 crore in subsidies.",
             ],
             "trends": [
                 "[MOCK] Rapid infrastructure expansion: charging stations growing at 80% CAGR.",
-                "[MOCK] Battery costs declining — projected to reach $100/kWh by 2026.",
+                "[MOCK] Battery costs declining ? projected to reach $100/kWh by 2026.",
                 "[MOCK] Tier-2 cities emerging as next growth frontier.",
             ],
             "important_numbers": [
                 "[MOCK] 1.67 million EV units sold in FY2024",
-                "[MOCK] ₹10,000 crore total FAME-II subsidy disbursement",
+                "[MOCK] ?10,000 crore total FAME-II subsidy disbursement",
                 "[MOCK] 49% year-over-year market growth",
                 "[MOCK] 70%+ market share held by Tata Motors in passenger EVs",
             ],
