@@ -30,18 +30,17 @@ def research():
     """Triggers the full agent research pipeline and returns a complete result."""
     data = request.json
     query = data.get("query")
-    budget = float(data.get("budget", 0.0))
     
     if not query:
         return jsonify({"success": False, "error": "Query is required"}), 400
 
-    print(f"📡 API research request started: {query} (${budget})")
+    print(f"📡 API research request started: {query}")
     
     # Consume the generator fully
     final_result = {}
-    for update in manager.process_request(query, budget):
+    for update in manager.process_request(query):
         if update.get("step") == "error":
-            return jsonify(update.get("result", {})), 400
+            return jsonify(update.get("result", {})), 402 if update.get("error") == "insufficient_balance" else 400
         if update.get("step") == "done":
             final_result = update.get("result", {})
     
@@ -51,14 +50,13 @@ def research():
 def stream():
     """SSE endpoint for real-time manager updates."""
     query = request.args.get("query")
-    budget = float(request.args.get("budget", 0.0))
     
     if not query:
         return jsonify({"success": False, "error": "Query is required"}), 400
 
     def event_stream():
-        print(f"📡 SSE stream started: {query} (${budget})")
-        for update in manager.process_request(query, budget):
+        print(f"📡 SSE stream started: {query}")
+        for update in manager.process_request(query):
             # Format as SSE data
             yield f"data: {json.dumps(update)}\n\n"
         
@@ -149,57 +147,95 @@ def add_agent_review(agent_id):
 
 @app.route('/api/analyze-query', methods=['GET'])
 def analyze_query_endpoint():
-    """Analyzes query complexity and returns budget tiers."""
+    """Analyzes query complexity and returns dynamically selected agents."""
     query = request.args.get("query", "")
     if not query:
         return jsonify({"success": False, "message": "query is required"}), 400
     
-    word_count = len(query.split())
-    complex_keywords = [
-        "analysis", "research", "comprehensive", "detailed", "compare", 
-        "market", "industry", "report", "trends", "forecast", "strategy", "deep"
-    ]
+    # BUDGET_TIERS_DISABLED_START
+    # word_count = len(query.split())
+    # complex_keywords = [
+    #     "analysis", "research", "comprehensive", "detailed", "compare", 
+    #     "market", "industry", "report", "trends", "forecast", "strategy", "deep"
+    # ]
+    # 
+    # complexity = sum(1 for w in complex_keywords if w in query.lower())
+    # complexity += min(word_count // 5, 3)
+    # 
+    # # Get real agent rates from config
+    # base_cost = manager.registry.get_total_agent_cost()
+    # 
+    # if complexity <= 2:
+    #     low, medium, high = base_cost + 0.10, base_cost + 0.60, base_cost + 1.60
+    #     recommended = "low"
+    # elif complexity <= 5:
+    #     low, medium, high = base_cost + 1.00, base_cost + 3.00, base_cost + 7.00
+    #     recommended = "medium"
+    # else:
+    #     low, medium, high = base_cost + 2.00, base_cost + 5.00, base_cost + 10.00
+    #     recommended = "high"
+    # 
+    # result = {
+    #     "complexity": complexity,
+    #     "recommended": recommended,
+    #     "tiers": {
+    #         "low": {
+    #             "amount": round(low, 2),
+    #             "label": "💚 Basic",
+    #             "quality": "Overview",
+    #             "description": "Quick summary of main points"
+    #         },
+    #         "medium": {
+    #             "amount": round(medium, 2),
+    #             "label": "💛 Standard",
+    #             "quality": "Detailed",
+    #             "description": "Thorough research recommended ✨"
+    #         },
+    #         "high": {
+    #             "amount": round(high, 2),
+    #             "label": "❤️ Premium",
+    #             "quality": "Comprehensive",
+    #             "description": "In-depth analysis and insights"
+    #         }
+    #     }
+    # }
+    # BUDGET_TIERS_DISABLED_END
+
+    # Call the master agent routing logic
+    selected_agent_ids = manager.select_agents(query)
     
-    complexity = sum(1 for w in complex_keywords if w in query.lower())
-    complexity += min(word_count // 5, 3)
+    # Ensure quality agent is at the end
+    if "quality_agent" in selected_agent_ids:
+        selected_agent_ids.remove("quality_agent")
+    selected_agent_ids.append("quality_agent")
     
-    # Get real agent rates from config
-    base_cost = manager.registry.get_total_agent_cost()
+    splits = manager.calculate_splits_dynamic(selected_agent_ids)
     
-    if complexity <= 2:
-        low, medium, high = base_cost + 0.10, base_cost + 0.60, base_cost + 1.60
-        recommended = "low"
-    elif complexity <= 5:
-        low, medium, high = base_cost + 1.00, base_cost + 3.00, base_cost + 7.00
-        recommended = "medium"
-    else:
-        low, medium, high = base_cost + 2.00, base_cost + 5.00, base_cost + 10.00
-        recommended = "high"
+    agent_details = []
+    for a_id in selected_agent_ids:
+        agent = manager.agent_map[a_id]
+        rate = splits["costs"][a_id]
+        agent_details.append({
+            "id": a_id,
+            "name": agent.name,
+            "rate": rate
+        })
+        
+    estimated_cost = splits["total_agent_cost"]
+    platform_fee = splits["platform"]
+    total_with_fee = splits["estimated_cost"]
+    current_balance = get_balance()
     
     result = {
-        "complexity": complexity,
-        "recommended": recommended,
-        "tiers": {
-            "low": {
-                "amount": round(low, 2),
-                "label": "💚 Basic",
-                "quality": "Overview",
-                "description": "Quick summary of main points"
-            },
-            "medium": {
-                "amount": round(medium, 2),
-                "label": "💛 Standard",
-                "quality": "Detailed",
-                "description": "Thorough research recommended ✨"
-            },
-            "high": {
-                "amount": round(high, 2),
-                "label": "❤️ Premium",
-                "quality": "Comprehensive",
-                "description": "In-depth analysis and insights"
-            }
-        }
+        "agents": selected_agent_ids,
+        "agent_details": agent_details,
+        "estimated_cost": estimated_cost,
+        "balance": current_balance,
+        "affordable": current_balance >= total_with_fee,
+        "platform_fee": platform_fee,
+        "total_with_fee": total_with_fee
     }
+    
     return jsonify(result)
 
 def print_routes():

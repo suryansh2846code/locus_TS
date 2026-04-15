@@ -171,7 +171,7 @@ class ManagerAgent:
         print("Fallback dynamic agent routing used.")
         return ["search_agent", "analysis_agent", "writing_agent", "quality_agent"]
 
-    def calculate_splits_dynamic(self, budget: float, selected_agent_ids: list[str]) -> dict:
+    def calculate_splits_dynamic(self, selected_agent_ids: list[str]) -> dict:
         """Calculates budget splits based on dynamically selected agents."""
         agent_costs = {}
         total_agent_cost = 0.0
@@ -183,19 +183,14 @@ class ManagerAgent:
             agent_costs[a_id] = rate
             total_agent_cost += rate
             
-        platform_fee = budget - total_agent_cost
-        
-        if platform_fee < 0:
-            return {
-                "valid": False,
-                "error": f"Budget too low! Minimum needed: ${total_agent_cost + 0.50}"
-            }
+        platform_fee = 0.50
             
         return {
             "valid": True,
             "costs": agent_costs,
             "platform": round(platform_fee, 2),
-            "total_agent_cost": total_agent_cost
+            "total_agent_cost": total_agent_cost,
+            "estimated_cost": total_agent_cost + platform_fee
         }
 
     def pay_and_execute(self, agent, task, amount, step_name):
@@ -223,25 +218,12 @@ class ManagerAgent:
         result = agent.execute(task)
         return result, payment
 
-    def process_request(self, query: str, budget: float):
+    def process_request(self, query: str):
         """Orchestrates the dynamic agent pipeline."""
         start_time = time.time()
         
-        if budget < 0.50:
-            yield {"step": "error", "error": "budget_too_low", "message": "Minimum budget is $0.50", "result": {"success": False, "error": "budget_too_low"}}
-            return
-
-        if budget > 20.00:
-            yield {"step": "error", "error": "budget_too_high", "message": "Maximum budget is $20.00", "result": {"success": False, "error": "budget_too_high"}}
-            return
-
-        current_balance = get_balance()
-        if budget > current_balance:
-            yield {"step": "error", "error": "insufficient_balance", "message": f"Budget ${budget} exceeds wallet balance ${current_balance}", "result": {"success": False, "error": "insufficient_balance", "current_balance": current_balance}}
-            return
-
         # Phase 1: Dynamic Agent Routing
-        yield {"step": "manager_started", "query": query, "budget": budget}
+        yield {"step": "manager_started", "query": query}
         print("🧠 Selecting agents dynamically...")
         selected_agent_ids = self.select_agents(query)
         
@@ -253,9 +235,12 @@ class ManagerAgent:
         # Emit agents_selected SSE event
         yield {"step": "agents_selected", "agents": selected_agent_ids}
         
-        splits = self.calculate_splits_dynamic(budget, selected_agent_ids)
-        if not splits.get("valid", True):
-            yield {"step": "error", "error": "insufficient_budget", "message": splits.get("error", "Budget too low for selected agents."), "result": {"success": False, "error": "insufficient_budget"}}
+        splits = self.calculate_splits_dynamic(selected_agent_ids)
+        estimated_cost = splits["estimated_cost"]
+        
+        current_balance = get_balance()
+        if estimated_cost > current_balance:
+            yield {"step": "error", "error": "insufficient_balance", "message": f"Estimated cost ${estimated_cost} exceeds wallet balance ${current_balance}", "result": {"success": False, "error": "insufficient_balance", "required": estimated_cost, "available": current_balance}}
             return
 
         agent_performance = []
@@ -334,7 +319,7 @@ class ManagerAgent:
             job_history_entry = {
                 "id": f"job_{int(time.time())}",
                 "query": query,
-                "budget": budget,
+                "budget": estimated_cost,
                 "agents_used": [self.agent_map[a].name for a in selected_agent_ids],
                 "time_taken": f"{elapsed}s",
                 "status": "completed",
@@ -350,7 +335,7 @@ class ManagerAgent:
                 "agents_used": selected_agent_ids,
                 "quality": quality_results,
                 "transactions": payment_records,
-                "total_cost": budget,
+                "total_cost": estimated_cost,
                 "platform_profit": splits["platform"],
                 "time_taken": f"{elapsed}s"
             }
