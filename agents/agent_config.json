@@ -16,7 +16,10 @@
       "total_earned": 0.0,
       "rating": 5.0,
       "reviews": [],
-      "registered_at": ""
+      "registered_at": "",
+      "capabilities": [
+        "web_search"
+      ]
     },
     {
       "id": "analysis_agent_v1",
@@ -34,7 +37,11 @@
       "total_earned": 0.0,
       "rating": 5.0,
       "reviews": [],
-      "registered_at": ""
+      "registered_at": "",
+      "capabilities": [
+        "data",
+        "analysis"
+      ]
     },
     {
       "id": "writing_agent_v1",
@@ -52,7 +59,11 @@
       "total_earned": 0.0,
       "rating": 5.0,
       "reviews": [],
-      "registered_at": ""
+      "registered_at": "",
+      "capabilities": [
+        "writing",
+        "reporting"
+      ]
     },
     {
       "id": "quality_agent_v1",
@@ -70,7 +81,11 @@
       "total_earned": 0.0,
       "rating": 5.0,
       "reviews": [],
-      "registered_at": ""
+      "registered_at": "",
+      "capabilities": [
+        "quality_assurance",
+        "editing"
+      ]
     },
     {
       "id": "legal_research_bot_v1",
@@ -90,7 +105,8 @@
       "rating": 5.0,
       "reviews": [],
       "last_active_at": "Never",
-      "registered_at": "2026-04-15"
+      "registered_at": "2026-04-15",
+      "capabilities": []
     },
     {
       "id": "auto_investor_v1",
@@ -110,7 +126,8 @@
       "rating": 5.0,
       "reviews": [],
       "last_active_at": "Never",
-      "registered_at": "2026-04-15"
+      "registered_at": "2026-04-15",
+      "capabilities": []
     },
     {
       "id": "astro_agent_v1",
@@ -130,7 +147,100 @@
       "rating": 5.0,
       "reviews": [],
       "last_active_at": "Never",
-      "registered_at": "2026-04-15"
+      "registered_at": "2026-04-15",
+      "capabilities": []
+    },
+    {
+      "id": "code_agent_v1",
+      "name": "Code Agent",
+      "developer": "Team TS Xenkai",
+      "developer_wallet": "0x7a67133e923c88748607d39a98ede9b2d660dac7",
+      "description": "Writes, debugs, and analyzes code.",
+      "speciality": "Programming",
+      "rate_per_task": 2.0,
+      "min_budget": 0.5,
+      "max_budget": 20.0,
+      "version": "1.0",
+      "status": "active",
+      "total_jobs": 0,
+      "total_earned": 0.0,
+      "rating": 5.0,
+      "reviews": [],
+      "registered_at": "2026-04-15",
+      "capabilities": [
+        "code",
+        "debugging",
+        "programming"
+      ]
+    },
+    {
+      "id": "legal_agent_v1",
+      "name": "Legal Agent",
+      "developer": "Team TS Xenkai",
+      "developer_wallet": "0x7a67133e923c88748607d39a98ede9b2d660dac7",
+      "description": "Analyzes contracts, terms of service, and compliance.",
+      "speciality": "Law",
+      "rate_per_task": 3.0,
+      "min_budget": 0.5,
+      "max_budget": 20.0,
+      "version": "1.0",
+      "status": "active",
+      "total_jobs": 0,
+      "total_earned": 0.0,
+      "rating": 5.0,
+      "reviews": [],
+      "registered_at": "2026-04-15",
+      "capabilities": [
+        "legal",
+        "contracts",
+        "compliance"
+      ]
+    },
+    {
+      "id": "image_prompt_agent_v1",
+      "name": "Image Prompt Agent",
+      "developer": "Team TS Xenkai",
+      "developer_wallet": "0x7a67133e923c88748607d39a98ede9b2d660dac7",
+      "description": "Generates prompts for visual content and art.",
+      "speciality": "Image Generation",
+      "rate_per_task": 1.5,
+      "min_budget": 0.5,
+      "max_budget": 20.0,
+      "version": "1.0",
+      "status": "active",
+      "total_jobs": 0,
+      "total_earned": 0.0,
+      "rating": 5.0,
+      "reviews": [],
+      "registered_at": "2026-04-15",
+      "capabilities": [
+        "image",
+        "design",
+        "prompts"
+      ]
+    },
+    {
+      "id": "data_agent_v1",
+      "name": "Data Agent",
+      "developer": "Team TS Xenkai",
+      "developer_wallet": "0x7a67133e923c88748607d39a98ede9b2d660dac7",
+      "description": "Analyzes CSVs, spreadheets, charts, and statistics.",
+      "speciality": "Data Science",
+      "rate_per_task": 2.5,
+      "min_budget": 0.5,
+      "max_budget": 20.0,
+      "version": "1.0",
+      "status": "active",
+      "total_jobs": 0,
+      "total_earned": 0.0,
+      "rating": 5.0,
+      "reviews": [],
+      "registered_at": "2026-04-15",
+      "capabilities": [
+        "data",
+        "analysis",
+        "statistics"
+      ]
     }
   ]
 }
