@@ -124,10 +124,11 @@
 
       <div id="budget-recommendation-area" class="hidden mt-10 text-center animate-[fadeInUp_0.8s_forwards]">
         <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-8">
-           <p class="font-bold text-lg text-on-surface uppercase tracking-widest font-label text-xs">Choose Research Depth</p>
+           <p class="font-bold text-lg text-on-surface uppercase tracking-widest font-label text-xs">Your Custom Agent Pipeline</p>
            <span id="available-budget-disp" class="text-success font-bold text-sm bg-success/10 px-4 py-1.5 rounded-full border border-success/30 font-mono">Available: -- USDC</span>
         </div>
         
+        <!-- BUDGET_TIERS_RETIRED
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
            <div class="budget-card glass-panel rounded-2xl p-6 text-left cursor-pointer" data-val="0.50" id="card-basic">
              <div class="text-xl font-bold text-on-surface mb-2 tracking-tight">💚 Basic</div>
@@ -157,8 +158,55 @@
              <button class="btn-select-budget w-full bg-surface-container-highest border border-outline-variant/30 py-3 rounded-xl text-white font-bold transition-colors shadow-none pointer-events-none">Select Premium</button>
            </div>
         </div>
+        BUDGET_TIERS_RETIRED -->
+
+        <!-- NEW BUDGET SUMMARY CARD -->
+        <div id="budget-summary-card" class="glass-panel max-w-md mx-auto rounded-3xl p-8 text-center relative overflow-hidden shadow-2xl transition-all duration-500 min-h-[300px] flex flex-col justify-center border-outline-variant/30">
+          <div id="summary-card-loading" class="animate-pulse space-y-6">
+            <div class="text-xl font-bold text-on-surface-variant italic flex items-center justify-center gap-3">
+              <span class="w-2 h-2 bg-primary rounded-full animate-bounce"></span>
+              🧠 Master agent is selecting the best agents for your task...
+            </div>
+            <div class="h-24 bg-surface-container-highest/20 rounded-2xl"></div>
+            <div class="h-10 bg-surface-container-highest/20 rounded-full w-3/4 mx-auto"></div>
+          </div>
+
+          <div id="summary-card-content" class="hidden animate-[fadeIn_0.5s_forwards] space-y-6 text-left">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-success material-symbols-outlined">check_circle</span>
+              <h3 class="text-xl font-bold text-white tracking-tight">Agents Selected</h3>
+            </div>
+
+            <div id="selected-agent-pills" class="flex flex-wrap gap-2 mb-6">
+              <!-- dynamic pills -->
+            </div>
+
+            <div class="space-y-3 pt-4 border-t border-outline-variant/20">
+              <div class="flex justify-between items-center text-lg">
+                <span class="text-on-surface-variant font-label text-sm uppercase tracking-widest">Estimated cost</span>
+                <span id="summary-cost" class="font-bold text-secondary font-mono">$0.00</span>
+              </div>
+              <div class="flex justify-between items-center text-lg">
+                <span class="text-on-surface-variant font-label text-sm uppercase tracking-widest">Your balance</span>
+                <span id="summary-balance" class="font-bold text-on-surface font-mono">$0.00</span>
+              </div>
+            </div>
+
+            <div id="balance-warning" class="hidden mt-4 p-3 rounded-xl bg-error/10 border border-error/20 text-error text-xs font-bold text-center">
+              ⚠️ Insufficient balance
+            </div>
+
+            <div class="pt-6">
+              <button id="btn-launch-summary" class="w-full bg-primary hover:bg-primary-container text-black py-4 px-8 rounded-full font-extrabold transition-all text-lg shadow-[0_0_20px_rgba(199,153,255,0.4)] disabled:opacity-30 disabled:cursor-not-allowed disabled:grayscale disabled:scale-95 hover:scale-[1.02] uppercase tracking-wider">🚀 LAUNCH AGENTS</button>
+              <div id="dashboard-link" class="hidden mt-4 text-center">
+                <a href="https://beta.paywithlocus.com" target="_blank" class="text-primary hover:text-white transition-colors text-xs font-bold uppercase tracking-widest underline underline-offset-4">Top up on Locus Dashboard</a>
+              </div>
+            </div>
+          </div>
+        </div>
         
-        <button id="btn-launch" class="hidden mt-12 w-full max-w-sm bg-primary hover:bg-primary-container text-black py-4 px-8 rounded-full font-bold transition-all text-lg shadow-[0_0_30px_rgba(199,153,255,0.4)] hover:scale-105 uppercase tracking-wider mx-auto">🚀 Launch Agents</button>
+        <!-- button id="btn-launch" remains as fallback or handled via btn-launch-summary -->
+        <button id="btn-launch" class="hidden"></button>
       </div>
     </div>
 
@@ -747,57 +795,7 @@
       fetchTransactions();
       setInterval(() => { fetchBalance(); fetchDashboard(); fetchTransactions(); }, 15000); // 15s refresh for prod feel
       
-      // Analyze Query Action
-      if (btnAnalyze) {
-        btnAnalyze.addEventListener('click', async () => {
-          const query = taskInput.value.trim();
-          if(!query) return alert("Please enter a research topic first.");
-          
-          btnAnalyze.innerHTML = '⏳ Analyzing Complexity...';
-          btnAnalyze.disabled = true;
-          
-          try {
-            const res = await fetch(`${API_BASE}/analyze-query?query=${encodeURIComponent(query)}`);
-            const data = await res.json();
-            
-            if (data.tiers) {
-              const tiers = data.tiers;
-              
-              // Update Basic Card
-              const basicCard = document.getElementById('card-basic');
-              basicCard.setAttribute('data-val', tiers.low.amount);
-              basicCard.querySelector('.font-headline').innerText = `$${tiers.low.amount.toFixed(2)}`;
-              if (tiers.low.amount > currentWalletBalance) { basicCard.classList.add('disabled'); } else { basicCard.classList.remove('disabled'); }
-              
-              // Update Standard Card
-              const standardCard = document.getElementById('card-standard');
-              standardCard.setAttribute('data-val', tiers.medium.amount);
-              standardCard.querySelector('.font-headline').innerText = `$${tiers.medium.amount.toFixed(2)}`;
-              if (tiers.medium.amount > currentWalletBalance) { standardCard.classList.add('disabled'); } else { standardCard.classList.remove('disabled'); }
-              
-              // Update Premium Card
-              const premiumCard = document.getElementById('card-premium');
-              premiumCard.setAttribute('data-val', tiers.high.amount);
-              premiumCard.querySelector('.font-headline').innerText = `$${tiers.high.amount.toFixed(2)}`;
-              if (tiers.high.amount > currentWalletBalance) { premiumCard.classList.add('disabled'); } else { premiumCard.classList.remove('disabled'); }
-              
-              // Set recommended choice considering available balance
-              let bestCard = data.recommended === "high" ? 'card-premium' : (data.recommended === "low" ? 'card-basic' : 'card-standard');
-              if (document.getElementById(bestCard).classList.contains('disabled')) {
-                 if (!basicCard.classList.contains('disabled')) bestCard = 'card-basic';
-              }
-              updateSelectedCard(bestCard);
-            }
-          } catch (e) {
-            console.error("Analysis failed, using defaults", e);
-          }
-          
-          btnAnalyze.style.display = 'none';
-          budgetRecommendationArea.classList.remove('hidden');
-          btnLaunch.classList.remove('hidden');
-        });
-      }
-
+      /* BUDGET_ANALYSIS_DISABLED
       function updateSelectedCard(id) {
         cardsBudget.forEach(c => {
           c.classList.remove('selected');
@@ -824,6 +822,89 @@
           selectedBudget = parseFloat(card.getAttribute('data-val'));
         });
       });
+      */
+
+      // NEW SUMMARY CARD LAUNCHER
+      document.getElementById('btn-launch-summary').addEventListener('click', () => {
+        btnLaunch.click(); // Proxy to existing launcher
+      });
+
+      // Analyze Query Action
+      if (btnAnalyze) {
+        btnAnalyze.addEventListener('click', async () => {
+          const query = taskInput.value.trim();
+          if(!query) return alert("Please enter a research topic first.");
+          
+          btnAnalyze.style.display = 'none';
+          budgetRecommendationArea.classList.remove('hidden');
+          
+          const summaryCardContent = document.getElementById('summary-card-content');
+          const summaryCardLoading = document.getElementById('summary-card-loading');
+          const agentPillsContainer = document.getElementById('selected-agent-pills');
+          
+          summaryCardContent.classList.add('hidden');
+          summaryCardLoading.classList.remove('hidden');
+          agentPillsContainer.innerHTML = "";
+          
+          try {
+            const res = await fetch(`${API_BASE}/analyze-query?query=${encodeURIComponent(query)}`);
+            const data = await res.json();
+            
+            /* BUDGET_ANALYSIS_DISABLED
+            if (data.tiers) {
+              const tiers = data.tiers;
+              ...
+            }
+            */
+
+            // New logic for Summary Card
+            const agents = data.agents || ["search_agent", "analysis_agent", "writing_agent", "quality_agent"];
+            const cost = data.estimated_cost || (agents.length * 1.5); // Fallback estimate
+            const balance = data.balance || currentWalletBalance;
+            const affordable = data.affordable !== undefined ? data.affordable : (balance >= cost);
+            
+            selectedBudget = cost; // Set global budget for launcher
+
+            // Render pills
+            agents.forEach(agentId => {
+              const meta = AGENT_META[agentId] || { name: agentId, icon: "🤖", color: "#e5e3ff" };
+              const pill = document.createElement('div');
+              pill.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-body border transition-all";
+              pill.style.backgroundColor = `${meta.color}26`; // 15% opacity hex (26)
+              pill.style.borderColor = `${meta.color}66`; // 40% opacity hex (66)
+              pill.style.color = meta.color;
+              pill.innerHTML = `<span class="text-sm">${meta.icon}</span> ${meta.name}`;
+              agentPillsContainer.appendChild(pill);
+            });
+
+            // Update costs/balance
+            document.getElementById('summary-cost').innerText = `$${cost.toFixed(2)}`;
+            const balEl = document.getElementById('summary-balance');
+            balEl.innerText = `$${balance.toFixed(2)} USDC`;
+            
+            if (!affordable) {
+              balEl.classList.add('text-error');
+              document.getElementById('balance-warning').classList.remove('hidden');
+              document.getElementById('btn-launch-summary').disabled = true;
+              document.getElementById('dashboard-link').classList.remove('hidden');
+            } else {
+              balEl.classList.remove('text-error');
+              document.getElementById('balance-warning').classList.add('hidden');
+              document.getElementById('btn-launch-summary').disabled = false;
+              document.getElementById('dashboard-link').classList.add('hidden');
+            }
+
+            summaryCardLoading.classList.add('hidden');
+            summaryCardContent.classList.remove('hidden');
+            
+          } catch (e) {
+            console.error("Analysis failed", e);
+            btnAnalyze.style.display = 'block';
+            budgetRecommendationArea.classList.add('hidden');
+            alert("Could not analyze query. Please ensure backend is running.");
+          }
+        });
+      }
     });
 
     // Launch Agents Action

@@ -176,9 +176,49 @@ def analyze_query_endpoint():
         low, medium, high = base_cost + 2.00, base_cost + 5.00, base_cost + 10.00
         recommended = "high"
     
+    # Determine specialized agents
+    selected_agents = ["search_agent", "analysis_agent", "writing_agent", "quality_agent"]
+    
+    query_lower = query.lower()
+    if any(k in query_lower for k in ["code", "script", "python", "scrap", "software"]):
+        selected_agents.append("code_agent")
+    if any(k in query_lower for k in ["legal", "contract", "agreement", "law", "clause"]):
+        selected_agents.append("legal_agent")
+    if any(k in query_lower for k in ["image", "prompt", "art", "draw", "sci-fi"]):
+        selected_agents.append("image_prompt_agent")
+    if any(k in query_lower for k in ["data", "sales", "spreadsheet", "metric", "stat"]):
+        selected_agents.append("data_agent")
+
+    # Get rates for these agents
+    agent_mapping = {
+        "search_agent": "Search Agent",
+        "analysis_agent": "Analysis Agent",
+        "writing_agent": "Writing Agent",
+        "quality_agent": "Quality Check Agent",
+        "code_agent": "Code Agent",
+        "legal_agent": "Legal Agent",
+        "image_prompt_agent": "Image Prompt Agent",
+        "data_agent": "Data Agent"
+    }
+
+    total_cost = 0.0
+    for sid in selected_agents:
+        display_name = agent_mapping.get(sid)
+        if display_name:
+            total_cost += manager.registry.get_agent_rate(display_name)
+    
+    # Add platform fee (20% of subtotal)
+    estimated_cost = round(total_cost * 1.25, 2) 
+    
+    current_balance = get_balance()
+    
     result = {
         "complexity": complexity,
         "recommended": recommended,
+        "agents": selected_agents,
+        "estimated_cost": estimated_cost,
+        "balance": current_balance,
+        "affordable": current_balance >= estimated_cost,
         "tiers": {
             "low": {
                 "amount": round(low, 2),
