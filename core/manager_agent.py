@@ -1,6 +1,7 @@
 import os
 import time
 import json
+from datetime import datetime
 from config import LOCUS_API_KEY
 from .locus_payments import get_balance, pay_agent, SEARCH_AGENT_WALLET, ANALYSIS_AGENT_WALLET, WRITING_AGENT_WALLET
 from .agent_registry import AgentRegistry, registry
@@ -66,6 +67,34 @@ class ManagerAgent:
         self.registry.register_agent(self.quality_agent)
         
         print("AgentMarket Manager Ready ✅")
+
+    def _save_job_history(self, job_data: dict) -> None:
+        """Appends a completed job to the history file."""
+        history_path = "jobs.json"
+        history = {"jobs": []}
+        
+        if os.path.exists(history_path):
+            with open(history_path, "r") as f:
+                try:
+                    history = json.load(f)
+                except:
+                    pass
+        
+        history["jobs"].insert(0, job_data)
+        # Keep only last 50 jobs
+        history["jobs"] = history["jobs"][:50]
+        
+        with open(history_path, "w") as f:
+            json.dump(history, f, indent=2)
+
+    def update_agent_stats(self, agent_results: list[dict]) -> None:
+        """Flushes agent performance results to the registry."""
+        for res in agent_results:
+            self.registry.update_agent_after_job(
+                agent_name=res["name"],
+                success=res.get("success", True),
+                amount_earned=res.get("amount", 0.0)
+            )
 
     def calculate_splits(self, budget: float) -> dict:
         """Calculates budget splits using REAL rates from registry."""
@@ -174,6 +203,8 @@ class ManagerAgent:
             }
             return
 
+        # Results tracking for stats update
+        agent_performance = []
         payment_records = []
         
         yield {"step": "manager_started", "query": query, "budget": budget}
@@ -200,6 +231,7 @@ class ManagerAgent:
                 "amount": splits['search'],
                 "success": True
             })
+            agent_performance.append({"name": "Search Agent", "success": True, "amount": splits['search']})
             yield {"step": "search_complete", "paid": splits["search"], "tx_id": pay_result.get("tx_id")}
             
             # 2. Analysis Agent
@@ -222,6 +254,7 @@ class ManagerAgent:
                 "amount": splits['analysis'],
                 "success": True
             })
+            agent_performance.append({"name": "Analysis Agent", "success": True, "amount": splits['analysis']})
             yield {"step": "analysis_complete", "paid": splits["analysis"], "tx_id": pay_result.get("tx_id")}
             
             # 3. Writing Agent
@@ -243,6 +276,7 @@ class ManagerAgent:
                 "amount": splits['writing'],
                 "success": True
             })
+            agent_performance.append({"name": "Writing Agent", "success": True, "amount": splits['writing']})
             yield {"step": "writing_complete", "paid": splits["writing"], "tx_id": pay_result.get("tx_id")}
             
             # 4. Quality Agent
@@ -258,12 +292,7 @@ class ManagerAgent:
                 "quality_payment"
             )
             
-            payment_records.append({
-                "agent": "QualityAgent", 
-                "tx_id": pay_result.get("tx_id"), 
-                "amount": splits['quality'],
-                "success": True
-            })
+            agent_performance.append({"name": "Quality Check Agent", "success": True, "amount": splits['quality']})
             
             quality_score = 0
             if isinstance(quality_results, dict):
@@ -300,6 +329,21 @@ class ManagerAgent:
             
             elapsed = round(time.time() - start_time, 2)
             self.jobs_completed += 1
+            
+            # Persist stats and history
+            self.update_agent_stats(agent_performance)
+            
+            job_history_entry = {
+                "id": f"job_{int(time.time())}",
+                "query": query,
+                "budget": budget,
+                "agents_used": ["Search Agent", "Analysis Agent", "Writing Agent", "Quality Check Agent"],
+                "time_taken": f"{elapsed}s",
+                "status": "completed",
+                "quality_score": quality_score,
+                "timestamp": datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+            }
+            self._save_job_history(job_history_entry)
             
             final_result = {
                 "success": True,

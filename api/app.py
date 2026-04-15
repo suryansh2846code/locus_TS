@@ -98,6 +98,19 @@ def status():
             "wallet_balance": 0.0
         }), 200 # Return 200 so the frontend doesn't show the red banner
 
+@app.route('/api/jobs', methods=['GET'])
+def get_jobs():
+    """Returns the completed job history from jobs.json."""
+    history_path = os.path.join(os.path.dirname(__file__), '..', 'jobs.json')
+    if os.path.exists(history_path):
+        with open(history_path, 'r') as f:
+            try:
+                data = json.load(f)
+                return jsonify(data)
+            except Exception:
+                pass
+    return jsonify({"jobs": []})
+
 @app.route('/api/register-agent', methods=['POST'])
 def register_agent():
     """Registers a new agent."""
