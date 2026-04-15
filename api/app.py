@@ -152,55 +152,6 @@ def analyze_query_endpoint():
     if not query:
         return jsonify({"success": False, "message": "query is required"}), 400
     
-    # BUDGET_TIERS_DISABLED_START
-    # word_count = len(query.split())
-    # complex_keywords = [
-    #     "analysis", "research", "comprehensive", "detailed", "compare", 
-    #     "market", "industry", "report", "trends", "forecast", "strategy", "deep"
-    # ]
-    # 
-    # complexity = sum(1 for w in complex_keywords if w in query.lower())
-    # complexity += min(word_count // 5, 3)
-    # 
-    # # Get real agent rates from config
-    # base_cost = manager.registry.get_total_agent_cost()
-    # 
-    # if complexity <= 2:
-    #     low, medium, high = base_cost + 0.10, base_cost + 0.60, base_cost + 1.60
-    #     recommended = "low"
-    # elif complexity <= 5:
-    #     low, medium, high = base_cost + 1.00, base_cost + 3.00, base_cost + 7.00
-    #     recommended = "medium"
-    # else:
-    #     low, medium, high = base_cost + 2.00, base_cost + 5.00, base_cost + 10.00
-    #     recommended = "high"
-    # 
-    # result = {
-    #     "complexity": complexity,
-    #     "recommended": recommended,
-    #     "tiers": {
-    #         "low": {
-    #             "amount": round(low, 2),
-    #             "label": "💚 Basic",
-    #             "quality": "Overview",
-    #             "description": "Quick summary of main points"
-    #         },
-    #         "medium": {
-    #             "amount": round(medium, 2),
-    #             "label": "💛 Standard",
-    #             "quality": "Detailed",
-    #             "description": "Thorough research recommended ✨"
-    #         },
-    #         "high": {
-    #             "amount": round(high, 2),
-    #             "label": "❤️ Premium",
-    #             "quality": "Comprehensive",
-    #             "description": "In-depth analysis and insights"
-    #         }
-    #     }
-    # }
-    # BUDGET_TIERS_DISABLED_END
-
     # Call the master agent routing logic
     selected_agent_ids = manager.select_agents(query)
     
@@ -221,19 +172,17 @@ def analyze_query_endpoint():
             "rate": rate
         })
         
-    estimated_cost = splits["total_agent_cost"]
-    platform_fee = splits["platform"]
     total_with_fee = splits["estimated_cost"]
+    platform_fee = splits["platform"]
     current_balance = get_balance()
     
     result = {
         "agents": selected_agent_ids,
         "agent_details": agent_details,
-        "estimated_cost": estimated_cost,
+        "estimated_cost": total_with_fee,
         "balance": current_balance,
         "affordable": current_balance >= total_with_fee,
-        "platform_fee": platform_fee,
-        "total_with_fee": total_with_fee
+        "platform_fee": platform_fee
     }
     
     return jsonify(result)
